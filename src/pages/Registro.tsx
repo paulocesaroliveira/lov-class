@@ -1,19 +1,50 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Registro = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
-    toast({
-      title: "Conta criada com sucesso!",
-      description: "Você já pode fazer login.",
-    });
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
+      
+      navigate('/login');
+    } catch (error: any) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,6 +62,9 @@ const Registro = () => {
             required
             className="input-styled"
             placeholder="Seu nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -44,6 +78,9 @@ const Registro = () => {
             required
             className="input-styled"
             placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -58,6 +95,10 @@ const Registro = () => {
               required
               className="input-styled pr-10"
               placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+              minLength={6}
             />
             <button
               type="button"
@@ -69,8 +110,12 @@ const Registro = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary w-full">
-          Criar Conta
+        <button 
+          type="submit" 
+          className="btn-primary w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Criando conta..." : "Criar Conta"}
         </button>
 
         <p className="text-center text-sm text-foreground/70">

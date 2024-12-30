@@ -1,19 +1,44 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    toast({
-      title: "Login realizado com sucesso!",
-      description: "Bem-vindo de volta!",
-    });
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Bem-vindo de volta!",
+      });
+      
+      navigate('/perfil');
+    } catch (error: any) {
+      toast({
+        title: "Erro ao fazer login",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -31,6 +56,9 @@ const Login = () => {
             required
             className="input-styled"
             placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -45,6 +73,9 @@ const Login = () => {
               required
               className="input-styled pr-10"
               placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
             <button
               type="button"
@@ -56,8 +87,12 @@ const Login = () => {
           </div>
         </div>
 
-        <button type="submit" className="btn-primary w-full">
-          Entrar
+        <button 
+          type="submit" 
+          className="btn-primary w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Entrando..." : "Entrar"}
         </button>
 
         <p className="text-center text-sm text-foreground/70">
