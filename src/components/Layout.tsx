@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus } from 'lucide-react';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -9,7 +9,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const menuItems = [
     { path: '/', label: 'Início' },
     { path: '/anuncios', label: 'Anúncios' },
-    { path: '/criar-anuncio', label: 'Criar Anúncio' },
+  ];
+
+  const authItems = [
+    { path: '/login', label: 'Entrar', icon: LogIn },
+    { path: '/registro', label: 'Cadastrar', icon: UserPlus },
   ];
 
   return (
@@ -34,13 +38,23 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                to="/perfil"
-                className="btn-primary flex items-center gap-2"
-              >
-                <User size={18} />
-                <span>Perfil</span>
-              </Link>
+              <div className="flex items-center gap-2">
+                {authItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`btn-primary flex items-center gap-2 ${
+                        item.path === '/registro' ? 'btn-secondary' : ''
+                      }`}
+                    >
+                      <Icon size={18} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -69,14 +83,22 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                to="/perfil"
-                className="btn-primary flex items-center justify-center gap-2"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <User size={18} />
-                <span>Perfil</span>
-              </Link>
+              {authItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`btn-primary flex items-center justify-center gap-2 ${
+                      item.path === '/registro' ? 'btn-secondary' : ''
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
