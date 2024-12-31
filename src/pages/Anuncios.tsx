@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { services } from "@/components/advertisement/constants";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
+import { toast } from "sonner";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
@@ -30,7 +31,7 @@ const Anuncios = () => {
         `)
         .order("created_at", { ascending: false });
 
-      // Aplicar filtros
+      // Aplicar filtros básicos
       if (filters.category) {
         query = query.eq("category", filters.category);
       }
@@ -46,14 +47,23 @@ const Anuncios = () => {
       if (filters.maxPrice !== undefined) {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
+
+      // Filtrar por serviços usando uma subquery
       if (filters.services && filters.services.length > 0) {
-        query = query.contains("advertisement_services.service", filters.services);
+        query = query.in(
+          "id",
+          supabase
+            .from("advertisement_services")
+            .select("advertisement_id")
+            .in("service", filters.services)
+        );
       }
 
       const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching advertisements:", error);
+        toast.error("Erro ao carregar anúncios");
         throw error;
       }
 
