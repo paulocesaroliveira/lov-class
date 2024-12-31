@@ -33,14 +33,28 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
 
     try {
       if (favorite) {
-        const { error } = await supabase
+        // Buscar o ID do favorito primeiro
+        const { data: favoriteData, error: fetchError } = await supabase
+          .from('favorites')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('advertisement_id', advertisement.id)
+          .single();
+
+        if (fetchError) {
+          console.error("Error fetching favorite:", fetchError);
+          toast.error("Erro ao buscar favorito");
+          return;
+        }
+
+        // Remover o favorito usando o ID específico
+        const { error: deleteError } = await supabase
           .from('favorites')
           .delete()
-          .eq('user_id', session.user.id)
-          .eq('advertisement_id', advertisement.id);
+          .eq('id', favoriteData.id);
 
-        if (error) {
-          console.error("Error removing favorite:", error);
+        if (deleteError) {
+          console.error("Error removing favorite:", deleteError);
           toast.error("Erro ao remover dos favoritos");
           return;
         }
@@ -48,25 +62,21 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         setFavorite(false);
         toast.success("Removido dos favoritos");
       } else {
-        // First check if favorite exists
-        const { data: existingFavorite, error: checkError } = await supabase
+        // Verificar se já existe
+        const { data: existingFavorite } = await supabase
           .from('favorites')
           .select('id')
           .eq('user_id', session.user.id)
           .eq('advertisement_id', advertisement.id)
-          .single();
-
-        if (checkError && !checkError.message.includes('No rows found')) {
-          console.error("Error checking favorite:", checkError);
-          toast.error("Erro ao verificar favorito");
-          return;
-        }
+          .maybeSingle();
 
         if (existingFavorite) {
+          setFavorite(true); // Atualizar estado local se já existir
           toast.error("Anúncio já está nos favoritos");
           return;
         }
 
+        // Adicionar novo favorito
         const { error: insertError } = await supabase
           .from('favorites')
           .insert({
