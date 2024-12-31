@@ -26,10 +26,12 @@ const Perfil = () => {
           .from("profiles")
           .select("id")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         if (!profile) {
-          toast.error("Perfil não encontrado");
+          toast.error("Perfil não encontrado. Por favor, faça login novamente.");
+          await supabase.auth.signOut();
+          navigate("/login");
           return;
         }
 
