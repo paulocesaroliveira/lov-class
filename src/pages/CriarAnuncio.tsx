@@ -25,8 +25,11 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
-const services = [
+type ServiceType = Database["public"]["Enums"]["service_type"];
+
+const services: { id: ServiceType; label: string }[] = [
   { id: "beijo_na_boca", label: "Beijo na Boca" },
   { id: "beijo_grego", label: "Beijo Grego" },
   { id: "bondage", label: "Bondage" },
@@ -73,7 +76,27 @@ const formSchema = z.object({
   hourlyRate: z.number().min(0, "Valor deve ser maior que zero"),
   customRateDescription: z.string().optional(),
   customRateValue: z.number().optional(),
-  services: z.array(z.string()).min(1, "Selecione pelo menos um serviço"),
+  services: z.array(z.enum([
+    "beijo_na_boca",
+    "beijo_grego",
+    "bondage",
+    "chuva_dourada",
+    "chuva_marrom",
+    "dominacao",
+    "acessorios_eroticos",
+    "voyeurismo",
+    "permite_filmagem",
+    "menage_casal",
+    "menage_dois_homens",
+    "roleplay",
+    "facefuck",
+    "oral_sem_preservativo",
+    "oral_com_preservativo",
+    "massagem",
+    "sexo_virtual",
+    "orgia",
+    "gangbang"
+  ] as const)).min(1, "Selecione pelo menos um serviço"),
   description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
 });
 
@@ -142,13 +165,13 @@ const CriarAnuncio = () => {
 
       if (adError) throw adError;
 
-      // Insert services
+      // Insert services with proper typing
       const { error: servicesError } = await supabase
         .from("advertisement_services")
         .insert(
           values.services.map((service) => ({
             advertisement_id: ad.id,
-            service,
+            service: service as ServiceType,
           }))
         );
 
