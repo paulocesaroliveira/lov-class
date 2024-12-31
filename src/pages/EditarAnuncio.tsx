@@ -4,6 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { FormValues } from "@/types/advertisement";
 import { toast } from "sonner";
+import { z } from "zod";
+import { formSchema } from "@/components/advertisement/advertisementSchema";
+
+type EthnicityType = z.infer<typeof formSchema>["ethnicity"];
+type HairColorType = z.infer<typeof formSchema>["hairColor"];
+type BodyTypeType = z.infer<typeof formSchema>["bodyType"];
+type SiliconeType = z.infer<typeof formSchema>["silicone"];
+type StyleType = z.infer<typeof formSchema>["style"];
 
 const EditarAnuncio = () => {
   const { id } = useParams();
@@ -58,16 +66,16 @@ const EditarAnuncio = () => {
         console.log("Dados do anúncio recebidos:", advertisement);
 
         const formattedData: FormValues = {
-          id: advertisement.id, // Importante: incluir o ID aqui
+          id: advertisement.id,
           name: advertisement.name,
           birthDate: advertisement.birth_date,
           height: advertisement.height,
           weight: advertisement.weight,
           category: advertisement.category,
-          ethnicity: advertisement.ethnicity,
-          hairColor: advertisement.hair_color,
-          bodyType: advertisement.body_type,
-          silicone: advertisement.silicone,
+          ethnicity: advertisement.ethnicity as EthnicityType,
+          hairColor: advertisement.hair_color as HairColorType,
+          bodyType: advertisement.body_type as BodyTypeType,
+          silicone: advertisement.silicone as SiliconeType,
           whatsapp: advertisement.whatsapp,
           state: advertisement.state,
           city: advertisement.city,
@@ -76,7 +84,7 @@ const EditarAnuncio = () => {
           customRates: advertisement.custom_rate_description
             ? JSON.parse(advertisement.custom_rate_description)
             : [],
-          style: advertisement.style,
+          style: advertisement.style as StyleType,
           services: advertisement.advertisement_services?.map((s: any) => s.service) || [],
           serviceLocations: advertisement.advertisement_service_locations?.map((l: any) => l.location) || [],
           description: advertisement.description,
