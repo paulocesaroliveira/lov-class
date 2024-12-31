@@ -31,18 +31,6 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
       <div className="p-3 space-y-3">
         {/* Name - Centered */}
         <h3 className="text-lg font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
-        
-        {/* Stats Row */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground justify-center">
-          <div className="flex items-center gap-1">
-            <Camera size={16} />
-            <span>{advertisement.advertisement_photos?.length || 0}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Video size={16} />
-            <span>{advertisement.advertisement_videos?.length || 0}</span>
-          </div>
-        </div>
 
         {/* Age and City - Side by Side */}
         <div className="grid grid-cols-2 text-sm">
@@ -70,6 +58,18 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
         {/* Price - Centered */}
         <div className="text-lg font-bold text-center">
           R$ {advertisement.hourly_rate}
+        </div>
+
+        {/* Stats Row - Below Price */}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground justify-center">
+          <div className="flex items-center gap-1">
+            <Camera size={16} />
+            <span>{advertisement.advertisement_photos?.length || 0}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Video size={16} />
+            <span>{advertisement.advertisement_videos?.length || 0}</span>
+          </div>
         </div>
       </div>
     </Card>
