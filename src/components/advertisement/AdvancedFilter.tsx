@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { services } from "./constants";
 import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -58,6 +58,15 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
       : [...currentServices, serviceId];
 
     handleFilterChange({ services: updatedServices });
+  };
+
+  const handleStyleChange = (value: string | undefined) => {
+    // If the user clicks the same style that's already selected, clear it
+    if (value === filters.style) {
+      handleFilterChange({ style: undefined });
+    } else {
+      handleFilterChange({ style: value });
+    }
   };
 
   return (
@@ -140,10 +149,22 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
 
           {/* Estilo */}
           <div className="space-y-4">
-            <Label>Estilo</Label>
+            <div className="flex items-center justify-between">
+              <Label>Estilo</Label>
+              {filters.style && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleFilterChange({ style: undefined })}
+                  className="h-8 px-2"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <RadioGroup
               value={filters.style}
-              onValueChange={(value) => handleFilterChange({ style: value })}
+              onValueChange={handleStyleChange}
               className="grid grid-cols-2 gap-4"
             >
               {styles.map((style) => (
