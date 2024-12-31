@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, Star, StarOff, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type AdvertisementCommentsProps = {
   advertisementId: string;
@@ -15,6 +16,7 @@ type AdvertisementCommentsProps = {
 export const AdvertisementComments = ({ advertisementId }: AdvertisementCommentsProps) => {
   const { session } = useAuth();
   const [comment, setComment] = useState("");
+  const [rating, setRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // First, fetch comments
@@ -68,12 +70,14 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
           advertisement_id: advertisementId,
           user_id: session.user.id,
           comment: comment.trim(),
+          rating: rating,
         });
 
       if (error) throw error;
 
       toast.success("Comentário adicionado com sucesso!");
       setComment("");
+      setRating(null);
       refetch();
     } catch (error) {
       toast.error("Erro ao adicionar comentário");
@@ -98,6 +102,21 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
     }
   };
 
+  const renderStars = (rating: number | null) => {
+    if (!rating) return null;
+    return (
+      <div className="flex gap-0.5">
+        {[...Array(5)].map((_, index) => (
+          index < rating ? (
+            <Star key={index} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          ) : (
+            <StarOff key={index} className="w-4 h-4 text-muted-foreground" />
+          )
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="font-semibold flex items-center gap-2">
@@ -106,7 +125,7 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
       </h3>
 
       {/* Comment Form */}
-      <form onSubmit={handleSubmit} className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <Textarea
           placeholder={session ? "Escreva seu comentário..." : "Faça login para comentar"}
           value={comment}
@@ -114,6 +133,27 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
           disabled={!session || isSubmitting}
           className="min-h-[80px]"
         />
+        
+        {session && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Avaliação:</label>
+            <RadioGroup
+              value={rating?.toString()}
+              onValueChange={(value) => setRating(parseInt(value))}
+              className="flex gap-4"
+            >
+              {[1, 2, 3, 4, 5].map((value) => (
+                <div key={value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={value.toString()} id={`rating-${value}`} />
+                  <label htmlFor={`rating-${value}`} className="text-sm">
+                    {value} {value === 1 ? 'estrela' : 'estrelas'}
+                  </label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+
         {session && (
           <Button
             type="submit"
@@ -130,11 +170,12 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
         {comments?.map((comment: any) => (
           <div key={comment.id} className="bg-muted p-3 rounded-lg space-y-2">
             <div className="flex justify-between items-start">
-              <div>
+              <div className="space-y-1">
                 <p className="font-medium">{comment.user_name}</p>
                 <p className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "dd/MM/yyyy HH:mm")}
                 </p>
+                {renderStars(comment.rating)}
               </div>
               {session?.user.id === comment.user_id && (
                 <Button
