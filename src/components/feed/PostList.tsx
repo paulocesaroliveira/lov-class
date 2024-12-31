@@ -18,20 +18,20 @@ export const PostList = ({ posts }: PostListProps) => {
           </div>
           {post.content && <p>{post.content}</p>}
           {post.feed_post_media && post.feed_post_media.length > 0 && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-4">
               {post.feed_post_media.map((media) => (
-                <div key={media.id} className="relative">
+                <div key={media.id} className="relative w-full">
                   {media.media_type === "image" ? (
                     <img
                       src={media.media_url}
                       alt=""
-                      className="rounded-lg w-full h-48 object-cover"
+                      className="rounded-lg w-full object-contain max-h-[600px]"
                     />
                   ) : (
                     <video
                       src={media.media_url}
                       controls
-                      className="rounded-lg w-full h-48 object-cover"
+                      className="rounded-lg w-full"
                     />
                   )}
                   <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1">
