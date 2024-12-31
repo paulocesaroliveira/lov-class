@@ -42,6 +42,19 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         if (error) throw error;
         toast.success("Removido dos favoritos");
       } else {
+        // Check if favorite already exists
+        const { data: existingFavorite } = await supabase
+          .from('favorites')
+          .select()
+          .eq('user_id', session.user.id)
+          .eq('advertisement_id', advertisement.id)
+          .maybeSingle();
+
+        if (existingFavorite) {
+          toast.error("Anúncio já está nos favoritos");
+          return;
+        }
+
         // Add to favorites
         const { error } = await supabase
           .from('favorites')
@@ -54,7 +67,12 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         toast.success("Adicionado aos favoritos");
       }
       setFavorite(!favorite);
-    } catch (error) {
+    } catch (error: any) {
+      // Check if error is due to duplicate favorite
+      if (error.message?.includes('duplicate key value')) {
+        toast.error("Anúncio já está nos favoritos");
+        return;
+      }
       toast.error("Erro ao atualizar favoritos");
     } finally {
       setIsLoading(false);
