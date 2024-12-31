@@ -87,7 +87,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
-      console.log("Iniciando salvamento do anúncio com valores:", values);
+      console.log("Iniciando " + (advertisement ? "atualização" : "criação") + " do anúncio com valores:", values);
 
       const {
         data: { user },
@@ -95,7 +95,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       if (!user) {
         console.error("Usuário não está logado");
-        toast.error("Você precisa estar logado para criar um anúncio");
+        toast.error("Você precisa estar logado para " + (advertisement ? "atualizar" : "criar") + " um anúncio");
         navigate("/login");
         return;
       }
@@ -138,28 +138,39 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         ...(profilePhotoUrl && { profile_photo_url: profilePhotoUrl }),
       };
 
-      console.log("Salvando dados do anúncio:", adData);
+      console.log((advertisement ? "Atualizando" : "Salvando") + " dados do anúncio:", adData);
 
-      const { data: ad, error: adError } = advertisement
-        ? await supabase
-            .from("advertisements")
-            .update(adData)
-            .eq("id", advertisement.id)
-            .select()
-            .single()
-        : await supabase
-            .from("advertisements")
-            .insert(adData)
-            .select()
-            .single();
+      let ad;
+      if (advertisement) {
+        const { data: updatedAd, error: updateError } = await supabase
+          .from("advertisements")
+          .update(adData)
+          .eq("id", advertisement.id)
+          .select()
+          .single();
 
-      if (adError) {
-        console.error("Erro ao salvar anúncio:", adError);
-        throw adError;
+        if (updateError) {
+          console.error("Erro ao atualizar anúncio:", updateError);
+          throw updateError;
+        }
+        ad = updatedAd;
+      } else {
+        const { data: newAd, error: insertError } = await supabase
+          .from("advertisements")
+          .insert(adData)
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Erro ao criar anúncio:", insertError);
+          throw insertError;
+        }
+        ad = newAd;
       }
 
-      console.log("Anúncio salvo com sucesso:", ad);
+      console.log("Anúncio " + (advertisement ? "atualizado" : "salvo") + " com sucesso:", ad);
 
+      // Atualizar serviços
       if (advertisement) {
         console.log("Removendo serviços antigos");
         await supabase
@@ -183,6 +194,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         throw servicesError;
       }
 
+      // Processar fotos
       if (photos.length > 0) {
         console.log("Processando fotos:", photos.length);
         if (advertisement) {
@@ -220,6 +232,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         }
       }
 
+      // Processar vídeos
       if (videos.length > 0) {
         console.log("Processando vídeos:", videos.length);
         if (advertisement) {
@@ -264,7 +277,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       );
       navigate("/anuncios");
     } catch (error) {
-      console.error("Erro detalhado ao criar/atualizar anúncio:", error);
+      console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
       toast.error(
         advertisement
           ? `Erro ao atualizar anúncio: ${error.message || 'Erro desconhecido'}`
