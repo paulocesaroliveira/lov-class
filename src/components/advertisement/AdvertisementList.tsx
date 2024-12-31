@@ -1,5 +1,8 @@
 import { AdvertisementCard } from "./AdvertisementCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdvertisementListProps {
   advertisements: any[] | null;
@@ -8,6 +11,25 @@ interface AdvertisementListProps {
 }
 
 export const AdvertisementList = ({ advertisements, isLoading, onSelectAd }: AdvertisementListProps) => {
+  const { session } = useAuth();
+
+  // Fetch user's favorites if logged in
+  const { data: favorites } = useQuery({
+    queryKey: ["favorites", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from("favorites")
+        .select("advertisement_id")
+        .eq("user_id", session.user.id);
+
+      if (error) throw error;
+      return data.map(fav => fav.advertisement_id);
+    },
+    enabled: !!session?.user?.id,
+  });
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -36,6 +58,7 @@ export const AdvertisementList = ({ advertisements, isLoading, onSelectAd }: Adv
           key={ad.id}
           advertisement={ad}
           onClick={() => onSelectAd(ad)}
+          isFavorite={favorites?.includes(ad.id)}
         />
       ))}
     </div>

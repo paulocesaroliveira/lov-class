@@ -5,10 +5,12 @@ import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { toast } from "sonner";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [filters, setFilters] = useState<any>({});
+  const queryClient = useQueryClient();
 
   const { data: advertisements, isLoading } = useQuery({
     queryKey: ["advertisements", filters],
