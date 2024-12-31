@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Camera, MapPin, Video, Heart } from "lucide-react";
+import { Camera, MapPin, Video, Heart, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
