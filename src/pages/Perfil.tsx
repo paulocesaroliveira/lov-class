@@ -90,28 +90,24 @@ const Perfil = () => {
       </div>
 
       <div className="glass-card p-6">
-        <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
-        {hasAd ? (
-          <div className="space-y-4">
-            <Button
-              onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
-              className="w-full sm:w-auto"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Editar Anúncio
-            </Button>
-
-            {/* View count box */}
-            <div className="glass-card p-4 mt-4">
-              <div className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-primary" />
-                <span className="text-lg font-medium">{viewCount} visualizações</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Total de visualizações do seu anúncio
-              </p>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Meus Anúncios</h2>
+          {hasAd && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Eye className="h-4 w-4 text-primary" />
+              <span>{viewCount} visualizações</span>
             </div>
-          </div>
+          )}
+        </div>
+
+        {hasAd ? (
+          <Button
+            onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
+            className="w-full sm:w-auto"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Editar Anúncio
+          </Button>
         ) : (
           <Button
             onClick={() => navigate("/criar-anuncio")}
