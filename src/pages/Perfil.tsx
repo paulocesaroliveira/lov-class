@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Eye } from "lucide-react";
+import { PlusCircle, Edit, Eye, MessageSquareMore } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,22 @@ const Perfil = () => {
       
       const { count } = await supabase
         .from("advertisement_views")
+        .select("*", { count: "exact", head: true })
+        .eq("advertisement_id", advertisementId);
+      
+      return count || 0;
+    },
+    enabled: !!advertisementId,
+  });
+
+  // Query to get WhatsApp click count
+  const { data: whatsappClickCount } = useQuery({
+    queryKey: ["profile-whatsapp-clicks", advertisementId],
+    queryFn: async () => {
+      if (!advertisementId) return 0;
+      
+      const { count } = await supabase
+        .from("advertisement_whatsapp_clicks")
         .select("*", { count: "exact", head: true })
         .eq("advertisement_id", advertisementId);
       
@@ -93,10 +109,18 @@ const Perfil = () => {
         <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
         
         {hasAd && (
-          <div className="bg-card rounded-lg border p-4 mb-4">
-            <div className="flex items-center gap-2">
-              <Eye className="h-4 w-4 text-primary" />
-              <span className="text-sm">{viewCount} visualizações no seu anúncio</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className="bg-card rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <Eye className="h-4 w-4 text-primary" />
+                <span className="text-sm">{viewCount} visualizações no seu anúncio</span>
+              </div>
+            </div>
+            <div className="bg-card rounded-lg border p-4">
+              <div className="flex items-center gap-2">
+                <MessageSquareMore className="h-4 w-4 text-green-500" />
+                <span className="text-sm">{whatsappClickCount} cliques no WhatsApp</span>
+              </div>
             </div>
           </div>
         )}

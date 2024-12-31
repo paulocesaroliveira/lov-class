@@ -174,6 +174,32 @@ export type Database = {
           },
         ]
       }
+      advertisement_whatsapp_clicks: {
+        Row: {
+          advertisement_id: string | null
+          clicked_at: string
+          id: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          clicked_at?: string
+          id?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          clicked_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisements: {
         Row: {
           birth_date: string
