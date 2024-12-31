@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus, User } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, User, Home, Grid } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -9,8 +9,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { session } = useAuth();
 
   const menuItems = [
-    { path: '/', label: 'Início' },
-    { path: '/anuncios', label: 'Anúncios' },
+    { path: '/', label: 'Início', icon: Home },
+    { path: '/anuncios', label: 'Anúncios', icon: Grid },
   ];
 
   // Show these items only when user is NOT logged in
@@ -36,10 +36,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                  className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
                     location.pathname === item.path ? 'text-primary' : 'text-foreground'
                   }`}
                 >
+                  <item.icon className="h-4 w-4" />
                   {item.label}
                 </Link>
               ))}
@@ -66,6 +67,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <button
               className="md:hidden p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -80,11 +82,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                  className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
                     location.pathname === item.path ? 'text-primary' : 'text-foreground'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
+                  <item.icon className="h-4 w-4" />
                   {item.label}
                 </Link>
               ))}
