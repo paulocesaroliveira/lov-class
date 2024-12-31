@@ -9,6 +9,7 @@ const Perfil = () => {
   const navigate = useNavigate();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [advertisementId, setAdvertisementId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkExistingAd = async () => {
@@ -37,7 +38,10 @@ const Perfil = () => {
           .select("id")
           .eq("profile_id", profile.id);
 
-        setHasAd(advertisements && advertisements.length > 0);
+        if (advertisements && advertisements.length > 0) {
+          setHasAd(true);
+          setAdvertisementId(advertisements[0].id);
+        }
       } catch (error) {
         console.error("Error checking advertisement:", error);
         toast.error("Erro ao carregar informações do perfil");
@@ -70,7 +74,7 @@ const Perfil = () => {
         <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
         {hasAd ? (
           <Button
-            onClick={() => navigate("/editar-anuncio")}
+            onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
             className="w-full sm:w-auto"
           >
             <Edit className="w-4 h-4 mr-2" />
