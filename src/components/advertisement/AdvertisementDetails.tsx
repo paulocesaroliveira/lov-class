@@ -55,10 +55,10 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
             <div>
               <span className="text-sm font-medium">1 hora:</span>
               <p className="text-muted-foreground">
-                R$ {advertisement.hourly_rate.toFixed(2)}
+                R$ {advertisement.hourly_rate ? advertisement.hourly_rate.toFixed(2) : '0.00'}
               </p>
             </div>
-            {advertisement.custom_rate_description && (
+            {advertisement.custom_rate_description && advertisement.custom_rate_value && (
               <div>
                 <span className="text-sm font-medium">
                   {advertisement.custom_rate_description}:
@@ -74,14 +74,14 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         <div>
           <h3 className="text-lg font-semibold mb-2">Locais de Atendimento</h3>
           <ServiceLocations
-            form={undefined}
+            locations={advertisement.advertisement_service_locations}
           />
         </div>
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Serviços</h3>
           <ServicesSelection
-            form={undefined}
+            services={advertisement.advertisement_services}
           />
         </div>
 
