@@ -8,14 +8,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { services } from "@/components/advertisement/constants";
+import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
+  const [filters, setFilters] = useState<any>({});
 
   const { data: advertisements, isLoading } = useQuery({
-    queryKey: ["advertisements"],
+    queryKey: ["advertisements", filters],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("advertisements")
         .select(`
           *,
@@ -28,6 +30,28 @@ const Anuncios = () => {
         `)
         .order("created_at", { ascending: false });
 
+      // Aplicar filtros
+      if (filters.category) {
+        query = query.eq("category", filters.category);
+      }
+      if (filters.state) {
+        query = query.ilike("state", `%${filters.state}%`);
+      }
+      if (filters.city) {
+        query = query.ilike("city", `%${filters.city}%`);
+      }
+      if (filters.minPrice !== undefined) {
+        query = query.gte("hourly_rate", filters.minPrice);
+      }
+      if (filters.maxPrice !== undefined) {
+        query = query.lte("hourly_rate", filters.maxPrice);
+      }
+      if (filters.services && filters.services.length > 0) {
+        query = query.contains("advertisement_services.service", filters.services);
+      }
+
+      const { data, error } = await query;
+
       if (error) {
         console.error("Error fetching advertisements:", error);
         throw error;
@@ -37,10 +61,17 @@ const Anuncios = () => {
     },
   });
 
+  const getServiceLabel = (serviceId: string) => {
+    return services.find((s) => s.id === serviceId)?.label || serviceId;
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <h1 className="text-3xl font-bold">Anúncios</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Anúncios</h1>
+          <AdvancedFilter onFilterChange={setFilters} />
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <Skeleton key={i} className="h-[300px] rounded-lg" />
@@ -50,13 +81,12 @@ const Anuncios = () => {
     );
   }
 
-  const getServiceLabel = (serviceId: string) => {
-    return services.find((s) => s.id === serviceId)?.label || serviceId;
-  };
-
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Anúncios</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Anúncios</h1>
+        <AdvancedFilter onFilterChange={setFilters} />
+      </div>
       
       {advertisements && advertisements.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
