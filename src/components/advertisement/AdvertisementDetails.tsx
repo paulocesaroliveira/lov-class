@@ -57,7 +57,7 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
           </div>
           <Button 
             onClick={handleWhatsAppClick}
-            className="w-full"
+            className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground"
           >
             Conversar no WhatsApp
             <ArrowUpRight className="ml-2" />

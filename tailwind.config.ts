@@ -36,6 +36,10 @@ export default {
           DEFAULT: "#F59E0B",
           foreground: "#ffffff",
         },
+        whatsapp: {
+          DEFAULT: "#25D366",
+          foreground: "#ffffff",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
