@@ -199,6 +199,35 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string

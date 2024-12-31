@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -23,10 +23,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const handleNavigation = (path: string) => {
     if (path === location.pathname) {
-      // Se estiver na mesma rota, recarrega a página
       window.location.reload();
     } else {
-      // Se for uma rota diferente, navega normalmente
       navigate(path);
     }
   };
@@ -36,7 +34,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { path: '/anuncios', label: 'Anúncios', icon: Grid },
   ];
 
-  // Show these items based on authentication status
+  // Add favorites to menu items if user is logged in
+  if (session) {
+    menuItems.push({ path: '/favoritos', label: 'Favoritos', icon: Heart });
+  }
+
   const authItems = !session ? [
     { path: '/login', label: 'Entrar', icon: LogIn },
     { path: '/registro', label: 'Cadastrar', icon: UserPlus },

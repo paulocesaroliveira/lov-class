@@ -1,21 +1,86 @@
 import { Card } from "@/components/ui/card";
-import { Camera, MapPin, Video } from "lucide-react";
+import { Camera, MapPin, Video, Heart } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface AdvertisementCardProps {
   advertisement: any;
   onClick: () => void;
+  isFavorite?: boolean;
 }
 
-export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardProps) => {
+export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }: AdvertisementCardProps) => {
+  const { session } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [favorite, setFavorite] = useState(isFavorite);
+
   const hasLocalService = advertisement.advertisement_service_locations?.some(
     (location: { location: string }) => location.location === "com_local"
   );
 
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event
+
+    if (!session) {
+      toast.error("Faça login para favoritar anúncios");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (favorite) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', session.user.id)
+          .eq('advertisement_id', advertisement.id);
+
+        if (error) throw error;
+        toast.success("Removido dos favoritos");
+      } else {
+        // Add to favorites
+        const { error } = await supabase
+          .from('favorites')
+          .insert({
+            user_id: session.user.id,
+            advertisement_id: advertisement.id
+          });
+
+        if (error) throw error;
+        toast.success("Adicionado aos favoritos");
+      }
+      setFavorite(!favorite);
+    } catch (error) {
+      toast.error("Erro ao atualizar favoritos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card 
-      className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
+      className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden relative"
       onClick={onClick}
     >
+      {/* Favorite Button */}
+      {session && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
+          onClick={toggleFavorite}
+          disabled={isLoading}
+        >
+          <Heart
+            className={`h-5 w-5 ${favorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+          />
+        </Button>
+      )}
+
       {/* Image Container with 3:4 aspect ratio */}
       <div className="aspect-[3/4] relative">
         {advertisement.profile_photo_url ? (
