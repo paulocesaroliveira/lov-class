@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -51,6 +51,11 @@ const services: { id: ServiceType; label: string }[] = [
   { id: "gangbang", label: "Gangbang" },
 ];
 
+const customRateSchema = z.object({
+  description: z.string().min(1, "Descrição é obrigatória"),
+  value: z.number().min(0, "Valor deve ser maior que zero"),
+});
+
 const formSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   birthDate: z.string().refine((date) => {
@@ -74,8 +79,7 @@ const formSchema = z.object({
   city: z.string().min(2, "Cidade é obrigatória"),
   neighborhood: z.string().min(2, "Bairro é obrigatório"),
   hourlyRate: z.number().min(0, "Valor deve ser maior que zero"),
-  customRateDescription: z.string().optional(),
-  customRateValue: z.number().optional(),
+  customRates: z.array(customRateSchema).max(5, "Máximo de 5 valores personalizados"),
   services: z.array(z.enum([
     "beijo_na_boca",
     "beijo_grego",
@@ -111,8 +115,25 @@ const CriarAnuncio = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       services: [],
+      customRates: [],
     },
   });
+
+  const customRates = form.watch("customRates");
+
+  const addCustomRate = () => {
+    if (customRates.length < 5) {
+      form.setValue("customRates", [
+        ...customRates,
+        { description: "", value: 0 },
+      ]);
+    }
+  };
+
+  const removeCustomRate = (index: number) => {
+    const newRates = customRates.filter((_, i) => i !== index);
+    form.setValue("customRates", newRates);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -128,7 +149,6 @@ const CriarAnuncio = () => {
         return;
       }
 
-      // Upload profile photo
       let profilePhotoUrl = null;
       if (profilePhoto) {
         const { data: profilePhotoData, error: profilePhotoError } =
@@ -140,7 +160,10 @@ const CriarAnuncio = () => {
         profilePhotoUrl = profilePhotoData.path;
       }
 
-      // Create advertisement
+      const customRatesString = values.customRates.length > 0
+        ? JSON.stringify(values.customRates)
+        : null;
+
       const { data: ad, error: adError } = await supabase
         .from("advertisements")
         .insert({
@@ -155,8 +178,7 @@ const CriarAnuncio = () => {
           city: values.city,
           neighborhood: values.neighborhood,
           hourly_rate: values.hourlyRate,
-          custom_rate_description: values.customRateDescription,
-          custom_rate_value: values.customRateValue,
+          custom_rate_description: customRatesString,
           description: values.description,
           profile_photo_url: profilePhotoUrl,
         })
@@ -165,7 +187,6 @@ const CriarAnuncio = () => {
 
       if (adError) throw adError;
 
-      // Insert services with proper typing
       const { error: servicesError } = await supabase
         .from("advertisement_services")
         .insert(
@@ -177,7 +198,6 @@ const CriarAnuncio = () => {
 
       if (servicesError) throw servicesError;
 
-      // Upload photos
       if (photos.length > 0) {
         const photoUploads = photos.map((photo) =>
           supabase.storage
@@ -202,7 +222,6 @@ const CriarAnuncio = () => {
         if (photosError) throw photosError;
       }
 
-      // Upload videos
       if (videos.length > 0) {
         const videoUploads = videos.map((video) =>
           supabase.storage
@@ -438,46 +457,69 @@ const CriarAnuncio = () => {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="customRateDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Descrição do Valor Personalizado</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ex: Pernoite"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium">Valores Personalizados</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addCustomRate}
+                  disabled={customRates.length >= 5}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Valor
+                </Button>
+              </div>
 
-              <FormField
-                control={form.control}
-                name="customRateValue"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valor Personalizado</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="500"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseFloat(e.target.value) : undefined
-                          )
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {customRates.map((_, index) => (
+                <div key={index} className="flex gap-4 items-start">
+                  <FormField
+                    control={form.control}
+                    name={`customRates.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel>Descrição</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Pernoite" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`customRates.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormLabel>Valor</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="500"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseFloat(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="mt-8"
+                    onClick={() => removeCustomRate(index)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </div>
 
