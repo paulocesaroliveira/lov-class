@@ -72,9 +72,13 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <SlidersHorizontal className="h-4 w-4" />
-          Filtros
+        <Button 
+          variant="default" 
+          size="lg"
+          className="gap-2 shadow-lg hover:shadow-xl transition-all duration-200 bg-primary font-semibold"
+        >
+          <SlidersHorizontal className="h-5 w-5" />
+          Filtros Avançados
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
