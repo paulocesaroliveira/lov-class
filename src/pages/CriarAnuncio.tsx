@@ -1,108 +1,23 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, Upload, Plus, Trash2 } from "lucide-react";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Loader2, Upload } from "lucide-react";
+import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+import { BasicInformation } from "@/components/advertisement/BasicInformation";
+import { ContactLocation } from "@/components/advertisement/ContactLocation";
+import { CustomRates } from "@/components/advertisement/CustomRates";
+import { ServicesSelection } from "@/components/advertisement/ServicesSelection";
+import { Description } from "@/components/advertisement/Description";
+import { MediaUpload } from "@/components/advertisement/MediaUpload";
+import { formSchema } from "@/components/advertisement/advertisementSchema";
 import { Database } from "@/integrations/supabase/types";
 
 type ServiceType = Database["public"]["Enums"]["service_type"];
-
-const services: { id: ServiceType; label: string }[] = [
-  { id: "beijo_na_boca", label: "Beijo na Boca" },
-  { id: "beijo_grego", label: "Beijo Grego" },
-  { id: "bondage", label: "Bondage" },
-  { id: "chuva_dourada", label: "Chuva Dourada" },
-  { id: "chuva_marrom", label: "Chuva Marrom" },
-  { id: "dominacao", label: "Dominação" },
-  { id: "acessorios_eroticos", label: "Acessórios Eróticos" },
-  { id: "voyeurismo", label: "Voyeurismo" },
-  { id: "permite_filmagem", label: "Permite Filmagem" },
-  { id: "menage_casal", label: "Ménage (Casal)" },
-  { id: "menage_dois_homens", label: "Ménage (c/ 2 Homens)" },
-  { id: "roleplay", label: "Roleplay" },
-  { id: "facefuck", label: "Facefuck" },
-  { id: "oral_sem_preservativo", label: "Oral Sem Preservativo" },
-  { id: "oral_com_preservativo", label: "Oral Com Preservativo" },
-  { id: "massagem", label: "Massagem" },
-  { id: "sexo_virtual", label: "Sexo Virtual" },
-  { id: "orgia", label: "Orgia" },
-  { id: "gangbang", label: "Gangbang" },
-];
-
-const customRateSchema = z.object({
-  description: z.string().min(1, "Descrição é obrigatória"),
-  value: z.number().min(0, "Valor deve ser maior que zero"),
-});
-
-const formSchema = z.object({
-  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
-  birthDate: z.string().refine((date) => {
-    const birthDate = new Date(date);
-    const age = Math.floor(
-      (Date.now() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
-    );
-    return age >= 18;
-  }, "Você deve ter pelo menos 18 anos"),
-  height: z
-    .number()
-    .min(100, "Altura mínima é 100cm")
-    .max(250, "Altura máxima é 250cm"),
-  weight: z
-    .number()
-    .min(30, "Peso mínimo é 30kg")
-    .max(300, "Peso máximo é 300kg"),
-  category: z.enum(["mulher", "trans", "homem"]),
-  whatsapp: z.string().min(10, "WhatsApp inválido"),
-  state: z.string().min(2, "Estado é obrigatório"),
-  city: z.string().min(2, "Cidade é obrigatória"),
-  neighborhood: z.string().min(2, "Bairro é obrigatório"),
-  hourlyRate: z.number().min(0, "Valor deve ser maior que zero"),
-  customRates: z.array(customRateSchema).max(5, "Máximo de 5 valores personalizados"),
-  services: z.array(z.enum([
-    "beijo_na_boca",
-    "beijo_grego",
-    "bondage",
-    "chuva_dourada",
-    "chuva_marrom",
-    "dominacao",
-    "acessorios_eroticos",
-    "voyeurismo",
-    "permite_filmagem",
-    "menage_casal",
-    "menage_dois_homens",
-    "roleplay",
-    "facefuck",
-    "oral_sem_preservativo",
-    "oral_com_preservativo",
-    "massagem",
-    "sexo_virtual",
-    "orgia",
-    "gangbang"
-  ] as const)).min(1, "Selecione pelo menos um serviço"),
-  description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
-});
 
 const CriarAnuncio = () => {
   const navigate = useNavigate();
@@ -118,22 +33,6 @@ const CriarAnuncio = () => {
       customRates: [],
     },
   });
-
-  const customRates = form.watch("customRates");
-
-  const addCustomRate = () => {
-    if (customRates.length < 5) {
-      form.setValue("customRates", [
-        ...customRates,
-        { description: "", value: 0 },
-      ]);
-    }
-  };
-
-  const removeCustomRate = (index: number) => {
-    const newRates = customRates.filter((_, i) => i !== index);
-    form.setValue("customRates", newRates);
-  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -160,10 +59,6 @@ const CriarAnuncio = () => {
         profilePhotoUrl = profilePhotoData.path;
       }
 
-      const customRatesString = values.customRates.length > 0
-        ? JSON.stringify(values.customRates)
-        : null;
-
       const { data: ad, error: adError } = await supabase
         .from("advertisements")
         .insert({
@@ -178,7 +73,9 @@ const CriarAnuncio = () => {
           city: values.city,
           neighborhood: values.neighborhood,
           hourly_rate: values.hourlyRate,
-          custom_rate_description: customRatesString,
+          custom_rate_description: values.customRates.length > 0
+            ? JSON.stringify(values.customRates)
+            : null,
           description: values.description,
           profile_photo_url: profilePhotoUrl,
         })
@@ -267,398 +164,18 @@ const CriarAnuncio = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Informações Básicas</h2>
+          <BasicInformation form={form} />
+          <ContactLocation form={form} />
+          <CustomRates form={form} />
+          <ServicesSelection form={form} />
+          <Description form={form} />
+          <MediaUpload
+            setProfilePhoto={setProfilePhoto}
+            setPhotos={setPhotos}
+            setVideos={setVideos}
+          />
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Seu nome" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="birthDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data de Nascimento</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="height"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Altura (cm)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="170"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Peso (kg)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="65"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione uma categoria" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="mulher">Mulher</SelectItem>
-                      <SelectItem value="trans">Trans</SelectItem>
-                      <SelectItem value="homem">Homem</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Contato e Localização</h2>
-
-            <FormField
-              control={form.control}
-              name="whatsapp"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>WhatsApp</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="(11) 99999-9999"
-                      {...field}
-                      type="tel"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estado</FormLabel>
-                    <FormControl>
-                      <Input placeholder="SP" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cidade</FormLabel>
-                    <FormControl>
-                      <Input placeholder="São Paulo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="neighborhood"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bairro</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Centro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Valores</h2>
-
-            <FormField
-              control={form.control}
-              name="hourlyRate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor da Hora</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="200"
-                      {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Valores Personalizados</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addCustomRate}
-                  disabled={customRates.length >= 5}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar Valor
-                </Button>
-              </div>
-
-              {customRates.map((_, index) => (
-                <div key={index} className="flex gap-4 items-start">
-                  <FormField
-                    control={form.control}
-                    name={`customRates.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Descrição</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Ex: Pernoite" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name={`customRates.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormLabel>Valor</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="500"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="mt-8"
-                    onClick={() => removeCustomRate(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Serviços</h2>
-
-            <FormField
-              control={form.control}
-              name="services"
-              render={() => (
-                <FormItem>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {services.map((service) => (
-                      <FormField
-                        key={service.id}
-                        control={form.control}
-                        name="services"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={service.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(service.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          service.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== service.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {service.label}
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Descrição</h2>
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição do Atendimento</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descreva seu atendimento..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="glass-card p-6 space-y-6">
-            <h2 className="text-xl font-semibold">Fotos e Vídeos</h2>
-
-            <div className="space-y-4">
-              <div>
-                <FormLabel>Foto de Perfil</FormLabel>
-                <div className="mt-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      setProfilePhoto(e.target.files?.[0] || null)
-                    }
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FormLabel>Álbum de Fotos (máximo 15)</FormLabel>
-                <div className="mt-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      if (files.length > 15) {
-                        toast.error("Máximo de 15 fotos permitido");
-                        return;
-                      }
-                      setPhotos(files);
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FormLabel>Álbum de Vídeos (máximo 8)</FormLabel>
-                <div className="mt-2">
-                  <Input
-                    type="file"
-                    accept="video/*"
-                    multiple
-                    onChange={(e) => {
-                      const files = Array.from(e.target.files || []);
-                      if (files.length > 8) {
-                        toast.error("Máximo de 8 vídeos permitido");
-                        return;
-                      }
-                      setVideos(files);
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
