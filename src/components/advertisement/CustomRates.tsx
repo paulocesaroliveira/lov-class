@@ -43,6 +43,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
                 placeholder="200"
                 {...field}
                 onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </FormControl>
             <FormMessage />
@@ -93,6 +94,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
                       placeholder="500"
                       {...field}
                       onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </FormControl>
                   <FormMessage />
