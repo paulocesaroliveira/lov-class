@@ -9,6 +9,158 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      advertisement_photos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_services: {
+        Row: {
+          advertisement_id: string
+          service: Database["public"]["Enums"]["service_type"]
+        }
+        Insert: {
+          advertisement_id: string
+          service: Database["public"]["Enums"]["service_type"]
+        }
+        Update: {
+          advertisement_id?: string
+          service?: Database["public"]["Enums"]["service_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_videos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+          video_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          video_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements: {
+        Row: {
+          birth_date: string
+          category: Database["public"]["Enums"]["ad_category"]
+          city: string
+          created_at: string
+          custom_rate_description: string | null
+          custom_rate_value: number | null
+          description: string
+          height: number
+          hourly_rate: number
+          id: string
+          name: string
+          neighborhood: string
+          profile_id: string
+          profile_photo_url: string | null
+          state: string
+          updated_at: string
+          weight: number
+          whatsapp: string
+        }
+        Insert: {
+          birth_date: string
+          category: Database["public"]["Enums"]["ad_category"]
+          city: string
+          created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description: string
+          height: number
+          hourly_rate: number
+          id?: string
+          name: string
+          neighborhood: string
+          profile_id: string
+          profile_photo_url?: string | null
+          state: string
+          updated_at?: string
+          weight: number
+          whatsapp: string
+        }
+        Update: {
+          birth_date?: string
+          category?: Database["public"]["Enums"]["ad_category"]
+          city?: string
+          created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description?: string
+          height?: number
+          hourly_rate?: number
+          id?: string
+          name?: string
+          neighborhood?: string
+          profile_id?: string
+          profile_photo_url?: string | null
+          state?: string
+          updated_at?: string
+          weight?: number
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -38,7 +190,27 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ad_category: "mulher" | "trans" | "homem"
+      service_type:
+        | "beijo_na_boca"
+        | "beijo_grego"
+        | "bondage"
+        | "chuva_dourada"
+        | "chuva_marrom"
+        | "dominacao"
+        | "acessorios_eroticos"
+        | "voyeurismo"
+        | "permite_filmagem"
+        | "menage_casal"
+        | "menage_dois_homens"
+        | "roleplay"
+        | "facefuck"
+        | "oral_sem_preservativo"
+        | "oral_com_preservativo"
+        | "massagem"
+        | "sexo_virtual"
+        | "orgia"
+        | "gangbang"
     }
     CompositeTypes: {
       [_ in never]: never
