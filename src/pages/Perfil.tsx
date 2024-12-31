@@ -141,7 +141,7 @@ const Perfil = () => {
       )}
 
       <div className="glass-card p-6">
-        <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
+        <h2 className="text-xl font-semibold mb-4">Meu Anúncio</h2>
         
         {hasAd ? (
           <Button
