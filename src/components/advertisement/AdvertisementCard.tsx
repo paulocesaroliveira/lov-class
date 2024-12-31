@@ -28,11 +28,12 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
       </div>
 
       {/* Content */}
-      <div className="p-3 space-y-2">
-        <h3 className="text-lg font-semibold line-clamp-1">{advertisement.name}</h3>
+      <div className="p-3 space-y-3">
+        {/* Name - Centered */}
+        <h3 className="text-lg font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
         
         {/* Stats Row */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground justify-center">
           <div className="flex items-center gap-1">
             <Camera size={16} />
             <span>{advertisement.advertisement_photos?.length || 0}</span>
@@ -41,30 +42,33 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
             <Video size={16} />
             <span>{advertisement.advertisement_videos?.length || 0}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <MapPin size={16} />
+        </div>
+
+        {/* Age and City - Side by Side */}
+        <div className="grid grid-cols-2 text-sm">
+          <div className="flex items-center justify-center gap-1">
+            <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <MapPin size={16} className="text-muted-foreground" />
             <span>{advertisement.city}</span>
           </div>
         </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-1 text-sm">
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Idade:</span>
-            <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()}</span>
-          </div>
-          <div className="flex items-center gap-1">
+        {/* Height and Weight - Side by Side */}
+        <div className="grid grid-cols-2 text-sm">
+          <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Altura:</span>
-            <span>{advertisement.height}</span>
+            <span>{advertisement.height}cm</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Peso:</span>
-            <span>{advertisement.weight}</span>
+            <span>{advertisement.weight}kg</span>
           </div>
         </div>
 
-        {/* Price */}
-        <div className="text-lg font-bold">
+        {/* Price - Centered */}
+        <div className="text-lg font-bold text-center">
           R$ {advertisement.hourly_rate}
         </div>
       </div>
