@@ -15,8 +15,7 @@ const Anuncios = () => {
     queryFn: async () => {
       let query = supabase
         .from("advertisements")
-        .select(
-          `
+        .select(`
           *,
           advertisement_services (
             service
@@ -32,11 +31,10 @@ const Anuncios = () => {
             id,
             video_url
           )
-        `
-        )
+        `)
         .order("created_at", { ascending: false });
 
-      // Aplicar filtros básicos
+      // Apply filters
       if (filters.category) {
         query = query.eq("category", filters.category);
       }
@@ -53,7 +51,7 @@ const Anuncios = () => {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
       
-      // Filtro de idade
+      // Age filter
       if (filters.minAge !== undefined || filters.maxAge !== undefined) {
         const currentYear = new Date().getFullYear();
         
@@ -70,7 +68,7 @@ const Anuncios = () => {
         }
       }
 
-      // Filtrar por serviços
+      // Service filters
       if (filters.services && filters.services.length > 0) {
         const { data: serviceIds } = await supabase
           .from("advertisement_services")
@@ -87,7 +85,7 @@ const Anuncios = () => {
         }
       }
 
-      // Filtrar por locais de atendimento
+      // Location filters
       if (filters.serviceLocations && filters.serviceLocations.length > 0) {
         const { data: locationIds } = await supabase
           .from("advertisement_service_locations")
