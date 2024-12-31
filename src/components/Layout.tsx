@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut, Heart } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut, Heart, Newspaper } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -34,9 +34,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { path: '/anuncios', label: 'Anúncios', icon: Grid },
   ];
 
-  // Add favorites to menu items if user is logged in
+  // Add feed and favorites to menu items if user is logged in
   if (session) {
-    menuItems.push({ path: '/favoritos', label: 'Favoritos', icon: Heart });
+    menuItems.push(
+      { path: '/feed', label: 'Feed', icon: Newspaper },
+      { path: '/favoritos', label: 'Favoritos', icon: Heart }
+    );
   }
 
   const authItems = !session ? [

@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import Perfil from "./pages/Perfil";
 import Favoritos from "./pages/Favoritos";
+import Feed from "./pages/Feed";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/registro" element={<Registro />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/favoritos" element={<Favoritos />} />
+            <Route path="/feed" element={<Feed />} />
           </Routes>
         </Layout>
       </BrowserRouter>
