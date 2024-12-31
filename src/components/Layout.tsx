@@ -58,7 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link to="/" className="text-xl font-bold text-primary">
-              ClassiAds
+              Lov Class
             </Link>
 
             {/* Desktop Menu */}
@@ -172,7 +172,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       <footer className="glass-card mt-auto py-6">
         <div className="container mx-auto px-4 text-center text-sm text-foreground/60">
-          © 2024 ClassiAds. Todos os direitos reservados.
+          © 2024 Lov Class. Todos os direitos reservados.
         </div>
       </footer>
     </div>
