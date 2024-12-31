@@ -32,12 +32,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const menuItems = [
     { path: '/', label: 'Início', icon: Home },
     { path: '/anuncios', label: 'Anúncios', icon: Grid },
+    { path: '/feed', label: 'Feeds', icon: Newspaper },
   ];
 
-  // Add feed and favorites to menu items if user is logged in
+  // Add favorites to menu items if user is logged in
   if (session) {
     menuItems.push(
-      { path: '/feed', label: 'Feed', icon: Newspaper },
       { path: '/favoritos', label: 'Favoritos', icon: Heart }
     );
   }
