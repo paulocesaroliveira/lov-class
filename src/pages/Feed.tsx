@@ -16,7 +16,7 @@ const Feed = () => {
           id,
           content,
           created_at,
-          profile:profiles(name),
+          advertisement:advertisements(name),
           feed_post_media(id, media_type, media_url)
         `)
         .order("created_at", { ascending: false });

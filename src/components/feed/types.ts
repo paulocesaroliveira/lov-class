@@ -2,7 +2,7 @@ export interface FeedPost {
   id: string;
   content: string;
   created_at: string;
-  profile: {
+  advertisement?: {
     name: string;
   };
   feed_post_media: {

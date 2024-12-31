@@ -1,5 +1,6 @@
 import { Image as ImageIcon, Video } from "lucide-react";
 import { FeedPost } from "./types";
+import { format } from "date-fns";
 
 interface PostListProps {
   posts: FeedPost[];
@@ -11,9 +12,9 @@ export const PostList = ({ posts }: PostListProps) => {
       {posts.map((post) => (
         <article key={post.id} className="glass-card p-4 space-y-4">
           <div className="flex items-center gap-2">
-            <span className="font-medium">{post.profile.name}</span>
+            <span className="font-medium">{post.advertisement?.name || "Usuário anônimo"}</span>
             <span className="text-sm text-muted-foreground">
-              {new Date(post.created_at).toLocaleDateString()}
+              {format(new Date(post.created_at), "dd/MM/yyyy 'às' HH:mm")}
             </span>
           </div>
           {post.content && <p>{post.content}</p>}
