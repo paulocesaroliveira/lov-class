@@ -7,6 +7,11 @@ interface AdvertisementCardProps {
 }
 
 export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardProps) => {
+  // Check if "com_local" exists in serviceLocations array
+  const hasLocalService = advertisement.advertisement_service_locations?.some(
+    (location: { location: string }) => location.location === "com_local"
+  );
+
   return (
     <Card 
       className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
@@ -52,6 +57,18 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
           <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Peso:</span>
             <span>{advertisement.weight}kg</span>
+          </div>
+        </div>
+
+        {/* Style and Local - Side by Side */}
+        <div className="grid grid-cols-2 text-sm">
+          <div className="flex items-center justify-center gap-1">
+            <span className="text-muted-foreground">Estilo:</span>
+            <span className="capitalize">{advertisement.style}</span>
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <span className="text-muted-foreground">Com local:</span>
+            <span>{hasLocalService ? "Sim" : "Não"}</span>
           </div>
         </div>
 
