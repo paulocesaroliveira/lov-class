@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { services } from "./constants";
 import { serviceLocations } from "./serviceLocations";
 import { ArrowUpRight } from "lucide-react";
+import { AdvertisementComments } from "./AdvertisementComments";
 
 type AdvertisementDetailsProps = {
   advertisement: any;
@@ -110,6 +111,11 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
       <div>
         <h3 className="font-semibold mb-2">Descrição</h3>
         <p className="text-sm whitespace-pre-wrap">{advertisement.description}</p>
+      </div>
+
+      {/* Comments Section */}
+      <div className="pt-6 border-t">
+        <AdvertisementComments advertisementId={advertisement.id} />
       </div>
     </div>
   );
