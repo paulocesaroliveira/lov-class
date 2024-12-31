@@ -12,15 +12,21 @@ const Favoritos = () => {
   const navigate = useNavigate();
   const [selectedAd, setSelectedAd] = useState<any>(null);
 
+  // Handle authentication redirect
   useEffect(() => {
     if (!session) {
       navigate("/login");
     }
   }, [session, navigate]);
 
+  // Fetch favorites data
   const { data: favorites, isLoading } = useQuery({
-    queryKey: ["favorites", session?.user.id],
+    queryKey: ["favorites", session?.user?.id],
     queryFn: async () => {
+      if (!session?.user?.id) {
+        return [];
+      }
+
       const { data: favorites, error } = await supabase
         .from("favorites")
         .select(`
@@ -43,7 +49,7 @@ const Favoritos = () => {
             )
           )
         `)
-        .eq("user_id", session?.user.id);
+        .eq("user_id", session.user.id);
 
       if (error) {
         toast.error("Erro ao carregar favoritos");
@@ -56,9 +62,10 @@ const Favoritos = () => {
         isFavorite: true
       }));
     },
-    enabled: !!session,
+    enabled: !!session?.user?.id,
   });
 
+  // Early return if not authenticated
   if (!session) {
     return null;
   }
