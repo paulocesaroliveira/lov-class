@@ -20,6 +20,7 @@ import { Database } from "@/integrations/supabase/types";
 import { useAdvertisement } from "@/hooks/useAdvertisement";
 
 type ServiceType = Database["public"]["Enums"]["service_type"];
+type StyleType = z.infer<typeof formSchema>["style"];
 
 const CriarAnuncio = () => {
   const navigate = useNavigate();
@@ -47,6 +48,13 @@ const CriarAnuncio = () => {
         ? JSON.parse(advertisement.custom_rate_description)
         : [];
 
+      // Ensure style is of the correct type
+      const style = advertisement.style as StyleType;
+      if (!isValidStyle(style)) {
+        console.error("Invalid style value:", style);
+        return;
+      }
+
       form.reset({
         name: advertisement.name,
         birthDate: advertisement.birth_date,
@@ -59,12 +67,17 @@ const CriarAnuncio = () => {
         neighborhood: advertisement.neighborhood,
         hourlyRate: Number(advertisement.hourly_rate),
         customRates,
-        style: advertisement.style,
+        style,
         services: advertisement.advertisement_services.map((s) => s.service),
         description: advertisement.description,
       });
     }
   }, [advertisement, form]);
+
+  // Helper function to validate style
+  const isValidStyle = (style: string): style is StyleType => {
+    return ["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"].includes(style);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
