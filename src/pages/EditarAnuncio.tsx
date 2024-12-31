@@ -57,7 +57,8 @@ const EditarAnuncio = () => {
 
         console.log("Dados do anúncio recebidos:", advertisement);
 
-        const formattedData = {
+        const formattedData: FormValues = {
+          id: advertisement.id, // Importante: incluir o ID aqui
           name: advertisement.name,
           birthDate: advertisement.birth_date,
           height: advertisement.height,
@@ -79,7 +80,7 @@ const EditarAnuncio = () => {
           services: advertisement.advertisement_services?.map((s: any) => s.service) || [],
           serviceLocations: advertisement.advertisement_service_locations?.map((l: any) => l.location) || [],
           description: advertisement.description,
-        } as FormValues;
+        };
 
         console.log("Dados formatados para o formulário:", formattedData);
         setAdvertisementData(formattedData);
