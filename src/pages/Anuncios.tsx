@@ -1,17 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { services } from "@/components/advertisement/constants";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { toast } from "sonner";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
+import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
@@ -121,10 +114,6 @@ const Anuncios = () => {
     },
   });
 
-  const getServiceLabel = (serviceId: string) => {
-    return services.find((s) => s.id === serviceId)?.label || serviceId;
-  };
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -138,87 +127,10 @@ const Anuncios = () => {
         onSelectAd={setSelectedAd}
       />
 
-      <Dialog open={!!selectedAd} onOpenChange={() => setSelectedAd(null)}>
-        {selectedAd && (
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">{selectedAd.name}</DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-6">
-              {/* Foto Principal */}
-              <div className="aspect-video relative rounded-lg overflow-hidden bg-muted">
-                {selectedAd.profile_photo_url ? (
-                  <img
-                    src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/profile_photos/${selectedAd.profile_photo_url}`}
-                    alt={selectedAd.name}
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-muted-foreground">Sem foto</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Informações Básicas */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Informações Básicas</h3>
-                  <div className="space-y-2 text-sm">
-                    <p>Idade: {new Date().getFullYear() - new Date(selectedAd.birth_date).getFullYear()} anos</p>
-                    <p>Altura: {selectedAd.height}cm</p>
-                    <p>Peso: {selectedAd.weight}kg</p>
-                    <p>Categoria: {selectedAd.category}</p>
-                    <p>Estilo: {selectedAd.style}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-2">Localização</h3>
-                  <div className="space-y-2 text-sm">
-                    <p>Estado: {selectedAd.state}</p>
-                    <p>Cidade: {selectedAd.city}</p>
-                    <p>Bairro: {selectedAd.neighborhood}</p>
-                    <p>WhatsApp: {selectedAd.whatsapp}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Valores */}
-              <div>
-                <h3 className="font-semibold mb-2">Valores</h3>
-                <div className="space-y-2">
-                  <p className="text-lg font-medium">R$ {selectedAd.hourly_rate}/hora</p>
-                  {selectedAd.custom_rate_description && (
-                    <p>
-                      {selectedAd.custom_rate_description}: R$ {selectedAd.custom_rate_value}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Serviços */}
-              <div>
-                <h3 className="font-semibold mb-2">Serviços</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedAd.advertisement_services.map((service: any) => (
-                    <Badge key={service.service} variant="secondary">
-                      {getServiceLabel(service.service)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              {/* Descrição */}
-              <div>
-                <h3 className="font-semibold mb-2">Descrição</h3>
-                <p className="text-sm whitespace-pre-wrap">{selectedAd.description}</p>
-              </div>
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
+      <AdvertisementDialog 
+        advertisement={selectedAd} 
+        onOpenChange={() => setSelectedAd(null)} 
+      />
     </div>
   );
 };
