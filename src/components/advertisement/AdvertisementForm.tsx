@@ -16,18 +16,17 @@ import { FormActions } from "./FormActions";
 import { ServiceLocations } from "./ServiceLocations";
 import { formSchema } from "./advertisementSchema";
 import { StyleType, FormValues } from "@/types/advertisement";
+import { useMediaUpload } from "@/hooks/useMediaUpload";
+import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 
 type AdvertisementFormProps = {
-  advertisement?: any; // Using any temporarily, should be properly typed
+  advertisement?: any;
 };
 
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [videos, setVideos] = useState<File[]>([]);
-
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,11 +48,31 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     },
   });
 
+  const {
+    profilePhoto,
+    setProfilePhoto,
+    photos,
+    setPhotos,
+    videos,
+    setVideos,
+    uploadProfilePhoto,
+    uploadPhotos,
+    uploadVideos,
+  } = useMediaUpload(advertisement?.profile_id);
+
+  const {
+    saveAdvertisement,
+    saveServices,
+    saveServiceLocations,
+    savePhotos,
+    saveVideos,
+    deleteExistingMedia,
+  } = useAdvertisementOperations();
+
   const isValidStyle = (style: string): style is StyleType => {
     return ["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"].includes(style);
   };
 
-  // Initialize form with advertisement data when editing
   useEffect(() => {
     if (advertisement) {
       console.log("Carregando dados do anúncio existente:", advertisement);
@@ -67,7 +86,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         return;
       }
 
-      // Fetch service locations for this advertisement
       const fetchServiceLocations = async () => {
         const { data: serviceLocations, error } = await supabase
           .from('advertisement_service_locations')
@@ -110,9 +128,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       setIsLoading(true);
       console.log("Iniciando " + (advertisement ? "atualização" : "criação") + " do anúncio com valores:", values);
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
         console.error("Usuário não está logado");
@@ -123,197 +139,28 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       console.log("Usuário autenticado:", user.id);
 
-      let profilePhotoUrl = null;
-      if (profilePhoto) {
-        console.log("Fazendo upload da foto de perfil");
-        const { data: profilePhotoData, error: profilePhotoError } =
-          await supabase.storage
-            .from("profile_photos")
-            .upload(`${user.id}/${Date.now()}`, profilePhoto);
+      const profilePhotoUrl = await uploadProfilePhoto();
 
-        if (profilePhotoError) {
-          console.error("Erro no upload da foto de perfil:", profilePhotoError);
-          throw profilePhotoError;
-        }
-        profilePhotoUrl = profilePhotoData.path;
-        console.log("Foto de perfil salva com sucesso:", profilePhotoUrl);
+      if (advertisement?.id) {
+        await deleteExistingMedia(advertisement.id);
       }
 
-      const adData = {
-        profile_id: user.id,
-        name: values.name,
-        birth_date: values.birthDate,
-        height: values.height,
-        weight: values.weight,
-        category: values.category,
-        whatsapp: values.whatsapp,
-        state: values.state,
-        city: values.city,
-        neighborhood: values.neighborhood,
-        hourly_rate: values.hourlyRate,
-        custom_rate_description: values.customRates.length > 0
-          ? JSON.stringify(values.customRates)
-          : null,
-        style: values.style,
-        description: values.description,
-        ...(profilePhotoUrl && { profile_photo_url: profilePhotoUrl }),
-      };
+      const ad = await saveAdvertisement(
+        values,
+        user.id,
+        profilePhotoUrl,
+        !!advertisement,
+        advertisement?.id
+      );
 
-      console.log((advertisement ? "Atualizando" : "Salvando") + " dados do anúncio:", adData);
+      await saveServices(ad.id, values.services);
+      await saveServiceLocations(ad.id, values.serviceLocations);
 
-      let ad;
-      if (advertisement) {
-        const { data: updatedAd, error: updateError } = await supabase
-          .from("advertisements")
-          .update(adData)
-          .eq("id", advertisement.id)
-          .select()
-          .single();
+      const photoUrls = await uploadPhotos(ad.id);
+      const videoUrls = await uploadVideos(ad.id);
 
-        if (updateError) {
-          console.error("Erro ao atualizar anúncio:", updateError);
-          throw updateError;
-        }
-        ad = updatedAd;
-      } else {
-        const { data: newAd, error: insertError } = await supabase
-          .from("advertisements")
-          .insert(adData)
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error("Erro ao criar anúncio:", insertError);
-          throw insertError;
-        }
-        ad = newAd;
-      }
-
-      console.log("Anúncio " + (advertisement ? "atualizado" : "salvo") + " com sucesso:", ad);
-
-      // Update service locations
-      if (advertisement) {
-        console.log("Removendo locais de atendimento antigos");
-        await supabase
-          .from("advertisement_service_locations")
-          .delete()
-          .eq("advertisement_id", advertisement.id);
-      }
-
-      console.log("Salvando locais de atendimento:", values.serviceLocations);
-      const { error: locationsError } = await supabase
-        .from("advertisement_service_locations")
-        .insert(
-          values.serviceLocations.map((location) => ({
-            advertisement_id: ad.id,
-            location,
-          }))
-        );
-
-      if (locationsError) {
-        console.error("Erro ao salvar locais de atendimento:", locationsError);
-        throw locationsError;
-      }
-
-      // Update services
-      if (advertisement) {
-        console.log("Removendo serviços antigos");
-        await supabase
-          .from("advertisement_services")
-          .delete()
-          .eq("advertisement_id", advertisement.id);
-      }
-
-      console.log("Salvando serviços:", values.services);
-      const { error: servicesError } = await supabase
-        .from("advertisement_services")
-        .insert(
-          values.services.map((service) => ({
-            advertisement_id: ad.id,
-            service,
-          }))
-        );
-
-      if (servicesError) {
-        console.error("Erro ao salvar serviços:", servicesError);
-        throw servicesError;
-      }
-
-      // Process photos
-      if (photos.length > 0) {
-        console.log("Processando fotos:", photos.length);
-        if (advertisement) {
-          await supabase
-            .from("advertisement_photos")
-            .delete()
-            .eq("advertisement_id", advertisement.id);
-        }
-
-        const photoUploads = photos.map((photo) =>
-          supabase.storage
-            .from("ad_photos")
-            .upload(`${ad.id}/${Date.now()}-${photo.name}`, photo)
-        );
-
-        const photoResults = await Promise.all(photoUploads);
-        const photoUrls = photoResults
-          .map((result) => result.data?.path)
-          .filter(Boolean);
-
-        console.log("Fotos enviadas:", photoUrls);
-
-        const { error: photosError } = await supabase
-          .from("advertisement_photos")
-          .insert(
-            photoUrls.map((url) => ({
-              advertisement_id: ad.id,
-              photo_url: url,
-            }))
-          );
-
-        if (photosError) {
-          console.error("Erro ao salvar fotos:", photosError);
-          throw photosError;
-        }
-      }
-
-      // Process videos
-      if (videos.length > 0) {
-        console.log("Processando vídeos:", videos.length);
-        if (advertisement) {
-          await supabase
-            .from("advertisement_videos")
-            .delete()
-            .eq("advertisement_id", advertisement.id);
-        }
-
-        const videoUploads = videos.map((video) =>
-          supabase.storage
-            .from("ad_videos")
-            .upload(`${ad.id}/${Date.now()}-${video.name}`, video)
-        );
-
-        const videoResults = await Promise.all(videoUploads);
-        const videoUrls = videoResults
-          .map((result) => result.data?.path)
-          .filter(Boolean);
-
-        console.log("Vídeos enviados:", videoUrls);
-
-        const { error: videosError } = await supabase
-          .from("advertisement_videos")
-          .insert(
-            videoUrls.map((url) => ({
-              advertisement_id: ad.id,
-              video_url: url,
-            }))
-          );
-
-        if (videosError) {
-          console.error("Erro ao salvar vídeos:", videosError);
-          throw videosError;
-        }
-      }
+      await savePhotos(ad.id, photoUrls);
+      await saveVideos(ad.id, videoUrls);
 
       toast.success(
         advertisement 
