@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./advertisementSchema";
-import { serviceLocations } from "./serviceLocations";
+import { serviceLocations, ServiceLocationType } from "./serviceLocations";
 
 type ServiceLocationsProps = {
   form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -36,7 +36,7 @@ export const ServiceLocations = ({ form }: ServiceLocationsProps) => {
                             checked={field.value?.includes(location.id)}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, location.id])
+                                ? field.onChange([...field.value, location.id as ServiceLocationType])
                                 : field.onChange(
                                     field.value?.filter(
                                       (value) => value !== location.id
