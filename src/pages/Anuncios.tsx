@@ -1,13 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { services } from "@/components/advertisement/constants";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { toast } from "sonner";
-import { AdvertisementCard } from "@/components/advertisement/AdvertisementCard";
+import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
@@ -105,22 +104,6 @@ const Anuncios = () => {
     return services.find((s) => s.id === serviceId)?.label || serviceId;
   };
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Anúncios</h1>
-          <AdvancedFilter onFilterChange={setFilters} />
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Skeleton key={i} className="h-[400px] rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -128,21 +111,11 @@ const Anuncios = () => {
         <AdvancedFilter onFilterChange={setFilters} />
       </div>
       
-      {advertisements && advertisements.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {advertisements.map((ad) => (
-            <AdvertisementCard 
-              key={ad.id}
-              advertisement={ad}
-              onClick={() => setSelectedAd(ad)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Nenhum anúncio encontrado</p>
-        </div>
-      )}
+      <AdvertisementList 
+        advertisements={advertisements}
+        isLoading={isLoading}
+        onSelectAd={setSelectedAd}
+      />
 
       <Dialog open={!!selectedAd} onOpenChange={() => setSelectedAd(null)}>
         {selectedAd && (
