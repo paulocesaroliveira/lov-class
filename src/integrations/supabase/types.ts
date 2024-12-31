@@ -107,6 +107,7 @@ export type Database = {
           profile_id: string
           profile_photo_url: string | null
           state: string
+          style: string
           updated_at: string
           weight: number
           whatsapp: string
@@ -127,6 +128,7 @@ export type Database = {
           profile_id: string
           profile_photo_url?: string | null
           state: string
+          style: string
           updated_at?: string
           weight: number
           whatsapp: string
@@ -147,6 +149,7 @@ export type Database = {
           profile_id?: string
           profile_photo_url?: string | null
           state?: string
+          style?: string
           updated_at?: string
           weight?: number
           whatsapp?: string

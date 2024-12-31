@@ -32,6 +32,9 @@ export const formSchema = z.object({
   neighborhood: z.string().min(2, "Bairro é obrigatório"),
   hourlyRate: z.number().min(0, "Valor deve ser maior que zero"),
   customRates: z.array(customRateSchema).max(5, "Máximo de 5 valores personalizados"),
+  style: z.enum(["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"], {
+    required_error: "Selecione um estilo",
+  }),
   services: z.array(z.enum([
     "beijo_na_boca",
     "beijo_grego",

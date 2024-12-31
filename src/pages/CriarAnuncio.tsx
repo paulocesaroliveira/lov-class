@@ -12,6 +12,7 @@ import { BasicInformation } from "@/components/advertisement/BasicInformation";
 import { ContactLocation } from "@/components/advertisement/ContactLocation";
 import { CustomRates } from "@/components/advertisement/CustomRates";
 import { ServicesSelection } from "@/components/advertisement/ServicesSelection";
+import { StyleSelection } from "@/components/advertisement/StyleSelection";
 import { Description } from "@/components/advertisement/Description";
 import { MediaUpload } from "@/components/advertisement/MediaUpload";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
@@ -31,6 +32,7 @@ const CriarAnuncio = () => {
     defaultValues: {
       services: [],
       customRates: [],
+      style: "patricinha",
     },
   });
 
@@ -76,6 +78,7 @@ const CriarAnuncio = () => {
           custom_rate_description: values.customRates.length > 0
             ? JSON.stringify(values.customRates)
             : null,
+          style: values.style,
           description: values.description,
           profile_photo_url: profilePhotoUrl,
         })
@@ -167,6 +170,7 @@ const CriarAnuncio = () => {
           <BasicInformation form={form} />
           <ContactLocation form={form} />
           <CustomRates form={form} />
+          <StyleSelection form={form} />
           <ServicesSelection form={form} />
           <Description form={form} />
           <MediaUpload
