@@ -2,10 +2,11 @@ import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAdvertisement } from "@/hooks/useAdvertisement";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
+import { FormValues } from "@/types/advertisement";
 
 const EditarAnuncio = () => {
   const { id } = useParams();
-  const { data: advertisement, isLoading: isLoadingAd } = useAdvertisement(id);
+  const { data: advertisementData, isLoading: isLoadingAd } = useAdvertisement(id);
 
   if (isLoadingAd) {
     return (
@@ -15,7 +16,7 @@ const EditarAnuncio = () => {
     );
   }
 
-  if (!advertisement) {
+  if (!advertisementData) {
     return (
       <div className="text-center py-8">
         <h2 className="text-2xl font-semibold text-gray-900">
@@ -28,6 +29,27 @@ const EditarAnuncio = () => {
     );
   }
 
+  // Transform the data to match the form structure
+  const formattedAdvertisement: FormValues = {
+    name: advertisementData.name,
+    birthDate: advertisementData.birth_date,
+    height: advertisementData.height,
+    weight: advertisementData.weight,
+    category: advertisementData.category,
+    whatsapp: advertisementData.whatsapp,
+    state: advertisementData.state,
+    city: advertisementData.city,
+    neighborhood: advertisementData.neighborhood,
+    hourlyRate: advertisementData.hourly_rate,
+    customRates: advertisementData.custom_rate_description && advertisementData.custom_rate_value 
+      ? [{ description: advertisementData.custom_rate_description, value: advertisementData.custom_rate_value }]
+      : [],
+    style: advertisementData.style,
+    services: advertisementData.advertisement_services?.map(s => s.service) || [],
+    serviceLocations: advertisementData.advertisement_service_locations?.map(l => l.location) || [],
+    description: advertisementData.description,
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
@@ -37,7 +59,7 @@ const EditarAnuncio = () => {
         </p>
       </div>
 
-      <AdvertisementForm advertisement={advertisement} />
+      <AdvertisementForm advertisement={formattedAdvertisement} />
     </div>
   );
 };

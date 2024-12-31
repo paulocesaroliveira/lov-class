@@ -19,13 +19,22 @@ import { FormValues } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 
-export const AdvertisementForm = () => {
+type AdvertisementFormProps = {
+  advertisement?: FormValues & {
+    advertisement_services: { service: string }[];
+    advertisement_service_locations: { location: string }[];
+    advertisement_photos: { photo_url: string }[];
+    advertisement_videos: { video_url: string }[];
+  };
+};
+
+export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: advertisement || {
       name: "",
       birthDate: "",
       height: 170,
@@ -117,7 +126,7 @@ export const AdvertisementForm = () => {
           setPhotos={setPhotos}
           setVideos={setVideos}
         />
-        <FormActions isLoading={isLoading} isEditing={false} />
+        <FormActions isLoading={isLoading} isEditing={!!advertisement} />
       </form>
     </Form>
   );
