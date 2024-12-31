@@ -1,122 +1,87 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useToast } from '@/components/ui/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Link } from "react-router-dom";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+  const location = useLocation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
+    setLoading(true);
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        if (error.message === 'Invalid login credentials') {
-          toast({
-            title: "Erro ao fazer login",
-            description: "Email ou senha incorretos. Se você ainda não tem uma conta, por favor registre-se primeiro.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Erro ao fazer login",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
-        return;
+      if (error) throw error;
+
+      const state = location.state as { returnTo?: string; message?: string } | null;
+      
+      if (state?.message) {
+        toast.success(state.message);
+      } else {
+        toast.success("Login realizado com sucesso!");
       }
 
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta!",
-      });
-      
-      navigate('/perfil');
+      navigate(state?.returnTo || "/");
     } catch (error: any) {
-      toast({
-        title: "Erro ao fazer login",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(error.message || "Erro ao fazer login");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto glass-card p-8">
-      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-2">
-            E-mail
-          </label>
-          <input
+    <div className="mx-auto max-w-sm space-y-6">
+      <div className="space-y-2 text-center">
+        <h1 className="text-2xl font-bold">Entrar</h1>
+        <p className="text-gray-500 dark:text-gray-400">
+          Entre com seu email e senha
+        </p>
+      </div>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
             id="email"
-            type="email"
-            required
-            className="input-styled"
             placeholder="seu@email.com"
+            required
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
           />
         </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Senha
-          </label>
-          <div className="relative">
-            <input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              required
-              className="input-styled pr-10"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
-            />
-            <button
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/70 hover:text-foreground"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Senha</Label>
+          <Input
+            id="password"
+            required
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-
-        <button 
-          type="submit" 
-          className="btn-primary w-full"
-          disabled={isLoading}
-        >
-          {isLoading ? "Entrando..." : "Entrar"}
-        </button>
-
-        <p className="text-center text-sm text-foreground/70">
-          Não tem uma conta?{" "}
-          <Link to="/registro" className="text-primary hover:underline">
-            Criar conta
-          </Link>
-        </p>
+        <Button className="w-full" type="submit" disabled={loading}>
+          {loading ? "Entrando..." : "Entrar"}
+        </Button>
       </form>
+      <div className="text-center text-sm">
+        Não tem uma conta?{" "}
+        <Link to="/registro" className="underline">
+          Registre-se
+        </Link>
+      </div>
     </div>
   );
 };
