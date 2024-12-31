@@ -15,6 +15,7 @@ import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ServiceLocationsFilter } from "./ServiceLocationsFilter";
 import { styles } from "./constants";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Filters = {
   category?: "mulher" | "trans" | "homem";

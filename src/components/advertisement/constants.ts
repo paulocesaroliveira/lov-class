@@ -23,3 +23,13 @@ export const services: { id: ServiceType; label: string }[] = [
   { id: "orgia", label: "Orgia" },
   { id: "gangbang", label: "Gangbang" },
 ];
+
+export const styles = [
+  { value: "patricinha", label: "Patricinha" },
+  { value: "nerd", label: "Nerd" },
+  { value: "passista", label: "Passista" },
+  { value: "milf", label: "MILF" },
+  { value: "fitness", label: "Fitness" },
+  { value: "ninfeta", label: "Ninfeta" },
+  { value: "gordelicia", label: "Gordelícia" },
+];
