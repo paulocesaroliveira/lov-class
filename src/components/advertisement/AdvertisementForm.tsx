@@ -13,6 +13,7 @@ import { StyleSelection } from "./StyleSelection";
 import { Description } from "./Description";
 import { MediaUpload } from "./MediaUpload";
 import { FormActions } from "./FormActions";
+import { ServiceLocations } from "./ServiceLocations";
 import { formSchema } from "./advertisementSchema";
 import { StyleType, FormValues } from "@/types/advertisement";
 
@@ -43,6 +44,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       customRates: [],
       style: "patricinha" as StyleType,
       services: [],
+      serviceLocations: [],
       description: "",
     },
   });
@@ -65,22 +67,41 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         return;
       }
 
-      form.reset({
-        name: advertisement.name,
-        birthDate: advertisement.birth_date,
-        height: Number(advertisement.height),
-        weight: Number(advertisement.weight),
-        category: advertisement.category,
-        whatsapp: advertisement.whatsapp,
-        state: advertisement.state,
-        city: advertisement.city,
-        neighborhood: advertisement.neighborhood,
-        hourlyRate: Number(advertisement.hourly_rate),
-        customRates,
-        style,
-        services: advertisement.advertisement_services.map((s: any) => s.service),
-        description: advertisement.description,
-      });
+      // Fetch service locations for this advertisement
+      const fetchServiceLocations = async () => {
+        const { data: serviceLocations, error } = await supabase
+          .from('advertisement_service_locations')
+          .select('location')
+          .eq('advertisement_id', advertisement.id);
+
+        if (error) {
+          console.error("Erro ao carregar locais de atendimento:", error);
+          return;
+        }
+
+        const locations = serviceLocations.map(sl => sl.location);
+        console.log("Locais de atendimento carregados:", locations);
+
+        form.reset({
+          name: advertisement.name,
+          birthDate: advertisement.birth_date,
+          height: Number(advertisement.height),
+          weight: Number(advertisement.weight),
+          category: advertisement.category,
+          whatsapp: advertisement.whatsapp,
+          state: advertisement.state,
+          city: advertisement.city,
+          neighborhood: advertisement.neighborhood,
+          hourlyRate: Number(advertisement.hourly_rate),
+          customRates,
+          style,
+          services: advertisement.advertisement_services.map((s: any) => s.service),
+          serviceLocations: locations,
+          description: advertisement.description,
+        });
+      };
+
+      fetchServiceLocations();
     }
   }, [advertisement, form]);
 
@@ -170,7 +191,31 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       console.log("Anúncio " + (advertisement ? "atualizado" : "salvo") + " com sucesso:", ad);
 
-      // Atualizar serviços
+      // Update service locations
+      if (advertisement) {
+        console.log("Removendo locais de atendimento antigos");
+        await supabase
+          .from("advertisement_service_locations")
+          .delete()
+          .eq("advertisement_id", advertisement.id);
+      }
+
+      console.log("Salvando locais de atendimento:", values.serviceLocations);
+      const { error: locationsError } = await supabase
+        .from("advertisement_service_locations")
+        .insert(
+          values.serviceLocations.map((location) => ({
+            advertisement_id: ad.id,
+            location,
+          }))
+        );
+
+      if (locationsError) {
+        console.error("Erro ao salvar locais de atendimento:", locationsError);
+        throw locationsError;
+      }
+
+      // Update services
       if (advertisement) {
         console.log("Removendo serviços antigos");
         await supabase
@@ -194,7 +239,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         throw servicesError;
       }
 
-      // Processar fotos
+      // Process photos
       if (photos.length > 0) {
         console.log("Processando fotos:", photos.length);
         if (advertisement) {
@@ -232,7 +277,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         }
       }
 
-      // Processar vídeos
+      // Process videos
       if (videos.length > 0) {
         console.log("Processando vídeos:", videos.length);
         if (advertisement) {
@@ -296,6 +341,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         <CustomRates form={form} />
         <StyleSelection form={form} />
         <ServicesSelection form={form} />
+        <ServiceLocations form={form} />
         <Description form={form} />
         <MediaUpload
           setProfilePhoto={setProfilePhoto}
