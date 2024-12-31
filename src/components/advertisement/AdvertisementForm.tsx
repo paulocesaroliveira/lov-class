@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -52,7 +52,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   };
 
   // Initialize form with advertisement data when editing
-  useState(() => {
+  useEffect(() => {
     if (advertisement) {
       console.log("Carregando dados do anúncio existente:", advertisement);
       const customRates = advertisement.custom_rate_description
