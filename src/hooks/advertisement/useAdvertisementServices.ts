@@ -1,7 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
+
+type ServiceType = Database["public"]["Enums"]["service_type"];
+type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
 
 export const useAdvertisementServices = () => {
-  const saveServices = async (advertisementId: string, services: string[]) => {
+  const saveServices = async (advertisementId: string, services: ServiceType[]) => {
     await supabase
       .from("advertisement_services")
       .delete()
@@ -14,7 +18,7 @@ export const useAdvertisementServices = () => {
       .insert(
         services.map(service => ({
           advertisement_id: advertisementId,
-          service: service
+          service: service as ServiceType
         }))
       );
 
@@ -24,7 +28,7 @@ export const useAdvertisementServices = () => {
     }
   };
 
-  const saveServiceLocations = async (advertisementId: string, locations: string[]) => {
+  const saveServiceLocations = async (advertisementId: string, locations: ServiceLocationType[]) => {
     await supabase
       .from("advertisement_service_locations")
       .delete()
@@ -37,7 +41,7 @@ export const useAdvertisementServices = () => {
       .insert(
         locations.map(location => ({
           advertisement_id: advertisementId,
-          location: location
+          location: location as ServiceLocationType
         }))
       );
 
