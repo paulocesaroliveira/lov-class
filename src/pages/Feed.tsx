@@ -52,7 +52,17 @@ const Feed = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setPosts(data || []);
+      
+      // Type assertion to ensure media_type is either "image" or "video"
+      const typedPosts = (data || []).map(post => ({
+        ...post,
+        feed_post_media: post.feed_post_media.map(media => ({
+          ...media,
+          media_type: media.media_type as "image" | "video"
+        }))
+      }));
+
+      setPosts(typedPosts);
     } catch (error: any) {
       toast.error("Erro ao carregar posts");
       console.error("Error fetching posts:", error);
