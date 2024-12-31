@@ -33,7 +33,7 @@ const CriarAnuncio = () => {
     defaultValues: {
       services: [],
       customRates: [],
-      style: "patricinha",
+      style: "patricinha" as StyleType,
     },
   });
 
