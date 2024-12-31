@@ -54,13 +54,14 @@ const CriarAnuncio = () => {
 
   useEffect(() => {
     if (advertisement) {
+      console.log("Carregando dados do anúncio existente:", advertisement);
       const customRates = advertisement.custom_rate_description
         ? JSON.parse(advertisement.custom_rate_description)
         : [];
 
       const style = advertisement.style;
       if (!isValidStyle(style)) {
-        console.error("Invalid style value:", style);
+        console.error("Estilo inválido:", style);
         return;
       }
 
@@ -86,26 +87,35 @@ const CriarAnuncio = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
+      console.log("Iniciando salvamento do anúncio com valores:", values);
 
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (!user) {
+        console.error("Usuário não está logado");
         toast.error("Você precisa estar logado para criar um anúncio");
         navigate("/login");
         return;
       }
 
+      console.log("Usuário autenticado:", user.id);
+
       let profilePhotoUrl = null;
       if (profilePhoto) {
+        console.log("Fazendo upload da foto de perfil");
         const { data: profilePhotoData, error: profilePhotoError } =
           await supabase.storage
             .from("profile_photos")
             .upload(`${user.id}/${Date.now()}`, profilePhoto);
 
-        if (profilePhotoError) throw profilePhotoError;
+        if (profilePhotoError) {
+          console.error("Erro no upload da foto de perfil:", profilePhotoError);
+          throw profilePhotoError;
+        }
         profilePhotoUrl = profilePhotoData.path;
+        console.log("Foto de perfil salva com sucesso:", profilePhotoUrl);
       }
 
       const adData = {
@@ -128,6 +138,8 @@ const CriarAnuncio = () => {
         ...(profilePhotoUrl && { profile_photo_url: profilePhotoUrl }),
       };
 
+      console.log("Salvando dados do anúncio:", adData);
+
       const { data: ad, error: adError } = id
         ? await supabase
             .from("advertisements")
@@ -141,15 +153,22 @@ const CriarAnuncio = () => {
             .select()
             .single();
 
-      if (adError) throw adError;
+      if (adError) {
+        console.error("Erro ao salvar anúncio:", adError);
+        throw adError;
+      }
+
+      console.log("Anúncio salvo com sucesso:", ad);
 
       if (id) {
+        console.log("Removendo serviços antigos");
         await supabase
           .from("advertisement_services")
           .delete()
           .eq("advertisement_id", id);
       }
 
+      console.log("Salvando serviços:", values.services);
       const { error: servicesError } = await supabase
         .from("advertisement_services")
         .insert(
@@ -159,9 +178,13 @@ const CriarAnuncio = () => {
           }))
         );
 
-      if (servicesError) throw servicesError;
+      if (servicesError) {
+        console.error("Erro ao salvar serviços:", servicesError);
+        throw servicesError;
+      }
 
       if (photos.length > 0) {
+        console.log("Processando fotos:", photos.length);
         if (id) {
           await supabase
             .from("advertisement_photos")
@@ -180,6 +203,8 @@ const CriarAnuncio = () => {
           .map((result) => result.data?.path)
           .filter(Boolean);
 
+        console.log("Fotos enviadas:", photoUrls);
+
         const { error: photosError } = await supabase
           .from("advertisement_photos")
           .insert(
@@ -189,10 +214,14 @@ const CriarAnuncio = () => {
             }))
           );
 
-        if (photosError) throw photosError;
+        if (photosError) {
+          console.error("Erro ao salvar fotos:", photosError);
+          throw photosError;
+        }
       }
 
       if (videos.length > 0) {
+        console.log("Processando vídeos:", videos.length);
         if (id) {
           await supabase
             .from("advertisement_videos")
@@ -211,6 +240,8 @@ const CriarAnuncio = () => {
           .map((result) => result.data?.path)
           .filter(Boolean);
 
+        console.log("Vídeos enviados:", videoUrls);
+
         const { error: videosError } = await supabase
           .from("advertisement_videos")
           .insert(
@@ -220,14 +251,20 @@ const CriarAnuncio = () => {
             }))
           );
 
-        if (videosError) throw videosError;
+        if (videosError) {
+          console.error("Erro ao salvar vídeos:", videosError);
+          throw videosError;
+        }
       }
 
       toast.success(id ? "Anúncio atualizado com sucesso!" : "Anúncio criado com sucesso!");
       navigate("/anuncios");
     } catch (error) {
-      console.error("Error creating/updating advertisement:", error);
-      toast.error(id ? "Erro ao atualizar anúncio" : "Erro ao criar anúncio");
+      console.error("Erro detalhado ao criar/atualizar anúncio:", error);
+      toast.error(id 
+        ? `Erro ao atualizar anúncio: ${error.message || 'Erro desconhecido'}` 
+        : `Erro ao criar anúncio: ${error.message || 'Erro desconhecido'}`
+      );
     } finally {
       setIsLoading(false);
     }
