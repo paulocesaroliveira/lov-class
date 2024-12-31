@@ -84,10 +84,10 @@ const Favoritos = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format
+      // Transform the data to match the expected format and mark as favorites
       return favorites.map((favorite) => ({
         ...favorite.advertisements,
-        isFavorite: true
+        isFavorite: true // Explicitly mark as favorite
       }));
     },
     enabled: !!session?.user?.id,
