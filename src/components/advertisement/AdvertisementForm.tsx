@@ -31,6 +31,7 @@ type AdvertisementFormProps = {
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { data: { user } } = await supabase.auth.getUser() || { data: { user: null } };
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -64,7 +65,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     uploadProfilePhoto,
     uploadPhotos,
     uploadVideos,
-  } = useMediaUpload();
+  } = useMediaUpload(user?.id);
 
   const {
     saveAdvertisement,
@@ -79,8 +80,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
       setIsLoading(true);
       console.log("Iniciando criação do anúncio com valores:", values);
 
-      const { data: { user } } = await supabase.auth.getUser();
-
       if (!user) {
         console.error("Usuário não está logado");
         toast.error("Você precisa estar logado para criar um anúncio");
@@ -92,7 +91,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
 
       const profilePhotoUrl = await uploadProfilePhoto();
       
-      const ad = await saveAdvertisement(values, user.id, profilePhotoUrl);
+      const ad = await saveAdvertisement(values, user.id, profilePhotoUrl, advertisement?.id);
       await saveServices(ad.id, values.services);
       await saveServiceLocations(ad.id, values.serviceLocations);
 

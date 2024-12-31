@@ -38,10 +38,6 @@ const EditarAnuncio = () => {
       : [],
     services: advertisementData.advertisement_services?.map(s => s.service) || [],
     serviceLocations: advertisementData.advertisement_service_locations?.map(l => l.location) || [],
-    advertisement_services: advertisementData.advertisement_services || [],
-    advertisement_service_locations: advertisementData.advertisement_service_locations || [],
-    advertisement_photos: advertisementData.advertisement_photos || [],
-    advertisement_videos: advertisementData.advertisement_videos || [],
   } as FormValues & {
     advertisement_services: { service: string }[];
     advertisement_service_locations: { location: string }[];
@@ -50,7 +46,7 @@ const EditarAnuncio = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 p-6">
       <div>
         <h1 className="text-3xl font-bold">Editar Anúncio</h1>
         <p className="text-muted-foreground">
