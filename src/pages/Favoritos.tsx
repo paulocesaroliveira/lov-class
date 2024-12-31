@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
+import { toast } from "sonner";
 
 const Favoritos = () => {
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [selectedAd, setSelectedAd] = useState<any>(null);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !session) {
+      toast.error("Faça login para acessar seus favoritos");
+      navigate("/login", { 
+        state: { 
+          returnTo: "/favoritos",
+          message: "Faça login para acessar seus favoritos" 
+        }
+      });
+    }
+  }, [session, navigate, authLoading]);
 
   // Fetch favorites data
   const { data: favorites, isLoading } = useQuery({
@@ -80,17 +92,12 @@ const Favoritos = () => {
     enabled: !!session?.user?.id,
   });
 
-  useEffect(() => {
-    if (!session) {
-      navigate("/login", { 
-        state: { 
-          returnTo: "/favoritos",
-          message: "Faça login para acessar seus favoritos" 
-        }
-      });
-    }
-  }, [session, navigate]);
+  // Don't render anything while checking authentication
+  if (authLoading) {
+    return null;
+  }
 
+  // Don't render if not authenticated
   if (!session) {
     return null;
   }
