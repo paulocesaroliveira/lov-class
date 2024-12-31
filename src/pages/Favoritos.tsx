@@ -84,6 +84,7 @@ const Favoritos = () => {
         throw error;
       }
 
+      // Transform the data to match the expected format
       return favorites.map((favorite) => ({
         ...favorite.advertisements,
         isFavorite: true
