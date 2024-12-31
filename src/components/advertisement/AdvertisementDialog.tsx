@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { AdvertisementMedia } from "./AdvertisementMedia";
 import { AdvertisementDetails } from "./AdvertisementDetails";
+import { AdvertisementComments } from "./AdvertisementComments";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -63,20 +64,27 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
           <DialogTitle className="text-2xl">{advertisement.name}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Coluna da Esquerda - Mídia */}
-          <AdvertisementMedia
-            profilePhotoUrl={advertisement.profile_photo_url}
-            photos={advertisement.advertisement_photos}
-            videos={advertisement.advertisement_videos}
-            name={advertisement.name}
-          />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Coluna da Esquerda - Mídia */}
+            <AdvertisementMedia
+              profilePhotoUrl={advertisement.profile_photo_url}
+              photos={advertisement.advertisement_photos}
+              videos={advertisement.advertisement_videos}
+              name={advertisement.name}
+            />
 
-          {/* Coluna da Direita - Informações */}
-          <AdvertisementDetails 
-            advertisement={advertisement}
-            onWhatsAppClick={handleWhatsAppClick}
-          />
+            {/* Coluna da Direita - Informações */}
+            <AdvertisementDetails 
+              advertisement={advertisement}
+              onWhatsAppClick={handleWhatsAppClick}
+            />
+          </div>
+
+          {/* Seção de Comentários */}
+          <div className="border-t pt-6">
+            <AdvertisementComments advertisementId={advertisement.id} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
