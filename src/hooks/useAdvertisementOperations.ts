@@ -48,41 +48,55 @@ export const useAdvertisementOperations = () => {
         .update(adData)
         .eq("id", values.id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (adError) {
         console.error("Erro ao atualizar anúncio:", adError);
         throw adError;
       }
+
+      if (!ad) {
+        throw new Error("Anúncio não encontrado");
+      }
+
       result = ad;
     } else {
-      // Verificar se o usuário já tem um anúncio
-      const { data: existingAd, error: existingAdError } = await supabase
-        .from("advertisements")
-        .select()
-        .eq("profile_id", userId)
-        .single();
+      try {
+        const { data: existingAd, error: existingAdError } = await supabase
+          .from("advertisements")
+          .select()
+          .eq("profile_id", userId)
+          .maybeSingle();
 
-      if (existingAdError && existingAdError.code !== "PGRST116") {
-        console.error("Erro ao verificar anúncio existente:", existingAdError);
-        throw existingAdError;
+        if (existingAdError) {
+          console.error("Erro ao verificar anúncio existente:", existingAdError);
+          throw existingAdError;
+        }
+
+        if (existingAd) {
+          throw new Error("Você já possui um anúncio cadastrado");
+        }
+
+        const { data: ad, error: adError } = await supabase
+          .from("advertisements")
+          .insert(adData)
+          .select()
+          .maybeSingle();
+
+        if (adError) {
+          console.error("Erro ao criar anúncio:", adError);
+          throw adError;
+        }
+
+        if (!ad) {
+          throw new Error("Erro ao criar anúncio");
+        }
+
+        result = ad;
+      } catch (error) {
+        console.error("Erro ao processar anúncio:", error);
+        throw error;
       }
-
-      if (existingAd) {
-        throw new Error("Você já possui um anúncio cadastrado");
-      }
-
-      const { data: ad, error: adError } = await supabase
-        .from("advertisements")
-        .insert(adData)
-        .select()
-        .single();
-
-      if (adError) {
-        console.error("Erro ao criar anúncio:", adError);
-        throw adError;
-      }
-      result = ad;
     }
 
     return result;
