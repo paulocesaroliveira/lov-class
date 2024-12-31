@@ -57,29 +57,16 @@ const Anuncios = () => {
       if (filters.maxPrice !== undefined) {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
-      if (filters.style) {
-        query = query.eq("style", filters.style);
+      
+      // Filtro de idade
+      const currentYear = new Date().getFullYear();
+      if (filters.minAge !== undefined) {
+        const maxBirthYear = currentYear - filters.minAge;
+        query = query.lte("birth_date", `${maxBirthYear}-12-31`);
       }
-      if (filters.ethnicity) {
-        query = query.eq("ethnicity", filters.ethnicity);
-      }
-      if (filters.hairColor) {
-        query = query.eq("hair_color", filters.hairColor);
-      }
-      if (filters.bodyType) {
-        query = query.eq("body_type", filters.bodyType);
-      }
-      if (filters.minHeight) {
-        query = query.gte("height", filters.minHeight);
-      }
-      if (filters.maxHeight) {
-        query = query.lte("height", filters.maxHeight);
-      }
-      if (filters.minWeight) {
-        query = query.gte("weight", filters.minWeight);
-      }
-      if (filters.maxWeight) {
-        query = query.lte("weight", filters.maxWeight);
+      if (filters.maxAge !== undefined) {
+        const minBirthYear = currentYear - filters.maxAge;
+        query = query.gte("birth_date", `${minBirthYear}-01-01`);
       }
 
       // Filtrar por serviços

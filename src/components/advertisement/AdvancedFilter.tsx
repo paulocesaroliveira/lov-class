@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
 import { BasicFilters } from "./filters/BasicFilters";
 import { PriceFilter } from "./filters/PriceFilter";
+import { AgeFilter } from "./filters/AgeFilter";
 import { ServiceLocationsFilter } from "./ServiceLocationsFilter";
 import { styles } from "./constants";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,8 @@ type Filters = {
   city?: string;
   minPrice?: number;
   maxPrice?: number;
+  minAge?: number;
+  maxAge?: number;
   minHeight?: number;
   maxHeight?: number;
   minWeight?: number;
@@ -43,6 +46,7 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
     serviceLocations: [],
   });
   const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [ageRange, setAgeRange] = useState([18, 60]);
 
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     const updatedFilters = { ...filters, ...newFilters };
@@ -55,6 +59,15 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
     handleFilterChange({
       minPrice: value[0],
       maxPrice: value[1],
+    });
+  };
+
+  const handleAgeChange = (value: number[]) => {
+    setAgeRange(value);
+    const currentYear = new Date().getFullYear();
+    handleFilterChange({
+      minAge: value[0],
+      maxAge: value[1],
     });
   };
 
@@ -85,8 +98,35 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
-          <BasicFilters filters={filters} onFilterChange={handleFilterChange} />
+          {/* Categoria */}
+          <div className="space-y-2">
+            <Label>Categoria</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {["mulher", "trans", "homem"].map((category) => (
+                <Button
+                  key={category}
+                  variant={filters.category === category ? "default" : "outline"}
+                  onClick={() =>
+                    handleFilterChange({
+                      category: filters.category === category ? undefined : category,
+                    })
+                  }
+                  className="capitalize"
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Faixa de Preço */}
           <PriceFilter priceRange={priceRange} onPriceChange={handlePriceChange} />
+
+          {/* Faixa de Idade */}
+          <AgeFilter ageRange={ageRange} onAgeChange={handleAgeChange} />
+
+          {/* Características Físicas e outros filtros */}
+          <BasicFilters filters={filters} onFilterChange={handleFilterChange} />
 
           {/* Estilo */}
           <div className="space-y-4">
