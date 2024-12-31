@@ -21,15 +21,10 @@ import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 
 type AdvertisementFormProps = {
-  advertisement?: FormValues & {
-    advertisement_services: { service: string }[];
-    advertisement_service_locations: { location: string }[];
-    advertisement_photos: { photo_url: string }[];
-    advertisement_videos: { video_url: string }[];
-  };
+  advertisement?: FormValues;
 };
 
-export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}) => {
+export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -37,12 +32,17 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Você precisa estar logado para criar um anúncio");
+        navigate("/login");
+        return;
+      }
       setUser(user);
     };
     getUser();
-  }, []);
+  }, [navigate]);
 
-  console.log("Advertisement prop received:", advertisement);
+  console.log("Dados do anúncio recebidos no formulário:", advertisement);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -70,7 +70,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     mode: "onBlur",
   });
 
-  console.log("Form default values:", form.getValues());
+  console.log("Valores padrão do formulário:", form.getValues());
 
   const {
     profilePhoto,
@@ -90,16 +90,17 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     saveServiceLocations,
     savePhotos,
     saveVideos,
+    deleteExistingMedia,
   } = useAdvertisementOperations();
 
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
-      console.log("Iniciando criação do anúncio com valores:", values);
+      console.log("Iniciando " + (advertisement ? "atualização" : "criação") + " do anúncio com valores:", values);
 
       if (!user) {
         console.error("Usuário não está logado");
-        toast.error("Você precisa estar logado para criar um anúncio");
+        toast.error("Você precisa estar logado para " + (advertisement ? "atualizar" : "criar") + " um anúncio");
         navigate("/login");
         return;
       }
@@ -108,6 +109,10 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
 
       const profilePhotoUrl = await uploadProfilePhoto();
       
+      if (advertisement) {
+        await deleteExistingMedia(advertisement.id);
+      }
+
       const ad = await saveAdvertisement(values, user.id, profilePhotoUrl, !!advertisement);
       await saveServices(ad.id, values.services);
       await saveServiceLocations(ad.id, values.serviceLocations);
@@ -121,7 +126,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
       toast.success(advertisement ? "Anúncio atualizado com sucesso!" : "Anúncio criado com sucesso!");
       navigate("/anuncios");
     } catch (error) {
-      console.error("Erro detalhado ao criar anúncio:", error);
+      console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
       toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
     } finally {
       setIsLoading(false);

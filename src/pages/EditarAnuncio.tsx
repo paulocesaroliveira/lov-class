@@ -1,89 +1,115 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { FormValues } from "@/types/advertisement";
+import { toast } from "sonner";
 
 const EditarAnuncio = () => {
   const { id } = useParams();
-  const [advertisementData, setAdvertisementData] = useState<any>(null);
+  const navigate = useNavigate();
+  const [advertisementData, setAdvertisementData] = useState<FormValues | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAdvertisement = async () => {
-      console.log("Fetching advertisement with ID:", id);
-      
-      const { data: advertisement, error } = await supabase
-        .from("advertisements")
-        .select(`
-          *,
-          advertisement_services (
-            service
-          ),
-          advertisement_service_locations (
-            location
-          ),
-          advertisement_photos (
-            photo_url
-          ),
-          advertisement_videos (
-            video_url
-          )
-        `)
-        .eq("id", id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching advertisement:", error);
+      if (!id) {
+        toast.error("ID do anúncio não encontrado");
+        navigate("/anuncios");
         return;
       }
 
-      console.log("Fetched advertisement data:", advertisement);
-      setAdvertisementData(advertisement);
+      console.log("Buscando anúncio com ID:", id);
+      
+      try {
+        const { data: advertisement, error } = await supabase
+          .from("advertisements")
+          .select(`
+            *,
+            advertisement_services (
+              service
+            ),
+            advertisement_service_locations (
+              location
+            ),
+            advertisement_photos (
+              photo_url
+            ),
+            advertisement_videos (
+              video_url
+            )
+          `)
+          .eq("id", id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Erro ao buscar anúncio:", error);
+          toast.error("Erro ao carregar anúncio");
+          navigate("/anuncios");
+          return;
+        }
+
+        if (!advertisement) {
+          toast.error("Anúncio não encontrado");
+          navigate("/anuncios");
+          return;
+        }
+
+        console.log("Dados do anúncio recebidos:", advertisement);
+
+        const formattedData = {
+          name: advertisement.name,
+          birthDate: advertisement.birth_date,
+          height: advertisement.height,
+          weight: advertisement.weight,
+          category: advertisement.category,
+          ethnicity: advertisement.ethnicity,
+          hairColor: advertisement.hair_color,
+          bodyType: advertisement.body_type,
+          silicone: advertisement.silicone,
+          whatsapp: advertisement.whatsapp,
+          state: advertisement.state,
+          city: advertisement.city,
+          neighborhood: advertisement.neighborhood,
+          hourlyRate: advertisement.hourly_rate,
+          customRates: advertisement.custom_rate_description
+            ? JSON.parse(advertisement.custom_rate_description)
+            : [],
+          style: advertisement.style,
+          services: advertisement.advertisement_services?.map((s: any) => s.service) || [],
+          serviceLocations: advertisement.advertisement_service_locations?.map((l: any) => l.location) || [],
+          description: advertisement.description,
+        } as FormValues;
+
+        console.log("Dados formatados para o formulário:", formattedData);
+        setAdvertisementData(formattedData);
+      } catch (error) {
+        console.error("Erro ao processar dados do anúncio:", error);
+        toast.error("Erro ao processar dados do anúncio");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    if (id) {
-      fetchAdvertisement();
-    }
-  }, [id]);
+    fetchAdvertisement();
+  }, [id, navigate]);
 
-  if (!advertisementData) {
-    return <div>Carregando...</div>;
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Carregando anúncio...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const formattedData = {
-    name: advertisementData.name,
-    birthDate: advertisementData.birth_date,
-    height: advertisementData.height,
-    weight: advertisementData.weight,
-    category: advertisementData.category,
-    ethnicity: advertisementData.ethnicity,
-    hairColor: advertisementData.hair_color,
-    bodyType: advertisementData.body_type,
-    silicone: advertisementData.silicone,
-    whatsapp: advertisementData.whatsapp,
-    state: advertisementData.state,
-    city: advertisementData.city,
-    neighborhood: advertisementData.neighborhood,
-    hourlyRate: advertisementData.hourly_rate,
-    customRates: advertisementData.custom_rate_description
-      ? JSON.parse(advertisementData.custom_rate_description)
-      : [],
-    style: advertisementData.style,
-    services: advertisementData.advertisement_services?.map((s: any) => s.service) || [],
-    serviceLocations: advertisementData.advertisement_service_locations?.map((l: any) => l.location) || [],
-    description: advertisementData.description,
-    advertisement_services: advertisementData.advertisement_services || [],
-    advertisement_service_locations: advertisementData.advertisement_service_locations || [],
-    advertisement_photos: advertisementData.advertisement_photos || [],
-    advertisement_videos: advertisementData.advertisement_videos || [],
-  } as FormValues & {
-    advertisement_services: { service: string }[];
-    advertisement_service_locations: { location: string }[];
-    advertisement_photos: { photo_url: string }[];
-    advertisement_videos: { video_url: string }[];
-  };
-
-  console.log("Formatted data for form:", formattedData);
+  if (!advertisementData) {
+    return null;
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-6">
@@ -94,7 +120,7 @@ const EditarAnuncio = () => {
         </p>
       </div>
 
-      <AdvertisementForm advertisement={formattedData} />
+      <AdvertisementForm advertisement={advertisementData} />
     </div>
   );
 };
