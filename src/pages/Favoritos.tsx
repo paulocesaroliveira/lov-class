@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +10,7 @@ import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDia
 const Favoritos = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedAd, setSelectedAd] = useState<any>(null);
 
   // Fetch favorites data
@@ -51,6 +52,16 @@ const Favoritos = () => {
             advertisement_photos (
               id,
               photo_url
+            ),
+            advertisement_videos (
+              id,
+              video_url
+            ),
+            advertisement_services (
+              service
+            ),
+            advertisement_service_locations (
+              location
             )
           )
         `)
@@ -69,9 +80,8 @@ const Favoritos = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Handle authentication redirect
   useEffect(() => {
-    if (!session && !isLoading) {
+    if (!session) {
       navigate("/login", { 
         state: { 
           returnTo: "/favoritos",
@@ -79,7 +89,7 @@ const Favoritos = () => {
         }
       });
     }
-  }, [session, navigate, isLoading]);
+  }, [session, navigate]);
 
   if (!session) {
     return null;
@@ -91,12 +101,12 @@ const Favoritos = () => {
       <AdvertisementList
         advertisements={favorites || []}
         isLoading={isLoading}
-        onAdvertisementClick={setSelectedAd}
+        onSelectAd={setSelectedAd}
       />
       {selectedAd && (
         <AdvertisementDialog
           advertisement={selectedAd}
-          onClose={() => setSelectedAd(null)}
+          onOpenChange={(open) => !open && setSelectedAd(null)}
         />
       )}
     </div>
