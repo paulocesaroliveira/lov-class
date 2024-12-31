@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { WhatsappLogo } from "@phosphor-icons/react";
+import { MessageSquare } from "lucide-react";
 import { ServiceLocations } from "./ServiceLocations";
 import { ServicesSelection } from "./ServicesSelection";
 
@@ -74,15 +74,14 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         <div>
           <h3 className="text-lg font-semibold mb-2">Locais de Atendimento</h3>
           <ServiceLocations
-            locations={advertisement.advertisement_service_locations}
+            form={undefined}
           />
         </div>
 
         <div>
           <h3 className="text-lg font-semibold mb-2">Serviços</h3>
           <ServicesSelection
-            services={advertisement.advertisement_services}
-            readOnly
+            form={undefined}
           />
         </div>
 
@@ -91,7 +90,7 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
           size="lg"
           onClick={onWhatsAppClick}
         >
-          <WhatsappLogo weight="fill" className="w-5 h-5 mr-2" />
+          <MessageSquare className="w-5 h-5 mr-2" />
           Chamar no WhatsApp
         </Button>
       </div>

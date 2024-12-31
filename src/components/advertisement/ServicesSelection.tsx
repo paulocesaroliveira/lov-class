@@ -6,10 +6,28 @@ import { formSchema } from "./advertisementSchema";
 import { services } from "./constants";
 
 type ServicesSelectionProps = {
-  form: UseFormReturn<z.infer<typeof formSchema>>;
+  form?: UseFormReturn<z.infer<typeof formSchema>>;
+  services?: { service: string }[];
 };
 
-export const ServicesSelection = ({ form }: ServicesSelectionProps) => {
+export const ServicesSelection = ({ form, services: servicesList }: ServicesSelectionProps) => {
+  // If we're in read-only mode (no form provided)
+  if (!form && servicesList) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {servicesList.map((svc) => (
+          <div key={svc.service} className="flex items-center space-x-2">
+            <Checkbox checked disabled />
+            <span className="text-sm">{svc.service}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Form mode
+  if (!form) return null;
+
   return (
     <div className="glass-card p-6 space-y-6">
       <h2 className="text-xl font-semibold">Serviços</h2>
