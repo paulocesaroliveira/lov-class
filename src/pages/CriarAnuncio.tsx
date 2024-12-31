@@ -3,11 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { z } from "zod";
 import { BasicInformation } from "@/components/advertisement/BasicInformation";
 import { ContactLocation } from "@/components/advertisement/ContactLocation";
 import { CustomRates } from "@/components/advertisement/CustomRates";
@@ -15,12 +13,10 @@ import { ServicesSelection } from "@/components/advertisement/ServicesSelection"
 import { StyleSelection } from "@/components/advertisement/StyleSelection";
 import { Description } from "@/components/advertisement/Description";
 import { MediaUpload } from "@/components/advertisement/MediaUpload";
+import { FormActions } from "@/components/advertisement/FormActions";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
-import { Database } from "@/integrations/supabase/types";
 import { useAdvertisement } from "@/hooks/useAdvertisement";
-
-type ServiceType = Database["public"]["Enums"]["service_type"];
-type StyleType = z.infer<typeof formSchema>["style"];
+import { StyleType, FormValues } from "@/types/advertisement";
 
 const CriarAnuncio = () => {
   const navigate = useNavigate();
@@ -32,7 +28,7 @@ const CriarAnuncio = () => {
   const [photos, setPhotos] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       services: [],
@@ -41,15 +37,17 @@ const CriarAnuncio = () => {
     },
   });
 
+  const isValidStyle = (style: string): style is StyleType => {
+    return ["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"].includes(style);
+  };
+
   useEffect(() => {
     if (advertisement) {
-      // Parse custom rates from JSON string if it exists
       const customRates = advertisement.custom_rate_description
         ? JSON.parse(advertisement.custom_rate_description)
         : [];
 
-      // Ensure style is of the correct type
-      const style = advertisement.style as StyleType;
+      const style = advertisement.style;
       if (!isValidStyle(style)) {
         console.error("Invalid style value:", style);
         return;
@@ -74,12 +72,7 @@ const CriarAnuncio = () => {
     }
   }, [advertisement, form]);
 
-  // Helper function to validate style
-  const isValidStyle = (style: string): style is StyleType => {
-    return ["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"].includes(style);
-  };
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
 
@@ -124,7 +117,6 @@ const CriarAnuncio = () => {
         ...(profilePhotoUrl && { profile_photo_url: profilePhotoUrl }),
       };
 
-      // Update or create advertisement
       const { data: ad, error: adError } = id
         ? await supabase
             .from("advertisements")
@@ -140,7 +132,6 @@ const CriarAnuncio = () => {
 
       if (adError) throw adError;
 
-      // Delete existing services and insert new ones
       if (id) {
         await supabase
           .from("advertisement_services")
@@ -153,14 +144,13 @@ const CriarAnuncio = () => {
         .insert(
           values.services.map((service) => ({
             advertisement_id: ad.id,
-            service: service as ServiceType,
+            service,
           }))
         );
 
       if (servicesError) throw servicesError;
 
       if (photos.length > 0) {
-        // Delete existing photos if editing
         if (id) {
           await supabase
             .from("advertisement_photos")
@@ -192,7 +182,6 @@ const CriarAnuncio = () => {
       }
 
       if (videos.length > 0) {
-        // Delete existing videos if editing
         if (id) {
           await supabase
             .from("advertisement_videos")
@@ -267,20 +256,7 @@ const CriarAnuncio = () => {
             setPhotos={setPhotos}
             setVideos={setVideos}
           />
-
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {id ? "Atualizando anúncio..." : "Criando anúncio..."}
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                {id ? "Atualizar Anúncio" : "Criar Anúncio"}
-              </>
-            )}
-          </Button>
+          <FormActions isLoading={isLoading} isEditing={!!id} />
         </form>
       </Form>
     </div>
