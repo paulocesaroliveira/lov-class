@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { services } from "./constants";
 import { serviceLocations } from "./serviceLocations";
+import { ArrowUpRight } from "lucide-react";
 
 type AdvertisementDetailsProps = {
   advertisement: any;
@@ -17,6 +19,13 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
 
   const calculateAge = (birthDate: string) => {
     return new Date().getFullYear() - new Date(birthDate).getFullYear();
+  };
+
+  const handleWhatsAppClick = () => {
+    const phoneNumber = advertisement.whatsapp.replace(/\D/g, ""); // Remove non-numeric characters
+    const message = `Olá ${advertisement.name}, vi seu anúncio e gostaria de mais informações.`;
+    const whatsappUrl = `https://wa.me/55${phoneNumber}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, "_blank");
   };
 
   return (
@@ -40,11 +49,19 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
       {/* Localização e Contato */}
       <div>
         <h3 className="font-semibold mb-2">Localização e Contato</h3>
-        <div className="space-y-2 text-sm">
-          <p>Estado: {advertisement.state}</p>
-          <p>Cidade: {advertisement.city}</p>
-          <p>Bairro: {advertisement.neighborhood}</p>
-          <p>WhatsApp: {advertisement.whatsapp}</p>
+        <div className="space-y-2">
+          <div className="text-sm">
+            <p>Estado: {advertisement.state}</p>
+            <p>Cidade: {advertisement.city}</p>
+            <p>Bairro: {advertisement.neighborhood}</p>
+          </div>
+          <Button 
+            onClick={handleWhatsAppClick}
+            className="w-full"
+          >
+            Conversar no WhatsApp
+            <ArrowUpRight className="ml-2" />
+          </Button>
         </div>
       </div>
 
