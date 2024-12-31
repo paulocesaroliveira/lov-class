@@ -29,7 +29,7 @@ const Feed = () => {
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from("feed_posts")
         .select(`
           id,
@@ -41,6 +41,13 @@ const Feed = () => {
           feed_post_media(id, media_type, media_url)
         `)
         .order("created_at", { ascending: false });
+
+      // Limit to 5 posts for logged out users
+      if (!session) {
+        query.limit(5);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       
@@ -63,14 +70,17 @@ const Feed = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [session]); // Re-fetch when session changes
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Feed</h1>
         <p className="text-muted-foreground mt-2">
-          Compartilhe suas novidades com outros usuários
+          {session 
+            ? "Compartilhe suas novidades com outros usuários"
+            : "Veja as últimas 5 publicações do feed. Faça login para ver mais!"
+          }
         </p>
       </div>
 
@@ -87,7 +97,7 @@ const Feed = () => {
       ) : (
         <div className="glass-card p-4 text-center">
           <p className="text-muted-foreground">
-            Faça login para publicar no feed.
+            Faça login para publicar no feed e ver todas as publicações.
           </p>
         </div>
       )}
