@@ -31,9 +31,20 @@ const CriarAnuncio = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      services: [],
+      name: "",
+      birthDate: "",
+      height: 170,
+      weight: 65,
+      category: "mulher",
+      whatsapp: "",
+      state: "",
+      city: "",
+      neighborhood: "",
+      hourlyRate: 200,
       customRates: [],
       style: "patricinha" as StyleType,
+      services: [],
+      description: "",
     },
   });
 
