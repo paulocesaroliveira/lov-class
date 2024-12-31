@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { SlidersHorizontal } from "lucide-react";
 import { services } from "./constants";
 import { Input } from "../ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type Filters = {
   category?: "mulher" | "trans" | "homem";
@@ -21,11 +22,22 @@ type Filters = {
   minPrice?: number;
   maxPrice?: number;
   services?: string[];
+  style?: string;
 };
 
 type AdvancedFilterProps = {
   onFilterChange: (filters: Filters) => void;
 };
+
+const styles = [
+  { value: "patricinha", label: "Patricinha" },
+  { value: "nerd", label: "Nerd" },
+  { value: "passista", label: "Passista" },
+  { value: "milf", label: "Milf" },
+  { value: "fitness", label: "Fitness" },
+  { value: "ninfeta", label: "Ninfeta" },
+  { value: "gordelicia", label: "Gordelicia" },
+] as const;
 
 export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
   const [filters, setFilters] = useState<Filters>({
@@ -124,6 +136,23 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
               <span>R$ {priceRange[0]}</span>
               <span>R$ {priceRange[1]}</span>
             </div>
+          </div>
+
+          {/* Estilo */}
+          <div className="space-y-4">
+            <Label>Estilo</Label>
+            <RadioGroup
+              value={filters.style}
+              onValueChange={(value) => handleFilterChange({ style: value })}
+              className="grid grid-cols-2 gap-4"
+            >
+              {styles.map((style) => (
+                <div key={style.value} className="flex items-center space-x-2">
+                  <RadioGroupItem value={style.value} id={style.value} />
+                  <Label htmlFor={style.value}>{style.label}</Label>
+                </div>
+              ))}
+            </RadioGroup>
           </div>
 
           {/* Serviços */}

@@ -47,6 +47,9 @@ const Anuncios = () => {
       if (filters.maxPrice !== undefined) {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
+      if (filters.style) {
+        query = query.eq("style", filters.style);
+      }
 
       // Filtrar por serviços
       if (filters.services && filters.services.length > 0) {
