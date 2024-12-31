@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, ChartBar, MessageSquareMore } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PlusCircle, Edit, ChartBar, MessageSquareMore, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -12,6 +14,9 @@ const Perfil = () => {
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const {
     totalViews,
@@ -63,6 +68,27 @@ const Perfil = () => {
 
     checkExistingAd();
   }, [navigate]);
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsChangingPassword(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast.success("Senha alterada com sucesso!");
+      setPassword("");
+      setNewPassword("");
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao alterar senha");
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -156,6 +182,34 @@ const Perfil = () => {
           </Button>
         )}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <KeyRound className="w-5 h-5 text-primary" />
+            Alterar Senha
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Nova Senha</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Digite sua nova senha"
+                required
+                minLength={6}
+              />
+            </div>
+            <Button type="submit" disabled={isChangingPassword}>
+              {isChangingPassword ? "Alterando..." : "Alterar Senha"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
