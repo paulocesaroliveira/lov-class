@@ -17,22 +17,38 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // First, fetch comments
   const { data: comments, refetch } = useQuery({
     queryKey: ["comments", advertisementId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get comments
+      const { data: commentsData, error: commentsError } = await supabase
         .from("advertisement_comments")
-        .select(`
-          *,
-          profiles (
-            name
-          )
-        `)
+        .select("*")
         .eq("advertisement_id", advertisementId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (commentsError) throw commentsError;
+
+      // Get unique user IDs from comments
+      const userIds = [...new Set(commentsData.map(comment => comment.user_id))];
+
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .in("id", userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of user IDs to names
+      const profileMap = new Map(profilesData.map(profile => [profile.id, profile.name]));
+
+      // Combine comments with profile names
+      return commentsData.map(comment => ({
+        ...comment,
+        user_name: profileMap.get(comment.user_id) || "Unknown User"
+      }));
     },
   });
 
@@ -115,7 +131,7 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
           <div key={comment.id} className="bg-muted p-3 rounded-lg space-y-2">
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-medium">{comment.profiles?.name}</p>
+                <p className="font-medium">{comment.user_name}</p>
                 <p className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), "dd/MM/yyyy HH:mm")}
                 </p>
