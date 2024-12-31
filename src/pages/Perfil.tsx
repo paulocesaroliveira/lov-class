@@ -90,15 +90,16 @@ const Perfil = () => {
       </div>
 
       <div className="glass-card p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Meus Anúncios</h2>
-          {hasAd && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
+        
+        {hasAd && (
+          <div className="bg-card rounded-lg border p-4 mb-4">
+            <div className="flex items-center gap-2">
               <Eye className="h-4 w-4 text-primary" />
-              <span>{viewCount} visualizações</span>
+              <span className="text-sm">{viewCount} visualizações no seu anúncio</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {hasAd ? (
           <Button
