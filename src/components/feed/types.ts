@@ -4,7 +4,7 @@ export interface FeedPost {
   created_at: string;
   advertisement?: {
     name: string;
-  };
+  } | null;
   feed_post_media: {
     id: string;
     media_type: "image" | "video";

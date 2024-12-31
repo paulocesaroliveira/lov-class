@@ -16,16 +16,19 @@ const Feed = () => {
           id,
           content,
           created_at,
-          advertisement:advertisements(name),
+          profiles!inner(
+            advertisements(name)
+          ),
           feed_post_media(id, media_type, media_url)
         `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       
-      // Type assertion to ensure media_type is either "image" or "video"
+      // Transform the data to match our FeedPost type
       const typedPosts = (data || []).map(post => ({
         ...post,
+        advertisement: post.profiles?.advertisements?.[0] || null,
         feed_post_media: post.feed_post_media.map(media => ({
           ...media,
           media_type: media.media_type as "image" | "video"
