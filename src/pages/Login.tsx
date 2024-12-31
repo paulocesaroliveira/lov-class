@@ -22,7 +22,22 @@ const Login = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          toast({
+            title: "Erro ao fazer login",
+            description: "Email ou senha incorretos. Se você ainda não tem uma conta, por favor registre-se primeiro.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erro ao fazer login",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+        return;
+      }
 
       toast({
         title: "Login realizado com sucesso!",
