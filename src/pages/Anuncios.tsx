@@ -1,15 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { services } from "@/components/advertisement/constants";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { toast } from "sonner";
+import { AdvertisementCard } from "@/components/advertisement/AdvertisementCard";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
@@ -27,6 +25,9 @@ const Anuncios = () => {
           ),
           advertisement_photos (
             photo_url
+          ),
+          advertisement_videos (
+            video_url
           )
         `)
         .order("created_at", { ascending: false });
@@ -92,9 +93,9 @@ const Anuncios = () => {
           <h1 className="text-3xl font-bold">Anúncios</h1>
           <AdvancedFilter onFilterChange={setFilters} />
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <Skeleton key={i} className="h-[300px] rounded-lg" />
+            <Skeleton key={i} className="h-[400px] rounded-lg" />
           ))}
         </div>
       </div>
@@ -109,47 +110,13 @@ const Anuncios = () => {
       </div>
       
       {advertisements && advertisements.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {advertisements.map((ad) => (
-            <Card 
-              key={ad.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+            <AdvertisementCard 
+              key={ad.id}
+              advertisement={ad}
               onClick={() => setSelectedAd(ad)}
-            >
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-xl">{ad.name}</CardTitle>
-                <div className="text-sm text-muted-foreground">
-                  {ad.city}, {ad.state}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(ad.created_at), {
-                    addSuffix: true,
-                    locale: ptBR,
-                  })}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="aspect-[4/3] relative rounded-md overflow-hidden bg-muted">
-                  {ad.profile_photo_url ? (
-                    <img
-                      src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/profile_photos/${ad.profile_photo_url}`}
-                      alt={ad.name}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <span className="text-muted-foreground">Sem foto</span>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-4">
-                  <div className="font-semibold">R$ {ad.hourly_rate}/hora</div>
-                  <div className="line-clamp-2 text-sm text-muted-foreground mt-2">
-                    {ad.description}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            />
           ))}
         </div>
       ) : (
