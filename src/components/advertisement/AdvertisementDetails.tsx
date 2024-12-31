@@ -1,142 +1,99 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { services } from "./constants";
-import { serviceLocations } from "./serviceLocations";
-import { ArrowUpRight, Eye, MessageCircle } from "lucide-react";
-import { AdvertisementComments } from "./AdvertisementComments";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { WhatsappLogo } from "@phosphor-icons/react";
+import { ServiceLocations } from "./ServiceLocations";
+import { ServicesSelection } from "./ServicesSelection";
 
 type AdvertisementDetailsProps = {
   advertisement: any;
+  onWhatsAppClick: () => void;
 };
 
-export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProps) => {
-  const getServiceLabel = (serviceId: string) => {
-    return services.find((s) => s.id === serviceId)?.label || serviceId;
-  };
-
-  const getLocationLabel = (locationId: string) => {
-    return serviceLocations.find((l) => l.id === locationId)?.label || locationId;
-  };
-
-  const calculateAge = (birthDate: string) => {
-    return new Date().getFullYear() - new Date(birthDate).getFullYear();
-  };
-
-  const handleWhatsAppClick = () => {
-    const phoneNumber = advertisement.whatsapp.replace(/\D/g, ""); // Remove non-numeric characters
-    const message = `Olá ${advertisement.name}, vi seu anúncio e gostaria de mais informações.`;
-    const whatsappUrl = `https://wa.me/55${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
-  };
-
-  // Query to get view count
-  const { data: viewCount } = useQuery({
-    queryKey: ["advertisement-views", advertisement.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("advertisement_views")
-        .select("*", { count: "exact", head: true })
-        .eq("advertisement_id", advertisement.id);
-      
-      return count || 0;
-    },
-  });
-
+export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: AdvertisementDetailsProps) => {
   return (
     <div className="space-y-6">
-      {/* Informações Básicas */}
-      <div>
-        <h3 className="font-semibold mb-2">Informações Básicas</h3>
-        <div className="space-y-2 text-sm">
-          <p>Idade: {calculateAge(advertisement.birth_date)} anos</p>
-          <p>Altura: {advertisement.height}cm</p>
-          <p>Peso: {advertisement.weight}kg</p>
-          <p>Categoria: {advertisement.category}</p>
-          <p>Etnia: {advertisement.ethnicity}</p>
-          <p>Cor do Cabelo: {advertisement.hair_color}</p>
-          <p>Tipo Corporal: {advertisement.body_type}</p>
-          <p>Silicone: {advertisement.silicone}</p>
-          <p>Estilo: {advertisement.style}</p>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Sobre</h3>
+          <p className="text-muted-foreground whitespace-pre-wrap">
+            {advertisement.description}
+          </p>
         </div>
-      </div>
 
-      {/* Localização e Contato */}
-      <div>
-        <h3 className="font-semibold mb-2">Localização e Contato</h3>
-        <div className="space-y-2">
-          <div className="text-sm">
-            <p>Estado: {advertisement.state}</p>
-            <p>Cidade: {advertisement.city}</p>
-            <p>Bairro: {advertisement.neighborhood}</p>
-          </div>
-          <Button 
-            onClick={handleWhatsAppClick}
-            className="w-full bg-whatsapp hover:bg-whatsapp/90 text-whatsapp-foreground"
-          >
-            Conversar no WhatsApp
-            <ArrowUpRight className="ml-2" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Valores */}
-      <div>
-        <h3 className="font-semibold mb-2">Valores</h3>
-        <div className="space-y-2">
-          <p className="text-lg font-medium">R$ {advertisement.hourly_rate}/hora</p>
-          {advertisement.custom_rate_description && (
-            <div className="space-y-2">
-              {JSON.parse(advertisement.custom_rate_description).map((rate: any, index: number) => (
-                <p key={index}>
-                  {rate.description}: R$ {rate.value}
-                </p>
-              ))}
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Características</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <span className="text-sm font-medium">Altura:</span>
+              <p className="text-muted-foreground">{advertisement.height}cm</p>
             </div>
-          )}
+            <div>
+              <span className="text-sm font-medium">Peso:</span>
+              <p className="text-muted-foreground">{advertisement.weight}kg</p>
+            </div>
+            <div>
+              <span className="text-sm font-medium">Etnia:</span>
+              <p className="text-muted-foreground">{advertisement.ethnicity}</p>
+            </div>
+            <div>
+              <span className="text-sm font-medium">Cor do cabelo:</span>
+              <p className="text-muted-foreground">{advertisement.hair_color}</p>
+            </div>
+            <div>
+              <span className="text-sm font-medium">Tipo físico:</span>
+              <p className="text-muted-foreground">{advertisement.body_type}</p>
+            </div>
+            <div>
+              <span className="text-sm font-medium">Silicone:</span>
+              <p className="text-muted-foreground">{advertisement.silicone}</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Serviços */}
-      <div>
-        <h3 className="font-semibold mb-2">Serviços</h3>
-        <div className="flex flex-wrap gap-2">
-          {advertisement.advertisement_services.map((service: any) => (
-            <Badge key={service.service} variant="secondary">
-              {getServiceLabel(service.service)}
-            </Badge>
-          ))}
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Valores</h3>
+          <div className="space-y-2">
+            <div>
+              <span className="text-sm font-medium">1 hora:</span>
+              <p className="text-muted-foreground">
+                R$ {advertisement.hourly_rate.toFixed(2)}
+              </p>
+            </div>
+            {advertisement.custom_rate_description && (
+              <div>
+                <span className="text-sm font-medium">
+                  {advertisement.custom_rate_description}:
+                </span>
+                <p className="text-muted-foreground">
+                  R$ {advertisement.custom_rate_value.toFixed(2)}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Locais de Atendimento */}
-      <div>
-        <h3 className="font-semibold mb-2">Locais de Atendimento</h3>
-        <div className="flex flex-wrap gap-2">
-          {advertisement.advertisement_service_locations.map((location: any) => (
-            <Badge key={location.location} variant="outline">
-              {getLocationLabel(location.location)}
-            </Badge>
-          ))}
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Locais de Atendimento</h3>
+          <ServiceLocations
+            locations={advertisement.advertisement_service_locations}
+          />
         </div>
-      </div>
 
-      {/* Descrição */}
-      <div>
-        <h3 className="font-semibold mb-2">Descrição</h3>
-        <p className="text-sm whitespace-pre-wrap">{advertisement.description}</p>
-      </div>
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Serviços</h3>
+          <ServicesSelection
+            services={advertisement.advertisement_services}
+            readOnly
+          />
+        </div>
 
-      {/* Comments Section */}
-      <div className="pt-6 border-t">
-        <AdvertisementComments advertisementId={advertisement.id} />
-      </div>
-
-      {/* View Count */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Eye className="h-4 w-4" />
-        <span>{viewCount} visualizações</span>
+        <Button
+          className="w-full"
+          size="lg"
+          onClick={onWhatsAppClick}
+        >
+          <WhatsappLogo weight="fill" className="w-5 h-5 mr-2" />
+          Chamar no WhatsApp
+        </Button>
       </div>
     </div>
   );

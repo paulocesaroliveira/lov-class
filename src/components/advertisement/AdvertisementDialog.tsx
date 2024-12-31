@@ -36,6 +36,24 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
     }
   }, [advertisement, queryClient]);
 
+  const handleWhatsAppClick = async () => {
+    if (advertisement) {
+      // Record WhatsApp click
+      await supabase
+        .from("advertisement_whatsapp_clicks")
+        .insert({ advertisement_id: advertisement.id });
+      
+      // Invalidate WhatsApp click count query to trigger refresh
+      queryClient.invalidateQueries({
+        queryKey: ["profile-whatsapp-clicks", advertisement.id],
+      });
+
+      // Open WhatsApp
+      const whatsappUrl = `https://wa.me/${advertisement.whatsapp}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  };
+
   if (!advertisement) return null;
 
   return (
@@ -55,7 +73,10 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
           />
 
           {/* Coluna da Direita - Informações */}
-          <AdvertisementDetails advertisement={advertisement} />
+          <AdvertisementDetails 
+            advertisement={advertisement}
+            onWhatsAppClick={handleWhatsAppClick}
+          />
         </div>
       </DialogContent>
     </Dialog>
