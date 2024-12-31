@@ -10,6 +10,7 @@ export const customRateSchema = z.object({
 });
 
 export const formSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(2, "Nome é obrigatório e deve ter pelo menos 2 caracteres"),
   birthDate: z.string().refine((date) => {
     if (!date) return false;

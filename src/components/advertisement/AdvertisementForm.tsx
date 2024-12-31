@@ -109,7 +109,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       const profilePhotoUrl = await uploadProfilePhoto();
       
-      if (advertisement) {
+      if (advertisement?.id) {
         await deleteExistingMedia(advertisement.id);
       }
 
