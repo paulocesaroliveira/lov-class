@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { services } from "@/components/advertisement/constants";
@@ -17,7 +22,8 @@ const Anuncios = () => {
     queryFn: async () => {
       let query = supabase
         .from("advertisements")
-        .select(`
+        .select(
+          `
           *,
           advertisement_services (
             service
@@ -31,7 +37,8 @@ const Anuncios = () => {
           advertisement_videos (
             video_url
           )
-        `)
+        `
+        )
         .order("created_at", { ascending: false });
 
       // Aplicar filtros básicos
@@ -52,6 +59,27 @@ const Anuncios = () => {
       }
       if (filters.style) {
         query = query.eq("style", filters.style);
+      }
+      if (filters.ethnicity) {
+        query = query.eq("ethnicity", filters.ethnicity);
+      }
+      if (filters.hairColor) {
+        query = query.eq("hair_color", filters.hairColor);
+      }
+      if (filters.bodyType) {
+        query = query.eq("body_type", filters.bodyType);
+      }
+      if (filters.minHeight) {
+        query = query.gte("height", filters.minHeight);
+      }
+      if (filters.maxHeight) {
+        query = query.lte("height", filters.maxHeight);
+      }
+      if (filters.minWeight) {
+        query = query.gte("weight", filters.minWeight);
+      }
+      if (filters.maxWeight) {
+        query = query.lte("weight", filters.maxWeight);
       }
 
       // Filtrar por serviços
