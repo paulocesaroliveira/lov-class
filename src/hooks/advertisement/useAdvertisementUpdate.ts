@@ -20,8 +20,8 @@ export const useAdvertisementUpdate = () => {
       .eq("id", values.id)
       .eq("profile_id", userId)
       .select()
-      .limit(1)
-      .maybeSingle();
+      .order('created_at', { ascending: false })
+      .single();
 
     if (adError) {
       console.error("Erro ao atualizar anúncio:", adError);
