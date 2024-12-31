@@ -35,6 +35,7 @@ const EditarAnuncio = () => {
         return;
       }
 
+      console.log("Fetched advertisement data:", advertisement); // Debug log
       setAdvertisementData(advertisement);
     };
 

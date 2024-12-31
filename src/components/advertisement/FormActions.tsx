@@ -7,6 +7,8 @@ type FormActionsProps = {
 };
 
 export const FormActions = ({ isLoading, isEditing }: FormActionsProps) => {
+  console.log("FormActions isEditing:", isEditing); // Debug log
+  
   return (
     <Button type="submit" className="w-full" disabled={isLoading}>
       {isLoading ? (
