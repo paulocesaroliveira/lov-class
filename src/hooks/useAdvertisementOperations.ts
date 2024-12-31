@@ -1,5 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "@/types/advertisement";
+import { Database } from "@/integrations/supabase/types";
+
+type ServiceType = Database["public"]["Enums"]["service_type"];
+type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
 
 export const useAdvertisementOperations = () => {
   const saveAdvertisement = async (
@@ -53,28 +57,28 @@ export const useAdvertisementOperations = () => {
     }
   };
 
-  const saveServices = async (advertisementId: string, services: string[]) => {
+  const saveServices = async (advertisementId: string, services: ServiceType[]) => {
     console.log("Salvando serviços:", services);
     const { error: servicesError } = await supabase
       .from("advertisement_services")
       .insert(
         services.map((service) => ({
           advertisement_id: advertisementId,
-          service,
+          service: service as ServiceType,
         }))
       );
 
     if (servicesError) throw servicesError;
   };
 
-  const saveServiceLocations = async (advertisementId: string, locations: string[]) => {
+  const saveServiceLocations = async (advertisementId: string, locations: ServiceLocationType[]) => {
     console.log("Salvando locais de atendimento:", locations);
     const { error: locationsError } = await supabase
       .from("advertisement_service_locations")
       .insert(
         locations.map((location) => ({
           advertisement_id: advertisementId,
-          location,
+          location: location as ServiceLocationType,
         }))
       );
 
