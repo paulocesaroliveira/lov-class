@@ -1,24 +1,43 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus, User, Home, Grid } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { session } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success('Desconectado com sucesso');
+      navigate('/');
+    } catch (error) {
+      toast.error('Erro ao desconectar');
+    }
+  };
 
   const menuItems = [
     { path: '/', label: 'Início', icon: Home },
     { path: '/anuncios', label: 'Anúncios', icon: Grid },
   ];
 
-  // Show these items only when user is NOT logged in
+  // Show these items based on authentication status
   const authItems = !session ? [
     { path: '/login', label: 'Entrar', icon: LogIn },
     { path: '/registro', label: 'Cadastrar', icon: UserPlus },
   ] : [
-    { path: '/perfil', label: 'Perfil', icon: User }
+    { path: '/perfil', label: 'Perfil', icon: User },
+    { 
+      path: '#', 
+      label: 'Sair', 
+      icon: LogOut,
+      onClick: handleLogout 
+    }
   ];
 
   return (
@@ -47,7 +66,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <div className="flex items-center gap-2">
                 {authItems.map((item) => {
                   const Icon = item.icon;
-                  return (
+                  return item.onClick ? (
+                    <button
+                      key={item.label}
+                      onClick={item.onClick}
+                      className="btn-primary flex items-center gap-2"
+                    >
+                      <Icon size={18} />
+                      <span>{item.label}</span>
+                    </button>
+                  ) : (
                     <Link
                       key={item.path}
                       to={item.path}
@@ -93,7 +121,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               ))}
               {authItems.map((item) => {
                 const Icon = item.icon;
-                return (
+                return item.onClick ? (
+                  <button
+                    key={item.label}
+                    onClick={() => {
+                      item.onClick();
+                      setIsMenuOpen(false);
+                    }}
+                    className="btn-primary flex items-center justify-center gap-2"
+                  >
+                    <Icon size={18} />
+                    <span>{item.label}</span>
+                  </button>
+                ) : (
                   <Link
                     key={item.path}
                     to={item.path}
