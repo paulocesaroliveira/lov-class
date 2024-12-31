@@ -48,15 +48,22 @@ const Anuncios = () => {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
 
-      // Filtrar por serviços usando uma subquery
+      // Filtrar por serviços
       if (filters.services && filters.services.length > 0) {
-        query = query.in(
-          "id",
-          supabase
-            .from("advertisement_services")
-            .select("advertisement_id")
-            .in("service", filters.services)
-        );
+        const { data: serviceIds } = await supabase
+          .from("advertisement_services")
+          .select("advertisement_id")
+          .in("service", filters.services);
+
+        if (serviceIds && serviceIds.length > 0) {
+          query = query.in(
+            "id",
+            serviceIds.map((item) => item.advertisement_id)
+          );
+        } else {
+          // Se não houver anúncios com os serviços selecionados, retornar array vazio
+          return [];
+        }
       }
 
       const { data, error } = await query;
