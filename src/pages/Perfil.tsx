@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { PlusCircle, Edit, ChartBar, MessageSquareMore, KeyRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useAdvertisementStats } from "@/hooks/useAdvertisement";
+import { ProfileStats } from "@/components/profile/ProfileStats";
+import { AdvertisementSection } from "@/components/profile/AdvertisementSection";
+import { PasswordChangeSection } from "@/components/profile/PasswordChangeSection";
 
 const Perfil = () => {
   const navigate = useNavigate();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const {
     totalViews,
@@ -69,27 +64,6 @@ const Perfil = () => {
     checkExistingAd();
   }, [navigate]);
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsChangingPassword(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) throw error;
-
-      toast.success("Senha alterada com sucesso!");
-      setPassword("");
-      setNewPassword("");
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao alterar senha");
-    } finally {
-      setIsChangingPassword(false);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
@@ -108,108 +82,17 @@ const Perfil = () => {
       </div>
 
       {hasAd && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ChartBar className="w-5 h-5 text-primary" />
-              Estatísticas
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <ChartBar className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Visualizações do mês</p>
-                  <p className="text-2xl font-bold">{monthlyViews || 0}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <ChartBar className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Visualizações total</p>
-                  <p className="text-2xl font-bold">{totalViews || 0}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
-                <div className="p-2 rounded-full bg-whatsapp/10">
-                  <MessageSquareMore className="h-4 w-4 text-whatsapp" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Cliques WhatsApp do mês</p>
-                  <p className="text-2xl font-bold">{monthlyWhatsappClicks || 0}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
-                <div className="p-2 rounded-full bg-whatsapp/10">
-                  <MessageSquareMore className="h-4 w-4 text-whatsapp" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Cliques WhatsApp total</p>
-                  <p className="text-2xl font-bold">{totalWhatsappClicks || 0}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ProfileStats
+          totalViews={totalViews}
+          monthlyViews={monthlyViews}
+          totalWhatsappClicks={totalWhatsappClicks}
+          monthlyWhatsappClicks={monthlyWhatsappClicks}
+        />
       )}
 
-      <div className="glass-card p-6">
-        <h2 className="text-xl font-semibold mb-4">Meu Anúncio</h2>
-        
-        {hasAd ? (
-          <Button
-            onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
-            className="w-full sm:w-auto"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Editar Anúncio
-          </Button>
-        ) : (
-          <Button
-            onClick={() => navigate("/criar-anuncio")}
-            className="w-full sm:w-auto"
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Criar Anúncio
-          </Button>
-        )}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <KeyRound className="w-5 h-5 text-primary" />
-            Alterar Senha
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordChange} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-password">Nova Senha</Label>
-              <Input
-                id="new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Digite sua nova senha"
-                required
-                minLength={6}
-              />
-            </div>
-            <Button type="submit" disabled={isChangingPassword}>
-              {isChangingPassword ? "Alterando..." : "Alterar Senha"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <AdvertisementSection hasAd={hasAd} advertisementId={advertisementId} />
+      
+      <PasswordChangeSection />
     </div>
   );
 };
