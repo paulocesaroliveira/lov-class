@@ -84,11 +84,15 @@ const Favoritos = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format and mark as favorites
-      return favorites.map((favorite) => ({
+      // Transform the data to match the expected format and ensure favorites are marked
+      const transformedFavorites = favorites.map(favorite => ({
         ...favorite.advertisements,
-        isFavorite: true // Explicitly mark as favorite
       }));
+
+      // Create an array of advertisement IDs that are favorites
+      const favoriteIds = favorites.map(fav => fav.advertisement_id);
+
+      return transformedFavorites;
     },
     enabled: !!session?.user?.id,
   });
@@ -110,6 +114,7 @@ const Favoritos = () => {
         advertisements={favorites || []}
         isLoading={isLoading}
         onSelectAd={setSelectedAd}
+        isFavoritesPage={true}
       />
       {selectedAd && (
         <AdvertisementDialog

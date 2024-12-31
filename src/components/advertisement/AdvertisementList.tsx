@@ -8,12 +8,18 @@ interface AdvertisementListProps {
   advertisements: any[] | null;
   isLoading: boolean;
   onSelectAd: (ad: any) => void;
+  isFavoritesPage?: boolean;
 }
 
-export const AdvertisementList = ({ advertisements, isLoading, onSelectAd }: AdvertisementListProps) => {
+export const AdvertisementList = ({ 
+  advertisements, 
+  isLoading, 
+  onSelectAd,
+  isFavoritesPage = false 
+}: AdvertisementListProps) => {
   const { session } = useAuth();
 
-  // Fetch user's favorites if logged in
+  // Fetch user's favorites if logged in and not on favorites page
   const { data: favorites } = useQuery({
     queryKey: ["favorites", session?.user?.id],
     queryFn: async () => {
@@ -27,7 +33,7 @@ export const AdvertisementList = ({ advertisements, isLoading, onSelectAd }: Adv
       if (error) throw error;
       return data.map(fav => fav.advertisement_id);
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id && !isFavoritesPage,
   });
 
   if (isLoading) {
@@ -58,7 +64,7 @@ export const AdvertisementList = ({ advertisements, isLoading, onSelectAd }: Adv
           key={ad.id}
           advertisement={ad}
           onClick={() => onSelectAd(ad)}
-          isFavorite={favorites?.includes(ad.id)}
+          isFavorite={isFavoritesPage || favorites?.includes(ad.id)}
         />
       ))}
     </div>
