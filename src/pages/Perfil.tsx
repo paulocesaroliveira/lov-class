@@ -1,15 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit } from "lucide-react";
+import { PlusCircle, Edit, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 
 const Perfil = () => {
   const navigate = useNavigate();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
+
+  // Query to get view count if user has an advertisement
+  const { data: viewCount } = useQuery({
+    queryKey: ["profile-advertisement-views", advertisementId],
+    queryFn: async () => {
+      if (!advertisementId) return 0;
+      
+      const { count } = await supabase
+        .from("advertisement_views")
+        .select("*", { count: "exact", head: true })
+        .eq("advertisement_id", advertisementId);
+      
+      return count || 0;
+    },
+    enabled: !!advertisementId,
+  });
 
   useEffect(() => {
     const checkExistingAd = async () => {
@@ -75,13 +92,26 @@ const Perfil = () => {
       <div className="glass-card p-6">
         <h2 className="text-xl font-semibold mb-4">Meus Anúncios</h2>
         {hasAd ? (
-          <Button
-            onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
-            className="w-full sm:w-auto"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Editar Anúncio
-          </Button>
+          <div className="space-y-4">
+            <Button
+              onClick={() => navigate(`/editar-anuncio/${advertisementId}`)}
+              className="w-full sm:w-auto"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Editar Anúncio
+            </Button>
+
+            {/* View count box */}
+            <div className="glass-card p-4 mt-4">
+              <div className="flex items-center gap-2">
+                <Eye className="h-5 w-5 text-primary" />
+                <span className="text-lg font-medium">{viewCount} visualizações</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                Total de visualizações do seu anúncio
+              </p>
+            </div>
+          </div>
         ) : (
           <Button
             onClick={() => navigate("/criar-anuncio")}
