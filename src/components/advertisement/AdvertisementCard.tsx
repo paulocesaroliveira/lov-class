@@ -178,6 +178,10 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
             <Video size={14} />
             <span>{advertisement.advertisement_videos?.length || 0}</span>
           </div>
+          <div className="flex items-center gap-0.5">
+            <MessageSquare size={14} />
+            <span>{advertisement.advertisement_comments?.length || 0}</span>
+          </div>
         </div>
       </div>
     </Card>

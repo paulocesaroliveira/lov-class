@@ -32,6 +32,9 @@ const Anuncios = () => {
           advertisement_videos (
             id,
             video_url
+          ),
+          advertisement_comments (
+            id
           )
         `)
         .order("created_at", { ascending: false });
