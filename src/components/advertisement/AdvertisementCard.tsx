@@ -22,7 +22,7 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
   );
 
   const toggleFavorite = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click event
+    e.stopPropagation();
 
     if (!session) {
       toast.error("Faça login para favoritar anúncios");
@@ -40,21 +40,9 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
           .eq('advertisement_id', advertisement.id);
 
         if (error) throw error;
+        setFavorite(false);
         toast.success("Removido dos favoritos");
       } else {
-        // Check if favorite already exists
-        const { data: existingFavorite } = await supabase
-          .from('favorites')
-          .select()
-          .eq('user_id', session.user.id)
-          .eq('advertisement_id', advertisement.id)
-          .maybeSingle();
-
-        if (existingFavorite) {
-          toast.error("Anúncio já está nos favoritos");
-          return;
-        }
-
         // Add to favorites
         const { error } = await supabase
           .from('favorites')
@@ -63,17 +51,19 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
             advertisement_id: advertisement.id
           });
 
-        if (error) throw error;
+        if (error) {
+          if (error.message?.includes('duplicate key value')) {
+            toast.error("Anúncio já está nos favoritos");
+            return;
+          }
+          throw error;
+        }
+        setFavorite(true);
         toast.success("Adicionado aos favoritos");
       }
-      setFavorite(!favorite);
     } catch (error: any) {
-      // Check if error is due to duplicate favorite
-      if (error.message?.includes('duplicate key value')) {
-        toast.error("Anúncio já está nos favoritos");
-        return;
-      }
       toast.error("Erro ao atualizar favoritos");
+      console.error("Error toggling favorite:", error);
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +74,6 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
       className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden relative"
       onClick={onClick}
     >
-      {/* Favorite Button */}
       {session && (
         <Button
           variant="ghost"
@@ -99,7 +88,6 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         </Button>
       )}
 
-      {/* Image Container with 3:4 aspect ratio */}
       <div className="aspect-[3/4] relative">
         {advertisement.profile_photo_url ? (
           <img
@@ -114,14 +102,10 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         )}
       </div>
 
-      {/* Content Container with tighter spacing */}
       <div className="p-2 space-y-2">
-        {/* Name */}
         <h3 className="text-base font-semibold line-clamp-1 text-center mb-1">{advertisement.name}</h3>
 
-        {/* Info Grid - 2 columns */}
         <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-          {/* Age and Location */}
           <div className="flex items-center justify-center">
             <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
           </div>
@@ -130,7 +114,6 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
             <span className="truncate">{advertisement.city}</span>
           </div>
 
-          {/* Height and Weight */}
           <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Alt:</span>
             <span>{advertisement.height}cm</span>
@@ -140,7 +123,6 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
             <span>{advertisement.weight}kg</span>
           </div>
 
-          {/* Style and Local Service */}
           <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Estilo:</span>
             <span className="capitalize truncate">{advertisement.style}</span>
@@ -151,12 +133,10 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
           </div>
         </div>
 
-        {/* Price */}
         <div className="text-base font-bold text-center py-1">
           R$ {advertisement.hourly_rate}
         </div>
 
-        {/* Media Stats */}
         <div className="flex items-center gap-3 text-xs text-muted-foreground justify-center border-t pt-1">
           <div className="flex items-center gap-0.5">
             <Camera size={14} />
