@@ -59,14 +59,20 @@ const Anuncios = () => {
       }
       
       // Filtro de idade
-      const currentYear = new Date().getFullYear();
-      if (filters.minAge !== undefined) {
-        const maxBirthYear = currentYear - filters.minAge;
-        query = query.lte("birth_date", `${maxBirthYear}-12-31`);
-      }
-      if (filters.maxAge !== undefined) {
-        const minBirthYear = currentYear - filters.maxAge;
-        query = query.gte("birth_date", `${minBirthYear}-01-01`);
+      if (filters.minAge !== undefined || filters.maxAge !== undefined) {
+        const currentYear = new Date().getFullYear();
+        
+        if (filters.maxAge !== undefined) {
+          const minBirthYear = currentYear - filters.maxAge;
+          const minDate = `${minBirthYear}-01-01`;
+          query = query.gte("birth_date", minDate);
+        }
+        
+        if (filters.minAge !== undefined) {
+          const maxBirthYear = currentYear - filters.minAge;
+          const maxDate = `${maxBirthYear}-12-31`;
+          query = query.lte("birth_date", maxDate);
+        }
       }
 
       // Filtrar por serviços

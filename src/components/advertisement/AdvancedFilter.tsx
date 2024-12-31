@@ -64,7 +64,6 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
 
   const handleAgeChange = (value: number[]) => {
     setAgeRange(value);
-    const currentYear = new Date().getFullYear();
     handleFilterChange({
       minAge: value[0],
       maxAge: value[1],
@@ -108,7 +107,9 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
                   variant={filters.category === category ? "default" : "outline"}
                   onClick={() =>
                     handleFilterChange({
-                      category: filters.category === category ? undefined : category,
+                      category: filters.category === category 
+                        ? undefined 
+                        : (category as "mulher" | "trans" | "homem")
                     })
                   }
                   className="capitalize"
