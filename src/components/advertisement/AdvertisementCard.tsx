@@ -7,7 +7,6 @@ interface AdvertisementCardProps {
 }
 
 export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardProps) => {
-  // Check if "com_local" exists in serviceLocations array
   const hasLocalService = advertisement.advertisement_service_locations?.some(
     (location: { location: string }) => location.location === "com_local"
   );
@@ -17,7 +16,7 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
       className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
       onClick={onClick}
     >
-      {/* Image Container */}
+      {/* Image Container with 3:4 aspect ratio */}
       <div className="aspect-[3/4] relative">
         {advertisement.profile_photo_url ? (
           <img
@@ -32,59 +31,56 @@ export const AdvertisementCard = ({ advertisement, onClick }: AdvertisementCardP
         )}
       </div>
 
-      {/* Content */}
-      <div className="p-3 space-y-3">
-        {/* Name - Centered */}
-        <h3 className="text-lg font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
+      {/* Content Container with tighter spacing */}
+      <div className="p-2 space-y-2">
+        {/* Name */}
+        <h3 className="text-base font-semibold line-clamp-1 text-center mb-1">{advertisement.name}</h3>
 
-        {/* Age and City - Side by Side */}
-        <div className="grid grid-cols-2 text-sm">
-          <div className="flex items-center justify-center gap-1">
+        {/* Info Grid - 2 columns */}
+        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+          {/* Age and Location */}
+          <div className="flex items-center justify-center">
             <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
           </div>
-          <div className="flex items-center justify-center gap-1">
-            <MapPin size={16} className="text-muted-foreground" />
-            <span>{advertisement.city}</span>
+          <div className="flex items-center justify-center gap-0.5">
+            <MapPin size={14} className="text-muted-foreground" />
+            <span className="truncate">{advertisement.city}</span>
           </div>
-        </div>
 
-        {/* Height and Weight - Side by Side */}
-        <div className="grid grid-cols-2 text-sm">
+          {/* Height and Weight */}
           <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Altura:</span>
+            <span className="text-muted-foreground">Alt:</span>
             <span>{advertisement.height}cm</span>
           </div>
           <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Peso:</span>
             <span>{advertisement.weight}kg</span>
           </div>
-        </div>
 
-        {/* Style and Local - Side by Side */}
-        <div className="grid grid-cols-2 text-sm">
+          {/* Style and Local Service */}
           <div className="flex items-center justify-center gap-1">
             <span className="text-muted-foreground">Estilo:</span>
-            <span className="capitalize">{advertisement.style}</span>
+            <span className="capitalize truncate">{advertisement.style}</span>
           </div>
           <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Com local:</span>
+            <span className="text-muted-foreground">Local:</span>
             <span>{hasLocalService ? "Sim" : "Não"}</span>
           </div>
         </div>
 
-        {/* Price - Centered */}
-        <div className="text-lg font-bold text-center">
+        {/* Price */}
+        <div className="text-base font-bold text-center py-1">
           R$ {advertisement.hourly_rate}
         </div>
 
-        {/* Stats Row - Below Price */}
-        <div className="flex items-center gap-4 text-sm text-muted-foreground justify-center">
-          <div className="flex items-center gap-1">
-            <Camera size={16} />
+        {/* Media Stats */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground justify-center border-t pt-1">
+          <div className="flex items-center gap-0.5">
+            <Camera size={14} />
             <span>{advertisement.advertisement_photos?.length || 0}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Video size={16} />
+          <div className="flex items-center gap-0.5">
+            <Video size={14} />
             <span>{advertisement.advertisement_videos?.length || 0}</span>
           </div>
         </div>
