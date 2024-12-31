@@ -35,7 +35,7 @@ const Feed = () => {
           id,
           content,
           created_at,
-          profiles!inner(
+          profiles!left(
             advertisements(name)
           ),
           feed_post_media(id, media_type, media_url)
