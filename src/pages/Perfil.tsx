@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, ChartBar, MessageSquareMore } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useAdvertisementStats } from "@/hooks/useAdvertisement";
 
 const Perfil = () => {
   const navigate = useNavigate();
@@ -13,37 +13,12 @@ const Perfil = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
 
-  // Query to get view count if user has an advertisement
-  const { data: viewCount } = useQuery({
-    queryKey: ["profile-advertisement-views", advertisementId],
-    queryFn: async () => {
-      if (!advertisementId) return 0;
-      
-      const { count } = await supabase
-        .from("advertisement_views")
-        .select("*", { count: "exact", head: true })
-        .eq("advertisement_id", advertisementId);
-      
-      return count || 0;
-    },
-    enabled: !!advertisementId,
-  });
-
-  // Query to get WhatsApp click count
-  const { data: whatsappClickCount } = useQuery({
-    queryKey: ["profile-whatsapp-clicks", advertisementId],
-    queryFn: async () => {
-      if (!advertisementId) return 0;
-      
-      const { count } = await supabase
-        .from("advertisement_whatsapp_clicks")
-        .select("*", { count: "exact", head: true })
-        .eq("advertisement_id", advertisementId);
-      
-      return count || 0;
-    },
-    enabled: !!advertisementId,
-  });
+  const {
+    totalViews,
+    monthlyViews,
+    totalWhatsappClicks,
+    monthlyWhatsappClicks,
+  } = useAdvertisementStats(advertisementId);
 
   useEffect(() => {
     const checkExistingAd = async () => {
@@ -115,14 +90,24 @@ const Perfil = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
                 <div className="p-2 rounded-full bg-primary/10">
                   <ChartBar className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Visualizações</p>
-                  <p className="text-2xl font-bold">{viewCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">Visualizações do mês</p>
+                  <p className="text-2xl font-bold">{monthlyViews || 0}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                <div className="p-2 rounded-full bg-primary/10">
+                  <ChartBar className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Visualizações total</p>
+                  <p className="text-2xl font-bold">{totalViews || 0}</p>
                 </div>
               </div>
               
@@ -131,8 +116,18 @@ const Perfil = () => {
                   <MessageSquareMore className="h-4 w-4 text-whatsapp" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Cliques WhatsApp</p>
-                  <p className="text-2xl font-bold">{whatsappClickCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">Cliques WhatsApp do mês</p>
+                  <p className="text-2xl font-bold">{monthlyWhatsappClicks || 0}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+                <div className="p-2 rounded-full bg-whatsapp/10">
+                  <MessageSquareMore className="h-4 w-4 text-whatsapp" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Cliques WhatsApp total</p>
+                  <p className="text-2xl font-bold">{totalWhatsappClicks || 0}</p>
                 </div>
               </div>
             </div>
