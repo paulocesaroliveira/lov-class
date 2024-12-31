@@ -9,11 +9,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { SlidersHorizontal, X } from "lucide-react";
 import { services } from "./constants";
 import { Input } from "../ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ServiceLocationsFilter } from "./ServiceLocationsFilter";
+import { styles } from "./constants";
 
 type Filters = {
   category?: "mulher" | "trans" | "homem";
@@ -22,6 +23,7 @@ type Filters = {
   minPrice?: number;
   maxPrice?: number;
   services?: string[];
+  serviceLocations?: string[];
   style?: string;
 };
 
@@ -29,19 +31,10 @@ type AdvancedFilterProps = {
   onFilterChange: (filters: Filters) => void;
 };
 
-const styles = [
-  { value: "patricinha", label: "Patricinha" },
-  { value: "nerd", label: "Nerd" },
-  { value: "passista", label: "Passista" },
-  { value: "milf", label: "Milf" },
-  { value: "fitness", label: "Fitness" },
-  { value: "ninfeta", label: "Ninfeta" },
-  { value: "gordelicia", label: "Gordelicia" },
-] as const;
-
 export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
   const [filters, setFilters] = useState<Filters>({
     services: [],
+    serviceLocations: [],
   });
   const [priceRange, setPriceRange] = useState([0, 1000]);
 
@@ -60,8 +53,16 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
     handleFilterChange({ services: updatedServices });
   };
 
+  const handleLocationToggle = (locationId: string) => {
+    const currentLocations = filters.serviceLocations || [];
+    const updatedLocations = currentLocations.includes(locationId)
+      ? currentLocations.filter((id) => id !== locationId)
+      : [...currentLocations, locationId];
+
+    handleFilterChange({ serviceLocations: updatedLocations });
+  };
+
   const handleStyleChange = (value: string | undefined) => {
-    // If the user clicks the same style that's already selected, clear it
     if (value === filters.style) {
       handleFilterChange({ style: undefined });
     } else {
@@ -201,6 +202,12 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
               ))}
             </div>
           </div>
+
+          {/* Locais de Atendimento */}
+          <ServiceLocationsFilter
+            selectedLocations={filters.serviceLocations || []}
+            onLocationToggle={handleLocationToggle}
+          />
         </div>
       </SheetContent>
     </Sheet>

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { Database } from "@/integrations/supabase/types";
 
 type ServiceType = Database["public"]["Enums"]["service_type"];
+type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
 
 export const customRateSchema = z.object({
   description: z.string().min(1, "Descrição é obrigatória"),
@@ -56,5 +57,12 @@ export const formSchema = z.object({
     "orgia",
     "gangbang"
   ] as const)).min(1, "Selecione pelo menos um serviço"),
+  serviceLocations: z.array(z.enum([
+    "com_local",
+    "motel",
+    "clube_swing",
+    "domicilio",
+    "viagens"
+  ] as const)).min(1, "Selecione pelo menos um local de atendimento"),
   description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
 });

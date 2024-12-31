@@ -38,6 +38,29 @@ export type Database = {
           },
         ]
       }
+      advertisement_service_locations: {
+        Row: {
+          advertisement_id: string
+          location: Database["public"]["Enums"]["service_location_type"]
+        }
+        Insert: {
+          advertisement_id: string
+          location: Database["public"]["Enums"]["service_location_type"]
+        }
+        Update: {
+          advertisement_id?: string
+          location?: Database["public"]["Enums"]["service_location_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisement_services: {
         Row: {
           advertisement_id: string
@@ -194,6 +217,12 @@ export type Database = {
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
+      service_location_type:
+        | "com_local"
+        | "motel"
+        | "clube_swing"
+        | "domicilio"
+        | "viagens"
       service_type:
         | "beijo_na_boca"
         | "beijo_grego"

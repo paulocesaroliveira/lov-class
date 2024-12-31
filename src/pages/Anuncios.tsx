@@ -23,6 +23,9 @@ const Anuncios = () => {
           advertisement_services (
             service
           ),
+          advertisement_service_locations (
+            location
+          ),
           advertisement_photos (
             photo_url
           ),
@@ -65,7 +68,23 @@ const Anuncios = () => {
             serviceIds.map((item) => item.advertisement_id)
           );
         } else {
-          // Se não houver anúncios com os serviços selecionados, retornar array vazio
+          return [];
+        }
+      }
+
+      // Filtrar por locais de atendimento
+      if (filters.serviceLocations && filters.serviceLocations.length > 0) {
+        const { data: locationIds } = await supabase
+          .from("advertisement_service_locations")
+          .select("advertisement_id")
+          .in("location", filters.serviceLocations);
+
+        if (locationIds && locationIds.length > 0) {
+          query = query.in(
+            "id",
+            locationIds.map((item) => item.advertisement_id)
+          );
+        } else {
           return [];
         }
       }
