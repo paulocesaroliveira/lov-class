@@ -1,19 +1,24 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, User } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
+  const { session } = useAuth();
 
   const menuItems = [
     { path: '/', label: 'Início' },
     { path: '/anuncios', label: 'Anúncios' },
   ];
 
-  const authItems = [
+  // Show these items only when user is NOT logged in
+  const authItems = !session ? [
     { path: '/login', label: 'Entrar', icon: LogIn },
     { path: '/registro', label: 'Cadastrar', icon: UserPlus },
+  ] : [
+    { path: '/perfil', label: 'Perfil', icon: User }
   ];
 
   return (
