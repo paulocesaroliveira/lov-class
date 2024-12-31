@@ -41,8 +41,8 @@ const Anuncios = () => {
     return (
       <div className="space-y-8">
         <h1 className="text-3xl font-bold">Anúncios</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <Skeleton key={i} className="h-[300px] rounded-lg" />
           ))}
         </div>
@@ -59,7 +59,7 @@ const Anuncios = () => {
       <h1 className="text-3xl font-bold">Anúncios</h1>
       
       {advertisements && advertisements.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {advertisements.map((ad) => (
             <Card 
               key={ad.id} 
