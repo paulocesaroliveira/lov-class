@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type AdvertisementCommentsProps = {
   advertisementId: string;
@@ -17,9 +16,9 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
   const { session } = useAuth();
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState<number | null>(null);
+  const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // First, fetch comments
   const { data: comments, refetch } = useQuery({
     queryKey: ["comments", advertisementId],
     queryFn: async () => {
@@ -102,17 +101,41 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
     }
   };
 
-  const renderStars = (rating: number | null) => {
-    if (!rating) return null;
+  const handleStarClick = (value: number) => {
+    setRating(rating === value ? null : value);
+  };
+
+  const renderStars = (rating: number | null, interactive: boolean = false) => {
     return (
-      <div className="flex gap-0.5">
-        {[...Array(5)].map((_, index) => (
-          index < rating ? (
-            <Star key={index} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-          ) : (
-            <StarOff key={index} className="w-4 h-4 text-muted-foreground" />
-          )
-        ))}
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((value) => {
+          const isActive = interactive 
+            ? (hoveredRating || rating || 0) >= value 
+            : (rating || 0) >= value;
+
+          return (
+            <button
+              key={value}
+              type={interactive ? "button" : undefined}
+              onClick={interactive ? () => handleStarClick(value) : undefined}
+              onMouseEnter={interactive ? () => setHoveredRating(value) : undefined}
+              onMouseLeave={interactive ? () => setHoveredRating(null) : undefined}
+              className={`${interactive ? 'cursor-pointer transition-transform hover:scale-110' : ''} ${isActive ? 'text-yellow-400' : 'text-muted-foreground'}`}
+              disabled={!interactive || isSubmitting}
+            >
+              {isActive ? (
+                <Star className="w-6 h-6 fill-current" />
+              ) : (
+                <StarOff className="w-6 h-6" />
+              )}
+            </button>
+          );
+        })}
+        {interactive && rating && (
+          <span className="ml-2 text-sm text-muted-foreground">
+            {rating} {rating === 1 ? 'estrela' : 'estrelas'}
+          </span>
+        )}
       </div>
     );
   };
@@ -136,21 +159,8 @@ export const AdvertisementComments = ({ advertisementId }: AdvertisementComments
         
         {session && (
           <div className="space-y-2">
-            <label className="text-sm font-medium">Avaliação:</label>
-            <RadioGroup
-              value={rating?.toString()}
-              onValueChange={(value) => setRating(parseInt(value))}
-              className="flex gap-4"
-            >
-              {[1, 2, 3, 4, 5].map((value) => (
-                <div key={value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={value.toString()} id={`rating-${value}`} />
-                  <label htmlFor={`rating-${value}`} className="text-sm">
-                    {value} {value === 1 ? 'estrela' : 'estrelas'}
-                  </label>
-                </div>
-              ))}
-            </RadioGroup>
+            <label className="text-sm font-medium block mb-2">Avaliação:</label>
+            {renderStars(rating, true)}
           </div>
         )}
 
