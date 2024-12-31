@@ -28,14 +28,14 @@ const EditarAnuncio = () => {
           )
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching advertisement:", error);
         return;
       }
 
-      console.log("Fetched advertisement data:", advertisement); // Debug log
+      console.log("Fetched advertisement data:", advertisement);
       setAdvertisementData(advertisement);
     };
 
@@ -45,7 +45,7 @@ const EditarAnuncio = () => {
   }, [id]);
 
   if (!advertisementData) {
-    return <div>Loading...</div>;
+    return <div>Carregando...</div>;
   }
 
   const formattedData = {
