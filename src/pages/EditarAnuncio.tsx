@@ -48,12 +48,25 @@ const EditarAnuncio = () => {
   }
 
   const formattedData = {
-    ...advertisementData,
+    name: advertisementData.name,
     birthDate: advertisementData.birth_date,
+    height: advertisementData.height,
+    weight: advertisementData.weight,
+    category: advertisementData.category,
+    ethnicity: advertisementData.ethnicity,
+    hairColor: advertisementData.hair_color,
+    bodyType: advertisementData.body_type,
+    silicone: advertisementData.silicone,
+    whatsapp: advertisementData.whatsapp,
+    state: advertisementData.state,
+    city: advertisementData.city,
+    neighborhood: advertisementData.neighborhood,
     hourlyRate: advertisementData.hourly_rate,
     customRates: advertisementData.custom_rate_description
       ? JSON.parse(advertisementData.custom_rate_description)
       : [],
+    style: advertisementData.style,
+    description: advertisementData.description,
     services: advertisementData.advertisement_services?.map((s: any) => s.service) || [],
     serviceLocations: advertisementData.advertisement_service_locations?.map((l: any) => l.location) || [],
     advertisement_services: advertisementData.advertisement_services || [],
