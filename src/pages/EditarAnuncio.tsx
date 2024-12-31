@@ -29,25 +29,24 @@ const EditarAnuncio = () => {
     );
   }
 
-  // Transform the data to match the form structure
-  const formattedAdvertisement: FormValues = {
-    name: advertisementData.name,
+  const formattedAdvertisement = {
+    ...advertisementData,
     birthDate: advertisementData.birth_date,
-    height: advertisementData.height,
-    weight: advertisementData.weight,
-    category: advertisementData.category,
-    whatsapp: advertisementData.whatsapp,
-    state: advertisementData.state,
-    city: advertisementData.city,
-    neighborhood: advertisementData.neighborhood,
     hourlyRate: advertisementData.hourly_rate,
     customRates: advertisementData.custom_rate_description && advertisementData.custom_rate_value 
       ? [{ description: advertisementData.custom_rate_description, value: advertisementData.custom_rate_value }]
       : [],
-    style: advertisementData.style,
     services: advertisementData.advertisement_services?.map(s => s.service) || [],
     serviceLocations: advertisementData.advertisement_service_locations?.map(l => l.location) || [],
-    description: advertisementData.description,
+    advertisement_services: advertisementData.advertisement_services || [],
+    advertisement_service_locations: advertisementData.advertisement_service_locations || [],
+    advertisement_photos: advertisementData.advertisement_photos || [],
+    advertisement_videos: advertisementData.advertisement_videos || [],
+  } as FormValues & {
+    advertisement_services: { service: string }[];
+    advertisement_service_locations: { location: string }[];
+    advertisement_photos: { photo_url: string }[];
+    advertisement_videos: { video_url: string }[];
   };
 
   return (

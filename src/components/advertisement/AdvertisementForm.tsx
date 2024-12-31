@@ -51,6 +51,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
       serviceLocations: [],
       description: "",
     },
+    mode: "onBlur",
   });
 
   const {

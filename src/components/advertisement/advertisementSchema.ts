@@ -10,14 +10,15 @@ export const customRateSchema = z.object({
 });
 
 export const formSchema = z.object({
-  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  name: z.string().min(2, "Nome é obrigatório e deve ter pelo menos 2 caracteres"),
   birthDate: z.string().refine((date) => {
+    if (!date) return false;
     const birthDate = new Date(date);
     const age = Math.floor(
       (Date.now() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
     );
     return age >= 18;
-  }, "Você deve ter pelo menos 18 anos"),
+  }, "Data de nascimento é obrigatória e você deve ter pelo menos 18 anos"),
   height: z
     .number()
     .min(100, "Altura mínima é 100cm")
@@ -26,15 +27,17 @@ export const formSchema = z.object({
     .number()
     .min(30, "Peso mínimo é 30kg")
     .max(300, "Peso máximo é 300kg"),
-  category: z.enum(["mulher", "trans", "homem"]),
-  whatsapp: z.string().min(10, "WhatsApp inválido"),
+  category: z.enum(["mulher", "trans", "homem"], {
+    required_error: "Categoria é obrigatória",
+  }),
+  whatsapp: z.string().min(10, "WhatsApp é obrigatório e deve ser válido"),
   state: z.string().min(2, "Estado é obrigatório"),
   city: z.string().min(2, "Cidade é obrigatória"),
   neighborhood: z.string().min(2, "Bairro é obrigatório"),
-  hourlyRate: z.number().min(0, "Valor deve ser maior que zero"),
-  customRates: z.array(customRateSchema).max(5, "Máximo de 5 valores personalizados"),
+  hourlyRate: z.number().min(1, "Valor da hora é obrigatório e deve ser maior que zero"),
+  customRates: z.array(customRateSchema),
   style: z.enum(["patricinha", "nerd", "passista", "milf", "fitness", "ninfeta", "gordelicia"], {
-    required_error: "Selecione um estilo",
+    required_error: "Estilo é obrigatório",
   }),
   services: z.array(z.enum([
     "beijo_na_boca",
@@ -64,5 +67,5 @@ export const formSchema = z.object({
     "domicilio",
     "viagens"
   ] as const)).min(1, "Selecione pelo menos um local de atendimento"),
-  description: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres"),
+  description: z.string().min(10, "Descrição é obrigatória e deve ter pelo menos 10 caracteres"),
 });
