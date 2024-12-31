@@ -29,26 +29,30 @@ const Feed = () => {
 
   const fetchPosts = async () => {
     try {
-      console.log("Fetching posts, session:", session ? "logged in" : "logged out");
+      console.log("Fetching posts...");
       
       let query = supabase
         .from("feed_posts")
         .select(`
-          *,
-          profiles (
+          id,
+          content,
+          created_at,
+          profiles!inner (
+            id,
             advertisements (
               name
             )
           ),
           feed_post_media (
-            *
+            id,
+            media_type,
+            media_url
           )
         `)
         .order("created_at", { ascending: false });
 
       // Limit to 5 posts for logged out users
       if (!session) {
-        console.log("Limiting to 5 posts for logged out user");
         query = query.limit(5);
       }
 
