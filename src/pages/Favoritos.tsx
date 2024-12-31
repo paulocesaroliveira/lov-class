@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,11 +12,11 @@ const Favoritos = () => {
   const navigate = useNavigate();
   const [selectedAd, setSelectedAd] = useState<any>(null);
 
-  // Redirect to login if not authenticated
-  if (!session) {
-    navigate("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!session) {
+      navigate("/login");
+    }
+  }, [session, navigate]);
 
   const { data: favorites, isLoading } = useQuery({
     queryKey: ["favorites", session?.user.id],
@@ -43,7 +43,7 @@ const Favoritos = () => {
             )
           )
         `)
-        .eq("user_id", session.user.id);
+        .eq("user_id", session?.user.id);
 
       if (error) {
         toast.error("Erro ao carregar favoritos");
@@ -58,6 +58,10 @@ const Favoritos = () => {
     },
     enabled: !!session,
   });
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="space-y-8">
