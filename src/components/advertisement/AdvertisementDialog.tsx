@@ -9,7 +9,8 @@ import { AdvertisementDetails } from "./AdvertisementDetails";
 import { AdvertisementComments } from "./AdvertisementComments";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Eye } from "lucide-react";
 
 type AdvertisementDialogProps = {
   advertisement: any;
@@ -18,6 +19,23 @@ type AdvertisementDialogProps = {
 
 export const AdvertisementDialog = ({ advertisement, onOpenChange }: AdvertisementDialogProps) => {
   const queryClient = useQueryClient();
+
+  // Query to get view count
+  const { data: viewCount } = useQuery({
+    queryKey: ["advertisement-views", advertisement?.id],
+    queryFn: async () => {
+      if (!advertisement?.id) return 0;
+      
+      const { count, error } = await supabase
+        .from("advertisement_views")
+        .select("*", { count: 'exact', head: true })
+        .eq("advertisement_id", advertisement.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!advertisement?.id,
+  });
 
   useEffect(() => {
     if (advertisement) {
@@ -84,6 +102,12 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
           {/* Seção de Comentários */}
           <div className="border-t pt-6">
             <AdvertisementComments advertisementId={advertisement.id} />
+          </div>
+
+          {/* Contador de Visualizações */}
+          <div className="border-t pt-4 flex items-center justify-end gap-2 text-muted-foreground">
+            <Eye className="w-4 h-4" />
+            <span className="text-sm">{viewCount} visualizações</span>
           </div>
         </div>
       </DialogContent>
