@@ -30,6 +30,18 @@ export const formSchema = z.object({
   category: z.enum(["mulher", "trans", "homem"], {
     required_error: "Categoria é obrigatória",
   }),
+  ethnicity: z.enum(["branca", "negra", "oriental"], {
+    required_error: "Etnia é obrigatória",
+  }),
+  hairColor: z.enum(["morena", "loira", "ruiva", "colorido"], {
+    required_error: "Cor do cabelo é obrigatória",
+  }),
+  bodyType: z.enum(["magra", "gordinha"], {
+    required_error: "Tipo de corpo é obrigatório",
+  }),
+  silicone: z.enum(["nao_uso", "seios", "bumbum", "seios_e_bumbum"], {
+    required_error: "Informação sobre silicone é obrigatória",
+  }),
   whatsapp: z.string().min(10, "WhatsApp é obrigatório e deve ser válido"),
   state: z.string().min(2, "Estado é obrigatório"),
   city: z.string().min(2, "Cidade é obrigatória"),

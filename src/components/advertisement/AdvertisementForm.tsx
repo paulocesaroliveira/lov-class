@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { BasicInformation } from "./BasicInformation";
+import { Appearance } from "./Appearance";
 import { ContactLocation } from "./ContactLocation";
 import { CustomRates } from "./CustomRates";
 import { ServicesSelection } from "./ServicesSelection";
@@ -49,6 +50,10 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
       height: 170,
       weight: 65,
       category: "mulher",
+      ethnicity: "branca",
+      hairColor: "morena",
+      bodyType: "magra",
+      silicone: "nao_uso",
       whatsapp: "",
       state: "",
       city: "",
@@ -123,6 +128,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <BasicInformation form={form} />
+        <Appearance form={form} />
         <ContactLocation form={form} />
         <CustomRates form={form} />
         <StyleSelection form={form} />
