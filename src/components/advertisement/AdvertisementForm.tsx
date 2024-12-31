@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -31,7 +31,15 @@ type AdvertisementFormProps = {
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { data: { user } } = await supabase.auth.getUser() || { data: { user: null } };
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -91,7 +99,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
 
       const profilePhotoUrl = await uploadProfilePhoto();
       
-      const ad = await saveAdvertisement(values, user.id, profilePhotoUrl, advertisement?.id);
+      const ad = await saveAdvertisement(values, user.id, profilePhotoUrl, !!advertisement);
       await saveServices(ad.id, values.services);
       await saveServiceLocations(ad.id, values.serviceLocations);
 

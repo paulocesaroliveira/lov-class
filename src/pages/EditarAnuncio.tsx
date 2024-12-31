@@ -1,43 +1,65 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { useAdvertisement } from "@/hooks/useAdvertisement";
+import { supabase } from "@/integrations/supabase/client";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { FormValues } from "@/types/advertisement";
 
 const EditarAnuncio = () => {
   const { id } = useParams();
-  const { data: advertisementData, isLoading: isLoadingAd } = useAdvertisement(id);
+  const [advertisementData, setAdvertisementData] = useState<any>(null);
 
-  if (isLoadingAd) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchAdvertisement = async () => {
+      const { data: advertisement, error } = await supabase
+        .from("advertisements")
+        .select(`
+          *,
+          advertisement_services (
+            service
+          ),
+          advertisement_service_locations (
+            location
+          ),
+          advertisement_photos (
+            photo_url
+          ),
+          advertisement_videos (
+            video_url
+          )
+        `)
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching advertisement:", error);
+        return;
+      }
+
+      setAdvertisementData(advertisement);
+    };
+
+    if (id) {
+      fetchAdvertisement();
+    }
+  }, [id]);
 
   if (!advertisementData) {
-    return (
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Anúncio não encontrado
-        </h2>
-        <p className="mt-2 text-gray-600">
-          O anúncio que você está procurando não existe ou foi removido.
-        </p>
-      </div>
-    );
+    return <div>Loading...</div>;
   }
 
-  const formattedAdvertisement = {
+  const formattedData = {
     ...advertisementData,
     birthDate: advertisementData.birth_date,
     hourlyRate: advertisementData.hourly_rate,
-    customRates: advertisementData.custom_rate_description && advertisementData.custom_rate_value 
-      ? [{ description: advertisementData.custom_rate_description, value: advertisementData.custom_rate_value }]
+    customRates: advertisementData.custom_rate_description
+      ? JSON.parse(advertisementData.custom_rate_description)
       : [],
-    services: advertisementData.advertisement_services?.map(s => s.service) || [],
-    serviceLocations: advertisementData.advertisement_service_locations?.map(l => l.location) || [],
+    services: advertisementData.advertisement_services?.map((s: any) => s.service) || [],
+    serviceLocations: advertisementData.advertisement_service_locations?.map((l: any) => l.location) || [],
+    advertisement_services: advertisementData.advertisement_services || [],
+    advertisement_service_locations: advertisementData.advertisement_service_locations || [],
+    advertisement_photos: advertisementData.advertisement_photos || [],
+    advertisement_videos: advertisementData.advertisement_videos || [],
   } as FormValues & {
     advertisement_services: { service: string }[];
     advertisement_service_locations: { location: string }[];
@@ -50,11 +72,11 @@ const EditarAnuncio = () => {
       <div>
         <h1 className="text-3xl font-bold">Editar Anúncio</h1>
         <p className="text-muted-foreground">
-          Atualize as informações do seu anúncio abaixo
+          Atualize as informações do seu anúncio
         </p>
       </div>
 
-      <AdvertisementForm advertisement={formattedAdvertisement} />
+      <AdvertisementForm advertisement={formattedData} />
     </div>
   );
 };
