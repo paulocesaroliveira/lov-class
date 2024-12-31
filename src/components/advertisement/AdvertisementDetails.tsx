@@ -86,7 +86,7 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         </div>
 
         <Button
-          className="w-full"
+          className="w-full bg-whatsapp hover:bg-whatsapp/90"
           size="lg"
           onClick={onWhatsAppClick}
         >
