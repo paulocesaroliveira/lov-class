@@ -10,6 +10,8 @@ const EditarAnuncio = () => {
 
   useEffect(() => {
     const fetchAdvertisement = async () => {
+      console.log("Fetching advertisement with ID:", id);
+      
       const { data: advertisement, error } = await supabase
         .from("advertisements")
         .select(`
@@ -67,9 +69,9 @@ const EditarAnuncio = () => {
       ? JSON.parse(advertisementData.custom_rate_description)
       : [],
     style: advertisementData.style,
-    description: advertisementData.description,
     services: advertisementData.advertisement_services?.map((s: any) => s.service) || [],
     serviceLocations: advertisementData.advertisement_service_locations?.map((l: any) => l.location) || [],
+    description: advertisementData.description,
     advertisement_services: advertisementData.advertisement_services || [],
     advertisement_service_locations: advertisementData.advertisement_service_locations || [],
     advertisement_photos: advertisementData.advertisement_photos || [],
@@ -80,6 +82,8 @@ const EditarAnuncio = () => {
     advertisement_photos: { photo_url: string }[];
     advertisement_videos: { video_url: string }[];
   };
+
+  console.log("Formatted data for form:", formattedData);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-6">

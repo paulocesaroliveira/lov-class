@@ -41,6 +41,8 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     };
     getUser();
   }, []);
+
+  console.log("Advertisement prop received:", advertisement);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -67,6 +69,8 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
     },
     mode: "onBlur",
   });
+
+  console.log("Form default values:", form.getValues());
 
   const {
     profilePhoto,
@@ -114,11 +118,11 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps = {}
       await savePhotos(ad.id, photoUrls);
       await saveVideos(ad.id, videoUrls);
 
-      toast.success("Anúncio criado com sucesso!");
+      toast.success(advertisement ? "Anúncio atualizado com sucesso!" : "Anúncio criado com sucesso!");
       navigate("/anuncios");
     } catch (error) {
       console.error("Erro detalhado ao criar anúncio:", error);
-      toast.error(`Erro ao criar anúncio: ${error.message || 'Erro desconhecido'}`);
+      toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
     } finally {
       setIsLoading(false);
     }
