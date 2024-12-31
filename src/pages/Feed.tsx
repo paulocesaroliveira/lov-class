@@ -29,46 +29,56 @@ const Feed = () => {
 
   const fetchPosts = async () => {
     try {
+      console.log("Fetching posts, session:", session ? "logged in" : "logged out");
+      
       let query = supabase
         .from("feed_posts")
         .select(`
-          id,
-          content,
-          created_at,
+          *,
           profiles (
-            advertisements (name)
+            advertisements (
+              name
+            )
           ),
           feed_post_media (
-            id, 
-            media_type,
-            media_url
+            *
           )
         `)
         .order("created_at", { ascending: false });
 
       // Limit to 5 posts for logged out users
       if (!session) {
+        console.log("Limiting to 5 posts for logged out user");
         query = query.limit(5);
       }
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching posts:", error);
+        throw error;
+      }
       
+      console.log("Raw data from Supabase:", data);
+
       // Transform the data to match our FeedPost type
       const typedPosts = (data || []).map(post => ({
-        ...post,
+        id: post.id,
+        content: post.content,
+        created_at: post.created_at,
         advertisement: post.profiles?.advertisements?.[0] || null,
         feed_post_media: post.feed_post_media.map(media => ({
-          ...media,
-          media_type: media.media_type as "image" | "video"
+          id: media.id,
+          media_type: media.media_type as "image" | "video",
+          media_url: media.media_url
         }))
       }));
 
+      console.log("Transformed posts:", typedPosts);
       setPosts(typedPosts);
     } catch (error: any) {
+      console.error("Error in fetchPosts:", error);
       toast.error("Erro ao carregar posts");
-      console.error("Error fetching posts:", error);
     }
   };
 
