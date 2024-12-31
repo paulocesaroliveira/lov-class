@@ -116,12 +116,15 @@ export type Database = {
       advertisements: {
         Row: {
           birth_date: string
+          body_type: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
           created_at: string
           custom_rate_description: string | null
           custom_rate_value: number | null
           description: string
+          ethnicity: string
+          hair_color: string
           height: number
           hourly_rate: number
           id: string
@@ -129,6 +132,7 @@ export type Database = {
           neighborhood: string
           profile_id: string
           profile_photo_url: string | null
+          silicone: string
           state: string
           style: string
           updated_at: string
@@ -137,12 +141,15 @@ export type Database = {
         }
         Insert: {
           birth_date: string
+          body_type?: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
           created_at?: string
           custom_rate_description?: string | null
           custom_rate_value?: number | null
           description: string
+          ethnicity?: string
+          hair_color?: string
           height: number
           hourly_rate: number
           id?: string
@@ -150,6 +157,7 @@ export type Database = {
           neighborhood: string
           profile_id: string
           profile_photo_url?: string | null
+          silicone?: string
           state: string
           style: string
           updated_at?: string
@@ -158,12 +166,15 @@ export type Database = {
         }
         Update: {
           birth_date?: string
+          body_type?: string
           category?: Database["public"]["Enums"]["ad_category"]
           city?: string
           created_at?: string
           custom_rate_description?: string | null
           custom_rate_value?: number | null
           description?: string
+          ethnicity?: string
+          hair_color?: string
           height?: number
           hourly_rate?: number
           id?: string
@@ -171,6 +182,7 @@ export type Database = {
           neighborhood?: string
           profile_id?: string
           profile_photo_url?: string | null
+          silicone?: string
           state?: string
           style?: string
           updated_at?: string
