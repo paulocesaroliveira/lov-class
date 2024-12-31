@@ -36,8 +36,9 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Coluna da Esquerda - Foto Principal */}
+          {/* Coluna da Esquerda - Mídia */}
           <div className="space-y-6">
+            {/* Foto Principal */}
             <div className="aspect-[3/4] relative rounded-lg overflow-hidden bg-muted">
               {advertisement.profile_photo_url ? (
                 <img
@@ -63,6 +64,24 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
                         src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/ad_photos/${photo.photo_url}`}
                         alt="Foto do anúncio"
                         className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Vídeos */}
+            {advertisement.advertisement_videos?.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2">Vídeos</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {advertisement.advertisement_videos.map((video: any) => (
+                    <div key={video.id} className="aspect-video rounded-lg overflow-hidden bg-muted">
+                      <video
+                        src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/ad_videos/${video.video_url}`}
+                        controls
+                        className="w-full h-full"
                       />
                     </div>
                   ))}
@@ -140,24 +159,6 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
                 ))}
               </div>
             </div>
-
-            {/* Vídeos */}
-            {advertisement.advertisement_videos?.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Vídeos</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {advertisement.advertisement_videos.map((video: any) => (
-                    <div key={video.id} className="aspect-video rounded-lg overflow-hidden bg-muted">
-                      <video
-                        src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/ad_videos/${video.video_url}`}
-                        controls
-                        className="w-full h-full"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Descrição */}
             <div>
