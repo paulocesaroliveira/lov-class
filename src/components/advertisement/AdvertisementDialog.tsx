@@ -6,6 +6,9 @@ import {
 } from "@/components/ui/dialog";
 import { AdvertisementMedia } from "./AdvertisementMedia";
 import { AdvertisementDetails } from "./AdvertisementDetails";
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 type AdvertisementDialogProps = {
   advertisement: any;
@@ -13,6 +16,26 @@ type AdvertisementDialogProps = {
 };
 
 export const AdvertisementDialog = ({ advertisement, onOpenChange }: AdvertisementDialogProps) => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (advertisement) {
+      // Record view
+      const recordView = async () => {
+        await supabase
+          .from("advertisement_views")
+          .insert({ advertisement_id: advertisement.id });
+        
+        // Invalidate view count query to trigger refresh
+        queryClient.invalidateQueries({
+          queryKey: ["advertisement-views", advertisement.id],
+        });
+      };
+
+      recordView();
+    }
+  }, [advertisement, queryClient]);
+
   if (!advertisement) return null;
 
   return (

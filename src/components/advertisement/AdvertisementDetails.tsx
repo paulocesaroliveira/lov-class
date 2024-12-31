@@ -2,8 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { services } from "./constants";
 import { serviceLocations } from "./serviceLocations";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Eye, MessageCircle } from "lucide-react";
 import { AdvertisementComments } from "./AdvertisementComments";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type AdvertisementDetailsProps = {
   advertisement: any;
@@ -28,6 +30,19 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
     const whatsappUrl = `https://wa.me/55${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
+
+  // Query to get view count
+  const { data: viewCount } = useQuery({
+    queryKey: ["advertisement-views", advertisement.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("advertisement_views")
+        .select("*", { count: "exact", head: true })
+        .eq("advertisement_id", advertisement.id);
+      
+      return count || 0;
+    },
+  });
 
   return (
     <div className="space-y-6">
@@ -116,6 +131,12 @@ export const AdvertisementDetails = ({ advertisement }: AdvertisementDetailsProp
       {/* Comments Section */}
       <div className="pt-6 border-t">
         <AdvertisementComments advertisementId={advertisement.id} />
+      </div>
+
+      {/* View Count */}
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Eye className="h-4 w-4" />
+        <span>{viewCount} visualizações</span>
       </div>
     </div>
   );

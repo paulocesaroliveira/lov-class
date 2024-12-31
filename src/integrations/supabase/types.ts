@@ -148,6 +148,32 @@ export type Database = {
           },
         ]
       }
+      advertisement_views: {
+        Row: {
+          advertisement_id: string | null
+          id: string
+          viewed_at: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          id?: string
+          viewed_at?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_views_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisements: {
         Row: {
           birth_date: string
