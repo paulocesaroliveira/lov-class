@@ -9,10 +9,11 @@ export const useAdvertisementOperations = () => {
     values: any,
     userId: string,
     profilePhotoUrl: string | null,
-    isEditing: boolean,
-    advertisementId?: string
+    isEditing: boolean
   ) => {
     console.log("Salvando dados do anúncio:", values);
+    console.log("isEditing:", isEditing);
+    console.log("advertisementId:", values.id);
 
     const adData = {
       profile_id: userId,
@@ -21,6 +22,10 @@ export const useAdvertisementOperations = () => {
       height: values.height,
       weight: values.weight,
       category: values.category,
+      ethnicity: values.ethnicity,
+      hair_color: values.hairColor,
+      body_type: values.bodyType,
+      silicone: values.silicone,
       whatsapp: values.whatsapp,
       state: values.state,
       city: values.city,
@@ -34,28 +39,62 @@ export const useAdvertisementOperations = () => {
       ...(profilePhotoUrl && { profile_photo_url: profilePhotoUrl }),
     };
 
-    const { data: ad, error: adError } = isEditing && advertisementId
-      ? await supabase
-          .from("advertisements")
-          .update(adData)
-          .eq("id", advertisementId)
-          .select()
-          .single()
-      : await supabase
-          .from("advertisements")
-          .insert(adData)
-          .select()
-          .single();
+    let result;
+    
+    if (isEditing && values.id) {
+      console.log("Atualizando anúncio existente:", values.id);
+      const { data: ad, error: adError } = await supabase
+        .from("advertisements")
+        .update(adData)
+        .eq("id", values.id)
+        .select()
+        .single();
 
-    if (adError) {
-      console.error("Erro ao salvar anúncio:", adError);
-      throw adError;
+      if (adError) {
+        console.error("Erro ao atualizar anúncio:", adError);
+        throw adError;
+      }
+      result = ad;
+    } else {
+      // Verificar se o usuário já tem um anúncio
+      const { data: existingAd, error: existingAdError } = await supabase
+        .from("advertisements")
+        .select()
+        .eq("profile_id", userId)
+        .single();
+
+      if (existingAdError && existingAdError.code !== "PGRST116") {
+        console.error("Erro ao verificar anúncio existente:", existingAdError);
+        throw existingAdError;
+      }
+
+      if (existingAd) {
+        throw new Error("Você já possui um anúncio cadastrado");
+      }
+
+      const { data: ad, error: adError } = await supabase
+        .from("advertisements")
+        .insert(adData)
+        .select()
+        .single();
+
+      if (adError) {
+        console.error("Erro ao criar anúncio:", adError);
+        throw adError;
+      }
+      result = ad;
     }
 
-    return ad;
+    return result;
   };
 
   const saveServices = async (advertisementId: string, services: string[]) => {
+    // Primeiro, deletar serviços existentes
+    await supabase
+      .from("advertisement_services")
+      .delete()
+      .eq("advertisement_id", advertisementId);
+
     const servicesData = services.map(service => ({
       advertisement_id: advertisementId,
       service: service as ServiceType
@@ -72,6 +111,12 @@ export const useAdvertisementOperations = () => {
   };
 
   const saveServiceLocations = async (advertisementId: string, locations: string[]) => {
+    // Primeiro, deletar locais existentes
+    await supabase
+      .from("advertisement_service_locations")
+      .delete()
+      .eq("advertisement_id", advertisementId);
+
     const locationsData = locations.map(location => ({
       advertisement_id: advertisementId,
       location: location as ServiceLocationType

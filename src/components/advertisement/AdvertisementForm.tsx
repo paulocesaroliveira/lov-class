@@ -113,7 +113,10 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         await deleteExistingMedia(advertisement.id);
       }
 
-      const ad = await saveAdvertisement(values, user.id, profilePhotoUrl, !!advertisement);
+      // Passar o ID do anúncio existente para atualização
+      const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
+      const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
+      
       await saveServices(ad.id, values.services);
       await saveServiceLocations(ad.id, values.serviceLocations);
 
