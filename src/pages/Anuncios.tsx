@@ -25,9 +25,11 @@ const Anuncios = () => {
             location
           ),
           advertisement_photos (
+            id,
             photo_url
           ),
           advertisement_videos (
+            id,
             video_url
           )
         `
