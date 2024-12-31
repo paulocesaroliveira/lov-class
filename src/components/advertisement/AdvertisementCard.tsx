@@ -30,40 +30,62 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
     }
 
     setIsLoading(true);
+
     try {
       if (favorite) {
-        // Remove from favorites
         const { error } = await supabase
           .from('favorites')
           .delete()
           .eq('user_id', session.user.id)
           .eq('advertisement_id', advertisement.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error removing favorite:", error);
+          toast.error("Erro ao remover dos favoritos");
+          return;
+        }
+
         setFavorite(false);
         toast.success("Removido dos favoritos");
       } else {
-        // Add to favorites
-        const { error } = await supabase
+        // First check if favorite exists
+        const { data: existingFavorite, error: checkError } = await supabase
+          .from('favorites')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('advertisement_id', advertisement.id)
+          .single();
+
+        if (checkError && !checkError.message.includes('No rows found')) {
+          console.error("Error checking favorite:", checkError);
+          toast.error("Erro ao verificar favorito");
+          return;
+        }
+
+        if (existingFavorite) {
+          toast.error("Anúncio já está nos favoritos");
+          return;
+        }
+
+        const { error: insertError } = await supabase
           .from('favorites')
           .insert({
             user_id: session.user.id,
             advertisement_id: advertisement.id
           });
 
-        if (error) {
-          if (error.message?.includes('duplicate key value')) {
-            toast.error("Anúncio já está nos favoritos");
-            return;
-          }
-          throw error;
+        if (insertError) {
+          console.error("Error adding favorite:", insertError);
+          toast.error("Erro ao adicionar aos favoritos");
+          return;
         }
+
         setFavorite(true);
         toast.success("Adicionado aos favoritos");
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error in toggleFavorite:", error);
       toast.error("Erro ao atualizar favoritos");
-      console.error("Error toggling favorite:", error);
     } finally {
       setIsLoading(false);
     }
