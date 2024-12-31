@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./advertisementSchema";
+import InputMask from "react-input-mask";
 
 type ContactLocationProps = {
   form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -20,7 +21,13 @@ export const ContactLocation = ({ form }: ContactLocationProps) => {
           <FormItem>
             <FormLabel>WhatsApp</FormLabel>
             <FormControl>
-              <Input placeholder="(11) 99999-9999" {...field} type="tel" />
+              <InputMask
+                mask="(99)999999999"
+                value={field.value}
+                onChange={field.onChange}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                placeholder="(11)999999999"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -35,7 +42,18 @@ export const ContactLocation = ({ form }: ContactLocationProps) => {
             <FormItem>
               <FormLabel>Estado</FormLabel>
               <FormControl>
-                <Input placeholder="SP" {...field} />
+                <Input 
+                  placeholder="SP" 
+                  {...field} 
+                  maxLength={2} 
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase();
+                    if (value.length <= 2) {
+                      field.onChange(value);
+                    }
+                  }}
+                  value={field.value.toUpperCase()}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
