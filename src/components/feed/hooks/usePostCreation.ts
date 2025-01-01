@@ -17,15 +17,10 @@ export const usePostCreation = (onSuccess: () => void) => {
       if (error) {
         console.log("Error creating post:", error);
         
-        // Parse the error body which contains the actual error message
-        try {
-          const errorBody = JSON.parse(error.message);
-          if (errorBody.message?.includes("Você só pode fazer uma publicação por dia")) {
-            setShowDailyLimitError(true);
-            throw new Error("DAILY_LIMIT");
-          }
-        } catch (e) {
-          console.log("Error parsing error body:", e);
+        // Check if it's the daily limit error from the database trigger
+        if (error.code === "P0001" && error.message?.includes("Você só pode fazer uma publicação por dia")) {
+          setShowDailyLimitError(true);
+          throw new Error("DAILY_LIMIT");
         }
         
         throw error;
