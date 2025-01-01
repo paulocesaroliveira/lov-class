@@ -15,12 +15,21 @@ export const usePostCreation = (onSuccess: () => void) => {
         .maybeSingle();
 
       if (error) {
-        // Check if the error is about daily limit - can be in error.message or error.details
-        const isDailyLimitError = 
-          error.message?.includes("Você só pode fazer uma publicação por dia") ||
-          (typeof error.details === 'string' && error.details.includes("Você só pode fazer uma publicação por dia"));
+        console.log("Error creating post:", error);
+        
+        // Tenta parsear o body se ele existir como string
+        let errorMessage = error.message;
+        try {
+          if (error.message && typeof error.message === 'string') {
+            const errorBody = JSON.parse(error.message);
+            errorMessage = errorBody.message || error.message;
+          }
+        } catch (e) {
+          console.log("Error parsing error message:", e);
+        }
 
-        if (isDailyLimitError) {
+        // Verifica a mensagem de limite diário
+        if (errorMessage.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           throw new Error("DAILY_LIMIT");
         }
