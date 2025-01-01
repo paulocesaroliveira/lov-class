@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import EmojiPicker from "emoji-picker-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface CreatePostProps {
   onPostCreated: () => void;
@@ -17,9 +18,11 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [media, setMedia] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDailyLimitError, setShowDailyLimitError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setShowDailyLimitError(false);
 
     if (!session) {
       toast.error("Faça login para criar um post");
@@ -43,7 +46,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
         // Parse the error message from the response
         const errorMessage = postError.message;
         if (errorMessage.includes("Você só pode fazer uma publicação por dia")) {
-          toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
+          setShowDailyLimitError(true);
           return;
         }
         throw postError;
@@ -115,56 +118,68 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card p-4 space-y-4">
-      <div className="relative">
-        <Textarea
-          placeholder="O que você quer compartilhar?"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="min-h-[100px]"
-        />
-        <div className="absolute bottom-2 right-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-              >
-                <Smile className="h-5 w-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="end">
-              <EmojiPicker onEmojiClick={onEmojiClick} />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <input
-            type="file"
-            id="media"
-            multiple
-            accept="image/*,video/*"
-            className="hidden"
-            onChange={handleMediaChange}
+    <div className="space-y-4">
+      {showDailyLimitError && (
+        <Alert variant="destructive">
+          <AlertTitle>Limite Diário Atingido</AlertTitle>
+          <AlertDescription>
+            Você já fez uma publicação hoje. Para manter a qualidade do feed, 
+            limitamos a uma publicação por dia. Tente novamente amanhã!
+          </AlertDescription>
+        </Alert>
+      )}
+      
+      <form onSubmit={handleSubmit} className="glass-card p-4 space-y-4">
+        <div className="relative">
+          <Textarea
+            placeholder="O que você quer compartilhar?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="min-h-[100px]"
           />
-          <label
-            htmlFor="media"
-            className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground"
-          >
-            <Upload size={20} />
-            {media.length > 0
-              ? `${media.length} arquivo(s) selecionado(s)`
-              : "Adicionar mídia"}
-          </label>
+          <div className="absolute bottom-2 right-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                >
+                  <Smile className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="end">
+                <EmojiPicker onEmojiClick={onEmojiClick} />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Publicando..." : "Publicar"}
-        </Button>
-      </div>
-    </form>
+        <div className="flex items-center gap-4">
+          <div className="flex-1">
+            <input
+              type="file"
+              id="media"
+              multiple
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={handleMediaChange}
+            />
+            <label
+              htmlFor="media"
+              className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground"
+            >
+              <Upload size={20} />
+              {media.length > 0
+                ? `${media.length} arquivo(s) selecionado(s)`
+                : "Adicionar mídia"}
+            </label>
+          </div>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Publicando..." : "Publicar"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
