@@ -40,7 +40,14 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
         .select()
         .single();
 
-      if (postError) throw postError;
+      if (postError) {
+        // Check for daily post limit error
+        if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
+          toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
+          return;
+        }
+        throw postError;
+      }
 
       // Upload media files
       if (media.length > 0) {
