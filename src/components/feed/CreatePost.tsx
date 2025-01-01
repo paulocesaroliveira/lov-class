@@ -36,28 +36,25 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
 
     setIsLoading(true);
     try {
-      // Create post
+      // Try to create the post first
       const { data: post, error: postError } = await supabase
         .from("feed_posts")
-        .insert({ content, profile_id: session.user.id })
+        .insert([{ content, profile_id: session.user.id }])
         .select()
-        .maybeSingle();
+        .single();
 
+      // Handle the daily limit error specifically
       if (postError) {
-        // Check if it's the daily limit error
         if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
+          setIsLoading(false);
           return;
         }
         throw postError;
       }
 
-      if (!post) {
-        throw new Error("Erro ao criar post");
-      }
-
-      // Upload media files
-      if (media.length > 0) {
+      // Only proceed with media upload if post was created successfully
+      if (post && media.length > 0) {
         const mediaUploads = await Promise.all(
           media.map(async (file) => {
             const fileExt = file.name.split(".").pop();
