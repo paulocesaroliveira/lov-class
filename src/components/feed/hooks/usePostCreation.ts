@@ -17,22 +17,17 @@ export const usePostCreation = (onSuccess: () => void) => {
       if (error) {
         console.log("Error creating post:", error);
         
-        // Tenta parsear o body se ele existir como string
-        let errorMessage = error.message;
+        // Parse the error body which contains the actual error message
         try {
-          if (error.message && typeof error.message === 'string') {
-            const errorBody = JSON.parse(error.message);
-            errorMessage = errorBody.message || error.message;
+          const errorBody = JSON.parse(error.message);
+          if (errorBody.message?.includes("Você só pode fazer uma publicação por dia")) {
+            setShowDailyLimitError(true);
+            throw new Error("DAILY_LIMIT");
           }
         } catch (e) {
-          console.log("Error parsing error message:", e);
+          console.log("Error parsing error body:", e);
         }
-
-        // Verifica a mensagem de limite diário
-        if (errorMessage.includes("Você só pode fazer uma publicação por dia")) {
-          setShowDailyLimitError(true);
-          throw new Error("DAILY_LIMIT");
-        }
+        
         throw error;
       }
 
