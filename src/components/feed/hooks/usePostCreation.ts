@@ -15,7 +15,10 @@ export const usePostCreation = (onSuccess: () => void) => {
         .maybeSingle();
 
       if (error) {
-        if (error.message.includes("Você só pode fazer uma publicação por dia")) {
+        // Parse the error message from the response
+        const errorBody = error.message && JSON.parse(error.message);
+        if (errorBody?.message?.includes("Você só pode fazer uma publicação por dia") || 
+            error.message?.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           throw new Error("DAILY_LIMIT");
         }
@@ -27,7 +30,7 @@ export const usePostCreation = (onSuccess: () => void) => {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === "DAILY_LIMIT") {
         throw error;
       }
@@ -80,10 +83,11 @@ export const usePostCreation = (onSuccess: () => void) => {
       toast.success("Post criado com sucesso!");
       onSuccess();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === "DAILY_LIMIT") {
         toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
       } else {
+        console.error("Error in handlePostCreation:", error);
         toast.error("Erro ao criar post");
       }
       return false;
