@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload } from "lucide-react";
+import { Upload, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import EmojiPicker from "emoji-picker-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface CreatePostProps {
   onPostCreated: () => void;
@@ -97,14 +99,37 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     setMedia(validFiles);
   };
 
+  const onEmojiClick = (emojiObject: any) => {
+    setContent((prevContent) => prevContent + emojiObject.emoji);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="glass-card p-4 space-y-4">
-      <Textarea
-        placeholder="O que você quer compartilhar?"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="min-h-[100px]"
-      />
+      <div className="relative">
+        <Textarea
+          placeholder="O que você quer compartilhar?"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="min-h-[100px]"
+        />
+        <div className="absolute bottom-2 right-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+              >
+                <Smile className="h-5 w-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="end">
+              <EmojiPicker onEmojiClick={onEmojiClick} />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
       <div className="flex items-center gap-4">
         <div className="flex-1">
           <input
