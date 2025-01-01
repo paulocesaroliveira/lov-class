@@ -35,70 +35,76 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     }
 
     setIsLoading(true);
-    try {
-      const { error: postError } = await supabase
-        .from("feed_posts")
-        .insert({ content, profile_id: session.user.id });
 
+    try {
+      // Attempt to create the post
+      const { data: newPost, error: postError } = await supabase
+        .from("feed_posts")
+        .insert({
+          content: content.trim(),
+          profile_id: session.user.id
+        })
+        .select()
+        .single();
+
+      // Handle daily limit error
       if (postError) {
-        console.error("Post error:", postError);
+        console.error("Error creating post:", postError);
+        
         if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
           return;
         }
-        throw postError;
+        
+        toast.error("Erro ao criar post");
+        return;
       }
 
-      // Fetch the created post
-      const { data: post, error: fetchError } = await supabase
-        .from("feed_posts")
-        .select()
-        .eq("profile_id", session.user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (fetchError) throw fetchError;
-      if (!post) throw new Error("Post não encontrado após criação");
-
       // Handle media uploads if there are any
-      if (media.length > 0) {
-        const mediaUploads = await Promise.all(
-          media.map(async (file) => {
-            const fileExt = file.name.split(".").pop();
-            const fileName = `${post.id}/${Date.now()}.${fileExt}`;
-            const { error: uploadError } = await supabase.storage
-              .from("feed_media")
-              .upload(fileName, file);
+      if (media.length > 0 && newPost) {
+        try {
+          const mediaUploads = await Promise.all(
+            media.map(async (file) => {
+              const fileExt = file.name.split(".").pop();
+              const fileName = `${newPost.id}/${Date.now()}.${fileExt}`;
+              
+              const { error: uploadError } = await supabase.storage
+                .from("feed_media")
+                .upload(fileName, file);
 
-            if (uploadError) throw uploadError;
+              if (uploadError) throw uploadError;
 
-            const { data: mediaData } = await supabase.storage
-              .from("feed_media")
-              .getPublicUrl(fileName);
+              const { data: mediaData } = await supabase.storage
+                .from("feed_media")
+                .getPublicUrl(fileName);
 
-            return {
-              post_id: post.id,
-              media_type: file.type.startsWith("image/") ? "image" : "video",
-              media_url: mediaData.publicUrl,
-            };
-          })
-        );
+              return {
+                post_id: newPost.id,
+                media_type: file.type.startsWith("image/") ? "image" : "video",
+                media_url: mediaData.publicUrl,
+              };
+            })
+          );
 
-        const { error: mediaError } = await supabase
-          .from("feed_post_media")
-          .insert(mediaUploads);
+          const { error: mediaError } = await supabase
+            .from("feed_post_media")
+            .insert(mediaUploads);
 
-        if (mediaError) throw mediaError;
+          if (mediaError) throw mediaError;
+        } catch (mediaError) {
+          console.error("Error uploading media:", mediaError);
+          toast.error("Erro ao fazer upload da mídia");
+          // Even if media upload fails, the post was created
+        }
       }
 
       toast.success("Post criado com sucesso!");
       setContent("");
       setMedia([]);
       onPostCreated();
-    } catch (error: any) {
-      console.error("Error creating post:", error);
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
       toast.error("Erro ao criar post");
     } finally {
       setIsLoading(false);
@@ -108,8 +114,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const validFiles = files.filter(
-      (file) =>
-        file.type.startsWith("image/") || file.type.startsWith("video/")
+      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
     );
 
     if (validFiles.length !== files.length) {
