@@ -38,27 +38,32 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     try {
       const { error: postError } = await supabase
         .from("feed_posts")
-        .insert([{ content, profile_id: session.user.id }]);
+        .insert({ content, profile_id: session.user.id });
 
       if (postError) {
+        console.error("Post error:", postError);
         if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
-          setIsLoading(false);
           return;
         }
         throw postError;
       }
 
-      const { data: post } = await supabase
+      // Fetch the created post
+      const { data: post, error: fetchError } = await supabase
         .from("feed_posts")
         .select()
         .eq("profile_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (media.length > 0 && post) {
+      if (fetchError) throw fetchError;
+      if (!post) throw new Error("Post não encontrado após criação");
+
+      // Handle media uploads if there are any
+      if (media.length > 0) {
         const mediaUploads = await Promise.all(
           media.map(async (file) => {
             const fileExt = file.name.split(".").pop();
