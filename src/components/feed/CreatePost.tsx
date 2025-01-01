@@ -37,65 +37,72 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
     setIsLoading(true);
 
     try {
-      // Attempt to create the post
+      // Primeiro, tenta criar o post
       const { data: newPost, error: postError } = await supabase
         .from("feed_posts")
-        .insert({
+        .insert([{
           content: content.trim(),
           profile_id: session.user.id
-        })
+        }])
         .select()
-        .single();
+        .maybeSingle();
 
-      // Handle daily limit error
+      // Se houver erro, verifica se é o limite diário
       if (postError) {
-        console.error("Error creating post:", postError);
+        console.error("Erro ao criar post:", postError);
         
         if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           toast.error("Você já fez uma publicação hoje. Tente novamente amanhã!");
+          setIsLoading(false);
           return;
         }
         
         toast.error("Erro ao criar post");
+        setIsLoading(false);
         return;
       }
 
-      // Handle media uploads if there are any
-      if (media.length > 0 && newPost) {
-        try {
-          const mediaUploads = await Promise.all(
-            media.map(async (file) => {
-              const fileExt = file.name.split(".").pop();
-              const fileName = `${newPost.id}/${Date.now()}.${fileExt}`;
-              
-              const { error: uploadError } = await supabase.storage
-                .from("feed_media")
-                .upload(fileName, file);
+      // Se não houver post criado
+      if (!newPost) {
+        toast.error("Erro ao criar post");
+        setIsLoading(false);
+        return;
+      }
 
-              if (uploadError) throw uploadError;
+      // Se houver mídia para upload
+      if (media.length > 0) {
+        for (const file of media) {
+          const fileExt = file.name.split(".").pop();
+          const fileName = `${newPost.id}/${Date.now()}.${fileExt}`;
+          
+          // Upload do arquivo
+          const { error: uploadError } = await supabase.storage
+            .from("feed_media")
+            .upload(fileName, file);
 
-              const { data: mediaData } = await supabase.storage
-                .from("feed_media")
-                .getPublicUrl(fileName);
+          if (uploadError) {
+            console.error("Erro no upload:", uploadError);
+            continue;
+          }
 
-              return {
-                post_id: newPost.id,
-                media_type: file.type.startsWith("image/") ? "image" : "video",
-                media_url: mediaData.publicUrl,
-              };
-            })
-          );
+          // Obter URL pública
+          const { data: mediaData } = await supabase.storage
+            .from("feed_media")
+            .getPublicUrl(fileName);
 
+          // Criar registro da mídia
           const { error: mediaError } = await supabase
             .from("feed_post_media")
-            .insert(mediaUploads);
+            .insert({
+              post_id: newPost.id,
+              media_type: file.type.startsWith("image/") ? "image" : "video",
+              media_url: mediaData.publicUrl,
+            });
 
-          if (mediaError) throw mediaError;
-        } catch (mediaError) {
-          console.error("Error uploading media:", mediaError);
-          toast.error("Erro ao fazer upload da mídia");
-          // Even if media upload fails, the post was created
+          if (mediaError) {
+            console.error("Erro ao salvar mídia:", mediaError);
+          }
         }
       }
 
@@ -104,7 +111,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       setMedia([]);
       onPostCreated();
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      console.error("Erro no handleSubmit:", error);
       toast.error("Erro ao criar post");
     } finally {
       setIsLoading(false);
