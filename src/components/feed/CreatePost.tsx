@@ -40,19 +40,19 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       const { data: post, error: postError } = await supabase
         .from("feed_posts")
         .insert({ content, profile_id: session.user.id })
-        .select();
+        .select()
+        .maybeSingle();
 
       if (postError) {
-        // Parse the error message from the response
-        const errorMessage = postError.message;
-        if (errorMessage.includes("Você só pode fazer uma publicação por dia")) {
+        // Check if it's the daily limit error
+        if (postError.message.includes("Você só pode fazer uma publicação por dia")) {
           setShowDailyLimitError(true);
           return;
         }
         throw postError;
       }
 
-      if (!post || post.length === 0) {
+      if (!post) {
         throw new Error("Erro ao criar post");
       }
 
@@ -61,7 +61,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
         const mediaUploads = await Promise.all(
           media.map(async (file) => {
             const fileExt = file.name.split(".").pop();
-            const fileName = `${post[0].id}/${Date.now()}.${fileExt}`;
+            const fileName = `${post.id}/${Date.now()}.${fileExt}`;
             const { error: uploadError } = await supabase.storage
               .from("feed_media")
               .upload(fileName, file);
@@ -73,7 +73,7 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
               .getPublicUrl(fileName);
 
             return {
-              post_id: post[0].id,
+              post_id: post.id,
               media_type: file.type.startsWith("image/") ? "image" : "video",
               media_url: mediaData.publicUrl,
             };
@@ -92,8 +92,8 @@ export const CreatePost = ({ onPostCreated }: CreatePostProps) => {
       setMedia([]);
       onPostCreated();
     } catch (error: any) {
-      toast.error("Erro ao criar post");
       console.error("Error creating post:", error);
+      toast.error("Erro ao criar post");
     } finally {
       setIsLoading(false);
     }
