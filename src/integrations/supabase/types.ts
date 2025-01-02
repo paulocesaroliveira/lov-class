@@ -388,18 +388,21 @@ export type Database = {
           id: string
           name: string
           updated_at: string
+          role: "user" | "admin"
         }
         Insert: {
           created_at?: string
           id: string
           name: string
           updated_at?: string
+          role?: "user" | "admin"
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
           updated_at?: string
+          role?: "user" | "admin"
         }
         Relationships: []
       }
@@ -438,6 +441,7 @@ export type Database = {
         | "sexo_virtual"
         | "orgia"
         | "gangbang"
+      user_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
