@@ -23,7 +23,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         .eq("id", session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error checking admin role:", error);
+        return false;
+      }
+      
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,

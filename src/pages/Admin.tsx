@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
+import { toast } from "sonner";
 
 const Admin = () => {
   const { session } = useAuth();
@@ -22,7 +23,11 @@ const Admin = () => {
         .eq("id", session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error checking admin role:", error);
+        return false;
+      }
+      
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
@@ -30,8 +35,10 @@ const Admin = () => {
 
   useEffect(() => {
     if (!session) {
-      navigate("/login");
+      toast.error("Você precisa estar logado para acessar esta página");
+      navigate("/login", { state: { returnTo: "/admin" } });
     } else if (!isLoading && !isAdmin) {
+      toast.error("Você não tem permissão para acessar esta página");
       navigate("/");
     }
   }, [session, isAdmin, isLoading, navigate]);
