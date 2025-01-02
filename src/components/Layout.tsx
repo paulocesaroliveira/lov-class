@@ -1,15 +1,33 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut, Heart, Newspaper } from 'lucide-react';
+import { Menu, X, LogIn, UserPlus, User, Home, Grid, LogOut, Heart, Newspaper, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { session } = useAuth();
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["isAdmin", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return false;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) throw error;
+      return data?.role === "admin";
+    },
+    enabled: !!session?.user?.id,
+  });
 
   const handleLogout = async () => {
     try {
@@ -39,6 +57,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   if (session) {
     menuItems.push(
       { path: '/favoritos', label: 'Favoritos', icon: Heart }
+    );
+  }
+
+  // Add admin panel to menu items if user is admin
+  if (isAdmin) {
+    menuItems.push(
+      { path: '/admin', label: 'Admin', icon: Shield }
     );
   }
 

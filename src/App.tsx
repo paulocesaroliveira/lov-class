@@ -13,6 +13,7 @@ import Registro from "./pages/Registro";
 import Perfil from "./pages/Perfil";
 import Favoritos from "./pages/Favoritos";
 import Feed from "./pages/Feed";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </Layout>
       </BrowserRouter>
