@@ -37,9 +37,13 @@ const Admin = () => {
     if (!session) {
       toast.error("Você precisa estar logado para acessar esta página");
       navigate("/login", { state: { returnTo: "/admin" } });
-    } else if (!isLoading && !isAdmin) {
+      return;
+    }
+
+    if (!isLoading && !isAdmin) {
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/");
+      return;
     }
   }, [session, isAdmin, isLoading, navigate]);
 
