@@ -387,18 +387,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id: string
           name: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Relationships: []
@@ -438,6 +441,7 @@ export type Database = {
         | "sexo_virtual"
         | "orgia"
         | "gangbang"
+      user_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
