@@ -16,12 +16,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Se já estiver logado, redireciona
   useEffect(() => {
     if (session) {
       const state = location.state as { returnTo?: string } | null;
       navigate(state?.returnTo || "/");
     }
   }, [session, navigate, location.state]);
+
+  // Se houver mensagem no state, mostra
+  useEffect(() => {
+    const state = location.state as { message?: string } | null;
+    if (state?.message) {
+      toast.error(state.message);
+    }
+  }, [location.state]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,14 +44,8 @@ const Login = () => {
 
       if (error) throw error;
 
-      const state = location.state as { returnTo?: string; message?: string } | null;
-      
-      if (state?.message) {
-        toast.success(state.message);
-      } else {
-        toast.success("Login realizado com sucesso!");
-      }
-
+      const state = location.state as { returnTo?: string } | null;
+      toast.success("Login realizado com sucesso!");
       navigate(state?.returnTo || "/");
     } catch (error: any) {
       toast.error(error.message || "Erro ao fazer login");

@@ -34,23 +34,34 @@ const Admin = () => {
   });
 
   useEffect(() => {
+    // Se não estiver logado, redireciona para login
     if (!session) {
-      toast.error("Você precisa estar logado para acessar esta página");
-      navigate("/login", { state: { returnTo: "/admin" } });
+      navigate("/login", { 
+        state: { 
+          returnTo: "/admin",
+          message: "Você precisa estar logado para acessar o painel administrativo" 
+        } 
+      });
       return;
     }
 
-    if (!isLoading && !isAdmin) {
+    // Se estiver carregando, não faz nada
+    if (isLoading) return;
+
+    // Se não for admin, redireciona para home
+    if (!isAdmin) {
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/");
       return;
     }
   }, [session, isAdmin, isLoading, navigate]);
 
+  // Mostra loading enquanto verifica o status de admin
   if (isLoading) {
     return <div>Carregando...</div>;
   }
 
+  // Se não for admin, não renderiza nada
   if (!isAdmin) {
     return null;
   }
