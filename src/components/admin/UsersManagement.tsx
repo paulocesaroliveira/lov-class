@@ -17,6 +17,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
+
+type UserRole = Database["public"]["Enums"]["user_role"];
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export const UsersManagement = () => {
     },
   });
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
       setUpdating(userId);
       const { error } = await supabase
@@ -77,7 +80,7 @@ export const UsersManagement = () => {
                 <Select
                   value={user.role}
                   disabled={updating === user.id}
-                  onValueChange={(value) => handleRoleChange(user.id, value)}
+                  onValueChange={(value: UserRole) => handleRoleChange(user.id, value)}
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
