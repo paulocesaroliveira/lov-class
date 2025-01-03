@@ -449,7 +449,7 @@ export type Database = {
         | "sexo_virtual"
         | "orgia"
         | "gangbang"
-      user_role: "user" | "admin"
+      user_role: "user" | "admin" | "advertiser"
     }
     CompositeTypes: {
       [_ in never]: never

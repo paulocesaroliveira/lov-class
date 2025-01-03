@@ -57,6 +57,19 @@ export const UsersManagement = () => {
     }
   };
 
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case "user":
+        return "Cliente";
+      case "advertiser":
+        return "Anunciante";
+      case "admin":
+        return "Admin";
+      default:
+        return role;
+    }
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -72,7 +85,7 @@ export const UsersManagement = () => {
           {users?.map((user) => (
             <TableRow key={user.id}>
               <TableCell>{user.name}</TableCell>
-              <TableCell>{user.role}</TableCell>
+              <TableCell>{getRoleLabel(user.role)}</TableCell>
               <TableCell>
                 {new Date(user.created_at).toLocaleDateString()}
               </TableCell>
@@ -87,6 +100,7 @@ export const UsersManagement = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="user">Cliente</SelectItem>
+                    <SelectItem value="advertiser">Anunciante</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
