@@ -11,18 +11,24 @@ const Feed = () => {
   const { session } = useAuth();
   const [posts, setPosts] = useState<FeedPost[]>([]);
 
-  // Check if user has an advertisement
-  const { data: hasAdvertisement } = useQuery({
-    queryKey: ["user-advertisement", session?.user?.id],
+  // Check if user is an advertiser
+  const { data: isAdvertiser } = useQuery({
+    queryKey: ["user-role", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return false;
 
-      const { count } = await supabase
-        .from("advertisements")
-        .select("*", { count: "exact", head: true })
-        .eq("profile_id", session.user.id);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
 
-      return count ? count > 0 : false;
+      if (error) {
+        console.error("Error checking user role:", error);
+        return false;
+      }
+      
+      return data?.role === "advertiser";
     },
     enabled: !!session?.user?.id,
   });
@@ -103,12 +109,12 @@ const Feed = () => {
       </div>
 
       {session ? (
-        hasAdvertisement ? (
+        isAdvertiser ? (
           <CreatePost onPostCreated={fetchPosts} />
         ) : (
           <div className="glass-card p-4 text-center">
             <p className="text-muted-foreground">
-              Para publicar no feed, você precisa ter um anúncio ativo.
+              Apenas anunciantes podem publicar no feed.
             </p>
           </div>
         )
