@@ -76,6 +76,51 @@ export type Database = {
           },
         ]
       }
+      advertisement_reviews: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          id: string
+          review_notes: string | null
+          reviewer_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          id?: string
+          review_notes?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          id?: string
+          review_notes?: string | null
+          reviewer_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisement_service_locations: {
         Row: {
           advertisement_id: string

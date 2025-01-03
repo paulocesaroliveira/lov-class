@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 
 export const AdsManagement = () => {
   const navigate = useNavigate();
@@ -28,6 +29,10 @@ export const AdsManagement = () => {
           profiles (
             name,
             role
+          ),
+          advertisement_reviews (
+            status,
+            updated_at
           )
         `)
         .order("created_at", { ascending: false });
@@ -57,6 +62,21 @@ export const AdsManagement = () => {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      pending: { label: "Pendente", variant: "warning" },
+      approved: { label: "Aprovado", variant: "success" },
+      rejected: { label: "Rejeitado", variant: "destructive" },
+    };
+
+    const config = statusConfig[status] || statusConfig.pending;
+    return (
+      <Badge variant={config.variant as "warning" | "success" | "destructive"}>
+        {config.label}
+      </Badge>
+    );
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -65,6 +85,7 @@ export const AdsManagement = () => {
             <TableHead>Título</TableHead>
             <TableHead>Anunciante</TableHead>
             <TableHead>Categoria</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Data de Criação</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
@@ -75,6 +96,9 @@ export const AdsManagement = () => {
               <TableCell>{ad.name}</TableCell>
               <TableCell>{ad.profiles?.name}</TableCell>
               <TableCell className="capitalize">{ad.category}</TableCell>
+              <TableCell>
+                {getStatusBadge(ad.advertisement_reviews?.[0]?.status || "pending")}
+              </TableCell>
               <TableCell>
                 {new Date(ad.created_at).toLocaleDateString()}
               </TableCell>
