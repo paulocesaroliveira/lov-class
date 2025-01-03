@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -6,12 +6,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Check if user is already logged in and is admin
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (session?.user?.id) {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        if (!error && profile?.role === "admin") {
+          console.log("User is already logged in as admin, redirecting...");
+          navigate("/admin");
+        }
+      }
+    };
+
+    checkAdminStatus();
+  }, [session, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +47,15 @@ const AdminLogin = () => {
 
       if (signInError) throw signInError;
 
+      if (!session?.user?.id) {
+        throw new Error("Erro ao obter informações do usuário");
+      }
+
       // Verificar se o usuário é admin
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", session?.user.id)
+        .eq("id", session.user.id)
         .single();
 
       if (profileError) throw profileError;
@@ -40,7 +66,8 @@ const AdminLogin = () => {
       }
 
       toast.success("Login administrativo realizado com sucesso!");
-      navigate("/admin");
+      console.log("Admin login successful, redirecting to /admin");
+      navigate("/admin", { replace: true });
     } catch (error: any) {
       toast.error(error.message || "Erro ao fazer login");
       console.error("Admin login error:", error);
