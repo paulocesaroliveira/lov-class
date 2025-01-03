@@ -15,55 +15,45 @@ const Admin = () => {
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ["isAdmin", session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) {
-        console.log("No user session found");
+      if (!session?.user?.id) return false;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Error checking admin role:", error);
         return false;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error) {
-          console.error("Error checking admin role:", error);
-          return false;
-        }
-
-        console.log("Profile data:", data);
-        return data?.role === "admin";
-      } catch (error) {
-        console.error("Error in admin check:", error);
-        return false;
-      }
+      return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
-    retry: false,
+    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
+    cacheTime: 10 * 60 * 1000, // Manter no cache por 10 minutos
+    retry: false, // Não tentar novamente em caso de erro
   });
 
   useEffect(() => {
-    console.log("Current session:", session);
-    console.log("Is admin:", isAdmin);
-    console.log("Is loading:", isLoading);
-
     if (!session) {
-      console.log("No session, redirecting to admin login");
       navigate("/admin-login");
       return;
     }
 
     if (!isLoading && isAdmin === false) {
-      console.log("Not admin, redirecting to admin login");
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/admin-login");
-      return;
     }
   }, [session, isAdmin, isLoading, navigate]);
 
   if (isLoading) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (!isAdmin) {
