@@ -9,6 +9,7 @@ import Anuncios from "./pages/Anuncios";
 import CriarAnuncio from "./pages/CriarAnuncio";
 import EditarAnuncio from "./pages/EditarAnuncio";
 import Login from "./pages/Login";
+import AdminLogin from "./pages/AdminLogin";
 import Registro from "./pages/Registro";
 import Perfil from "./pages/Perfil";
 import Favoritos from "./pages/Favoritos";
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/criar-anuncio" element={<CriarAnuncio />} />
             <Route path="/editar-anuncio/:id" element={<EditarAnuncio />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/registro" element={<Registro />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/favoritos" element={<Favoritos />} />

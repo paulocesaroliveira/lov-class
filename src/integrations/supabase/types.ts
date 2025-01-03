@@ -411,7 +411,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_users_roles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          user_email: string
+          user_role: Database["public"]["Enums"]["user_role"]
+          created_at: string
+        }[]
+      }
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
