@@ -39,6 +39,33 @@ export const AdsManagement = () => {
   const handleDelete = async (id: string) => {
     try {
       setDeleting(id);
+
+      // Delete related records first
+      const tables = [
+        'advertisement_whatsapp_clicks',
+        'advertisement_views',
+        'advertisement_videos',
+        'advertisement_photos',
+        'advertisement_services',
+        'advertisement_service_locations',
+        'advertisement_reviews',
+        'advertisement_comments',
+        'favorites'
+      ];
+
+      for (const table of tables) {
+        const { error } = await supabase
+          .from(table)
+          .delete()
+          .eq('advertisement_id', id);
+
+        if (error) {
+          console.error(`Erro ao excluir registros da tabela ${table}:`, error);
+          throw error;
+        }
+      }
+
+      // Finally delete the advertisement
       const { error } = await supabase
         .from("advertisements")
         .delete()
