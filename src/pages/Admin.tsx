@@ -28,12 +28,17 @@ const Admin = () => {
         return false;
       }
       
+      console.log("Admin check result:", data); // Log para debug
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
   });
 
   useEffect(() => {
+    console.log("Session:", session); // Log para debug
+    console.log("isAdmin:", isAdmin); // Log para debug
+    console.log("isLoading:", isLoading); // Log para debug
+
     // Se não estiver logado, redireciona para login administrativo
     if (!session) {
       navigate("/admin-login", { 
@@ -48,7 +53,7 @@ const Admin = () => {
     if (isLoading) return;
 
     // Se não for admin, redireciona para login administrativo
-    if (!isAdmin) {
+    if (isAdmin === false) {
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/admin-login");
       return;
