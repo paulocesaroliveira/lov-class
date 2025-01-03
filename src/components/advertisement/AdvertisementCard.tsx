@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 
 interface AdvertisementCardProps {
   advertisement: any;
@@ -21,6 +22,25 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
     (location: { location: string }) => location.location === "com_local"
   );
 
+  const { data: favoriteData } = useQuery({
+    queryKey: ["favorite", session?.user?.id, advertisement.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('advertisement_id', advertisement.id)
+        .single();
+      
+      return data;
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
   const toggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -33,25 +53,10 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
 
     try {
       if (favorite) {
-        // Buscar o ID do favorito primeiro
-        const { data: favoriteData, error: fetchError } = await supabase
-          .from('favorites')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .eq('advertisement_id', advertisement.id)
-          .single();
-
-        if (fetchError) {
-          console.error("Error fetching favorite:", fetchError);
-          toast.error("Erro ao buscar favorito");
-          return;
-        }
-
-        // Remover o favorito usando o ID específico
         const { error: deleteError } = await supabase
           .from('favorites')
           .delete()
-          .eq('id', favoriteData.id);
+          .eq('id', favoriteData?.id);
 
         if (deleteError) {
           console.error("Error removing favorite:", deleteError);
@@ -62,21 +67,6 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         setFavorite(false);
         toast.success("Removido dos favoritos");
       } else {
-        // Verificar se já existe
-        const { data: existingFavorite } = await supabase
-          .from('favorites')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .eq('advertisement_id', advertisement.id)
-          .maybeSingle();
-
-        if (existingFavorite) {
-          setFavorite(true); // Atualizar estado local se já existir
-          toast.error("Anúncio já está nos favoritos");
-          return;
-        }
-
-        // Adicionar novo favorito
         const { error: insertError } = await supabase
           .from('favorites')
           .insert({
@@ -126,6 +116,7 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
             src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/profile_photos/${advertisement.profile_photo_url}`}
             alt={advertisement.name}
             className="object-cover w-full h-full"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">

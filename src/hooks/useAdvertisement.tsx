@@ -33,6 +33,8 @@ export const useAdvertisement = (id: string | undefined) => {
       return advertisement;
     },
     enabled: !!id,
+    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
+    gcTime: 10 * 60 * 1000, // Manter no cache por 10 minutos
   });
 };
 
@@ -57,6 +59,8 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
       return count || 0;
     },
     enabled: !!advertisementId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Visualizações do mês atual
@@ -74,6 +78,8 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
       return count || 0;
     },
     enabled: !!advertisementId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Total de cliques no WhatsApp
@@ -90,6 +96,8 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
       return count || 0;
     },
     enabled: !!advertisementId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   // Cliques no WhatsApp do mês atual
@@ -107,6 +115,8 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
       return count || 0;
     },
     enabled: !!advertisementId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   return {
