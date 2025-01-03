@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Eye, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Eye, Trash2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -99,18 +99,36 @@ export const AdsManagement = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { label: "Pendente", variant: "warning" as const },
-      approved: { label: "Aprovado", variant: "success" as const },
-      rejected: { label: "Rejeitado", variant: "destructive" as const },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return (
-      <Badge variant={config.variant}>
-        {config.label}
-      </Badge>
-    );
+    switch (status) {
+      case "pending":
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Pendente
+          </Badge>
+        );
+      case "approved":
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Aprovado
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="w-3 h-3 mr-1" />
+            Rejeitado
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            Pendente
+          </Badge>
+        );
+    }
   };
 
   return (

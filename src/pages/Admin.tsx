@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
 import { toast } from "sonner";
+import { AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const Admin = () => {
   const { session } = useAuth();
@@ -31,9 +33,26 @@ const Admin = () => {
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
-    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
-    gcTime: 10 * 60 * 1000, // Manter no cache por 10 minutos (anteriormente cacheTime)
-    retry: false, // Não tentar novamente em caso de erro
+  });
+
+  // Buscar anúncios pendentes de revisão
+  const { data: pendingAds } = useQuery({
+    queryKey: ["pending-ads"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("advertisements")
+        .select(`
+          id,
+          advertisement_reviews (
+            status
+          )
+        `)
+        .eq("advertisement_reviews.status", "pending");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin === true,
   });
 
   useEffect(() => {
@@ -62,14 +81,24 @@ const Admin = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
-        <p className="text-muted-foreground">
-          Gerencie usuários e anúncios do sistema
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+          <p className="text-muted-foreground">
+            Gerencie usuários e anúncios do sistema
+          </p>
+        </div>
+        {pendingAds && pendingAds.length > 0 && (
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-yellow-500" />
+            <Badge variant="secondary">
+              {pendingAds.length} anúncios pendentes de revisão
+            </Badge>
+          </div>
+        )}
       </div>
 
-      <Tabs defaultValue="users">
+      <Tabs defaultValue="ads">
         <TabsList>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="ads">Anúncios</TabsTrigger>
