@@ -32,7 +32,7 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         .select('id')
         .eq('user_id', session.user.id)
         .eq('advertisement_id', advertisement.id)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
       
       return data;
     },
