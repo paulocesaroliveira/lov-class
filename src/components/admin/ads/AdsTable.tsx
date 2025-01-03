@@ -35,6 +35,7 @@ export const AdsTable = ({
             <TableHead>Categoria</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Data de Criação</TableHead>
+            <TableHead>Última Alteração</TableHead>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
@@ -49,6 +50,9 @@ export const AdsTable = ({
               </TableCell>
               <TableCell>
                 {new Date(ad.created_at).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                {new Date(ad.updated_at).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
