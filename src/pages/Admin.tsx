@@ -15,57 +15,57 @@ const Admin = () => {
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ["isAdmin", session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return false;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .single();
-
-      if (error) {
-        console.error("Error checking admin role:", error);
+      if (!session?.user?.id) {
+        console.log("No user session found");
         return false;
       }
-      
-      console.log("Admin check result:", data); // Log para debug
-      return data?.role === "admin";
+
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
+
+        if (error) {
+          console.error("Error checking admin role:", error);
+          return false;
+        }
+
+        console.log("Profile data:", data);
+        return data?.role === "admin";
+      } catch (error) {
+        console.error("Error in admin check:", error);
+        return false;
+      }
     },
     enabled: !!session?.user?.id,
+    retry: false,
   });
 
   useEffect(() => {
-    console.log("Session:", session); // Log para debug
-    console.log("isAdmin:", isAdmin); // Log para debug
-    console.log("isLoading:", isLoading); // Log para debug
+    console.log("Current session:", session);
+    console.log("Is admin:", isAdmin);
+    console.log("Is loading:", isLoading);
 
-    // Se não estiver logado, redireciona para login administrativo
     if (!session) {
-      navigate("/admin-login", { 
-        state: { 
-          message: "Você precisa fazer login como administrador para acessar esta página" 
-        } 
-      });
+      console.log("No session, redirecting to admin login");
+      navigate("/admin-login");
       return;
     }
 
-    // Se estiver carregando, não faz nada
-    if (isLoading) return;
-
-    // Se não for admin, redireciona para login administrativo
-    if (isAdmin === false) {
+    if (!isLoading && isAdmin === false) {
+      console.log("Not admin, redirecting to admin login");
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/admin-login");
       return;
     }
   }, [session, isAdmin, isLoading, navigate]);
 
-  // Mostra loading enquanto verifica o status de admin
   if (isLoading) {
     return <div>Carregando...</div>;
   }
 
-  // Se não for admin, não renderiza nada
   if (!isAdmin) {
     return null;
   }
