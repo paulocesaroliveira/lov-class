@@ -25,14 +25,14 @@ export default function ConversationList() {
 
       // Primeiro, buscamos as conversas do usuário
       const { data: userConversations, error: conversationsError } = await supabase
-        .from("conversations")
+        .from("conversation_participants")
         .select(`
-          id,
-          updated_at,
-          conversation_participants!inner(user_id)
+          conversation:conversations!inner(
+            id,
+            updated_at
+          )
         `)
-        .contains('conversation_participants.user_id', [session.user.id])
-        .order("updated_at", { ascending: false });
+        .eq('user_id', session.user.id);
 
       if (conversationsError) throw conversationsError;
 
@@ -44,31 +44,35 @@ export default function ConversationList() {
             .from("conversation_participants")
             .select(`
               user_id,
-              profiles!inner(name)
+              profiles (
+                name
+              )
             `)
-            .eq("conversation_id", conv.id);
+            .eq("conversation_id", conv.conversation.id);
 
           // Buscar última mensagem
           const { data: messages } = await supabase
             .from("messages")
             .select("content")
-            .eq("conversation_id", conv.id)
+            .eq("conversation_id", conv.conversation.id)
             .order("created_at", { ascending: false })
             .limit(1);
 
           return {
-            id: conv.id,
-            updated_at: conv.updated_at,
+            id: conv.conversation.id,
+            updated_at: conv.conversation.updated_at,
             participants: participants?.map(p => ({
               user_id: p.user_id,
-              profile_name: p.profiles.name
+              profile_name: p.profiles?.name || "Usuário"
             })) || [],
             last_message: messages?.[0]?.content || null
           };
         })
       );
 
-      return conversationsWithDetails;
+      return conversationsWithDetails.sort((a, b) => 
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
     },
     enabled: !!session?.user?.id,
   });
