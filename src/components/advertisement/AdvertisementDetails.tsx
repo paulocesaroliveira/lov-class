@@ -24,29 +24,34 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
 
     try {
       // Primeiro, buscar as conversas do anunciante
-      const { data: advertiserConversations } = await supabase
+      const { data: advertiserConversations, error: advertiserError } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
         .eq('user_id', advertisement.profile_id);
 
+      if (advertiserError) throw advertiserError;
+
       const conversationIds = advertiserConversations?.map(c => c.conversation_id) || [];
 
-      // Depois, verificar se o usuário atual participa de alguma dessas conversas
-      const { data: existingConversation } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', session.user.id)
-        .in('conversation_id', conversationIds)
-        .maybeSingle();
+      if (conversationIds.length > 0) {
+        // Depois, verificar se o usuário atual participa de alguma dessas conversas
+        const { data: existingConversation, error: participantError } = await supabase
+          .from('conversation_participants')
+          .select('conversation_id')
+          .eq('user_id', session.user.id)
+          .in('conversation_id', conversationIds)
+          .maybeSingle();
 
-      if (existingConversation) {
-        // Navigate to existing conversation
-        navigate(`/mensagens/${existingConversation.conversation_id}`);
-        return;
+        if (participantError) throw participantError;
+
+        if (existingConversation) {
+          navigate(`/mensagens/${existingConversation.conversation_id}`);
+          return;
+        }
       }
 
       // Create new conversation
-      const { data: conversation, error: conversationError } = await supabase
+      const { data: newConversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({})
         .select()
@@ -58,18 +63,18 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
       const { error: participantsError } = await supabase
         .from('conversation_participants')
         .insert([
-          { conversation_id: conversation.id, user_id: session.user.id },
-          { conversation_id: conversation.id, user_id: advertisement.profile_id }
+          { conversation_id: newConversation.id, user_id: session.user.id },
+          { conversation_id: newConversation.id, user_id: advertisement.profile_id }
         ]);
 
       if (participantsError) throw participantsError;
 
       // Navigate to new conversation
-      navigate(`/mensagens/${conversation.id}`);
+      navigate(`/mensagens/${newConversation.id}`);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error starting chat:', error);
-      toast.error("Erro ao iniciar chat privado");
+      toast.error(error.message || "Erro ao iniciar chat privado");
     }
   };
 
@@ -149,28 +154,27 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
           />
         </div>
 
-        <div className="flex flex-col gap-3">
-          <Button
-            className="w-full bg-whatsapp hover:bg-whatsapp/90"
-            size="lg"
-            onClick={onWhatsAppClick}
-          >
-            <MessageSquare className="w-5 h-5 mr-2" />
-            Chamar no WhatsApp
-          </Button>
+      <div className="flex flex-col gap-3">
+        <Button
+          className="w-full bg-whatsapp hover:bg-whatsapp/90"
+          size="lg"
+          onClick={onWhatsAppClick}
+        >
+          <MessageSquare className="w-5 h-5 mr-2" />
+          Chamar no WhatsApp
+        </Button>
 
-          {session && session.user.id !== advertisement.profile_id && (
-            <Button
-              variant="outline"
-              className="w-full"
-              size="lg"
-              onClick={startPrivateChat}
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Iniciar Chat Privado
-            </Button>
-          )}
-        </div>
+        {session && session.user.id !== advertisement.profile_id && (
+          <Button
+            variant="outline"
+            className="w-full"
+            size="lg"
+            onClick={startPrivateChat}
+          >
+            <MessageCircle className="w-5 h-5 mr-2" />
+            Iniciar Chat Privado
+          </Button>
+        )}
       </div>
     </div>
   );
