@@ -31,18 +31,32 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Você precisa estar logado para criar um anúncio");
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error) {
+          console.error("Erro ao obter usuário:", error);
+          toast.error("Erro ao verificar autenticação");
+          navigate("/login");
+          return;
+        }
+
+        if (!user) {
+          toast.error("Você precisa estar logado para criar um anúncio");
+          navigate("/login");
+          return;
+        }
+
+        console.log("Usuário autenticado:", user.id);
+        setUser(user);
+      } catch (error) {
+        console.error("Erro ao verificar autenticação:", error);
+        toast.error("Erro ao verificar autenticação");
         navigate("/login");
-        return;
       }
-      setUser(user);
     };
     getUser();
   }, [navigate]);
-
-  console.log("Dados do anúncio recebidos no formulário:", advertisement);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -69,8 +83,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     },
     mode: "onBlur",
   });
-
-  console.log("Valores padrão do formulário:", form.getValues());
 
   const {
     profilePhoto,
@@ -108,6 +120,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       console.log("Usuário autenticado:", user.id);
 
       const profilePhotoUrl = await uploadProfilePhoto();
+      console.log("Foto de perfil enviada:", profilePhotoUrl);
       
       if (advertisement?.id) {
         await deleteExistingMedia(advertisement.id);
@@ -115,22 +128,38 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       // Passar o ID do anúncio existente para atualização
       const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
+      console.log("Salvando anúncio com valores:", formValues);
+      
       const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
+      console.log("Anúncio salvo com sucesso:", ad);
       
       await saveServices(ad.id, values.services);
+      console.log("Serviços salvos com sucesso");
+      
       await saveServiceLocations(ad.id, values.serviceLocations);
+      console.log("Locais de atendimento salvos com sucesso");
 
       const photoUrls = await uploadPhotos(ad.id);
+      console.log("Fotos enviadas:", photoUrls);
+      
       const videoUrls = await uploadVideos(ad.id);
+      console.log("Vídeos enviados:", videoUrls);
 
       await savePhotos(ad.id, photoUrls);
       await saveVideos(ad.id, videoUrls);
 
       toast.success(advertisement ? "Anúncio atualizado com sucesso!" : "Anúncio criado com sucesso!");
       navigate("/anuncios");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
-      toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
+      
+      // Melhor tratamento de erros específicos
+      if (error.message?.includes("row violates row-level security policy")) {
+        toast.error("Erro de permissão. Por favor, tente fazer login novamente.");
+        navigate("/login");
+      } else {
+        toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
+      }
     } finally {
       setIsLoading(false);
     }
