@@ -12,8 +12,8 @@ import { StatusBadge } from "./StatusBadge";
 
 type AdsTableProps = {
   advertisements: any[];
-  onDelete: (id: string, reason: string) => void;
-  onBlock: (id: string, reason: string) => void;
+  onDelete: (id: string) => void;
+  onBlock: (id: string) => void;
   onView: (ad: any) => void;
   onReview: (ad: any) => void;
   deleting: string | null;
@@ -78,7 +78,7 @@ export const AdsTable = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => onBlock(ad.id, "")}
+                    onClick={() => onBlock(ad.id)}
                   >
                     <Ban className="h-4 w-4" />
                   </Button>
@@ -86,7 +86,7 @@ export const AdsTable = ({
                     variant="destructive"
                     size="icon"
                     disabled={deleting === ad.id}
-                    onClick={() => onDelete(ad.id, "")}
+                    onClick={() => onDelete(ad.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
