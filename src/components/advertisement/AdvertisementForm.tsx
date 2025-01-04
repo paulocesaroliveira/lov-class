@@ -20,6 +20,7 @@ import { formSchema } from "./advertisementSchema";
 import { FormValues, ServiceType, ServiceLocationType } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
+import { useAuthCheck } from "./hooks/useAuthCheck";
 
 type AdvertisementFormProps = {
   advertisement?: FormValues;
@@ -28,49 +29,8 @@ type AdvertisementFormProps = {
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Erro ao verificar sessão:", error);
-          toast.error("Erro ao verificar autenticação");
-          navigate("/login");
-          return;
-        }
-
-        if (!session) {
-          toast.error("Você precisa estar logado para criar um anúncio");
-          navigate("/login");
-          return;
-        }
-
-        console.log("Usuário autenticado:", session.user.id);
-        setUser(session.user);
-      } catch (error) {
-        console.error("Erro ao verificar autenticação:", error);
-        toast.error("Erro ao verificar autenticação");
-        navigate("/login");
-      }
-    };
-
-    checkAuth();
-
-    // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/login");
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+  const { user } = useAuthCheck();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -173,7 +133,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         await deleteExistingMedia(advertisement.id);
       }
 
-      // Passar o ID do anúncio existente para atualização
       const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
       console.log("Salvando anúncio com valores:", formValues);
       
@@ -216,12 +175,12 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         <ServicesSelection form={form} />
         <ServiceLocations form={form} />
         <Description form={form} />
-        <IdentityDocument form={form} setIdentityDocument={setIdentityDocument} />
         <MediaUpload
           setProfilePhoto={setProfilePhoto}
           setPhotos={setPhotos}
           setVideos={setVideos}
         />
+        <IdentityDocument form={form} setIdentityDocument={setIdentityDocument} />
         <FormActions isLoading={isLoading} isEditing={!!advertisement} />
       </form>
     </Form>

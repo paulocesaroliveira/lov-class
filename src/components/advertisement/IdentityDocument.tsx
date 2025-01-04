@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./advertisementSchema";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ShieldCheck } from "lucide-react";
 
 type IdentityDocumentProps = {
   form: UseFormReturn<z.infer<typeof formSchema>>;
@@ -13,10 +15,15 @@ export const IdentityDocument = ({ form, setIdentityDocument }: IdentityDocument
   return (
     <div className="glass-card p-6 space-y-6">
       <h2 className="text-xl font-semibold">Documento de Identidade</h2>
-      <p className="text-sm text-muted-foreground">
-        Para sua segurança e a dos usuários, precisamos de uma foto do seu documento de identidade.
-        Este documento não será público e será usado apenas para verificação.
-      </p>
+      
+      <Alert>
+        <ShieldCheck className="h-4 w-4" />
+        <AlertDescription>
+          Para mantermos um ambiente seguro e em conformidade com a legislação, precisamos de uma foto do seu documento de identidade.
+          Este documento <strong>não será público</strong> e será usado apenas para verificação interna.
+          Seus dados estão protegidos e só serão acessados por nossa equipe de moderação.
+        </AlertDescription>
+      </Alert>
 
       <FormField
         control={form.control}
