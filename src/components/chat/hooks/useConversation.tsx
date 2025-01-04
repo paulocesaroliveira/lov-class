@@ -1,12 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversationParticipant } from "@/types/chat";
+import { useAuth } from "@/hooks/useAuth";
 
 export const useConversation = (conversationId: string | undefined) => {
+  const { session } = useAuth();
+
   return useQuery<ConversationParticipant>({
     queryKey: ["conversation", conversationId],
     queryFn: async () => {
       if (!conversationId) throw new Error("No conversation ID provided");
+      if (!session?.user?.id) throw new Error("No user session found");
 
       console.log("Fetching conversation data for ID:", conversationId);
 
@@ -15,6 +19,7 @@ export const useConversation = (conversationId: string | undefined) => {
         .from("conversation_participants")
         .select("*")
         .eq("conversation_id", conversationId)
+        .eq("user_id", session.user.id)
         .single();
 
       if (participantError) {
@@ -39,6 +44,7 @@ export const useConversation = (conversationId: string | undefined) => {
           )
         `)
         .eq("conversation_id", conversationId)
+        .neq("user_id", session.user.id)
         .maybeSingle();
 
       if (error) {
@@ -55,6 +61,6 @@ export const useConversation = (conversationId: string | undefined) => {
       
       return data;
     },
-    enabled: !!conversationId,
+    enabled: !!conversationId && !!session?.user?.id,
   });
 };

@@ -21,14 +21,28 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
 
     try {
+      console.log("Creating conversation between:", {
+        currentUserId: session.user.id,
+        advertisementProfileId: advertisement.profile_id,
+      });
+
       const { data, error } = await supabase
         .rpc('find_or_create_conversation', {
           current_user_id: session.user.id,
           other_user_id: advertisement.profile_id
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating conversation:', error);
+        throw error;
+      }
 
+      if (!data || data.length === 0) {
+        console.error('No conversation data returned');
+        throw new Error('No conversation data returned');
+      }
+
+      console.log("Conversation created/found:", data);
       navigate(`/mensagens/${data[0].conversation_id}`);
     } catch (error) {
       console.error('Error creating conversation:', error);
