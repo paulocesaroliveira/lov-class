@@ -618,6 +618,20 @@ export type Database = {
           conversation_id: string
         }[]
       }
+      get_messages_with_sender_names: {
+        Args: {
+          p_conversation_id: string
+        }
+        Returns: {
+          id: string
+          content: string
+          sender_id: string
+          created_at: string
+          conversation_id: string
+          read_at: string
+          sender_name: string
+        }[]
+      }
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
