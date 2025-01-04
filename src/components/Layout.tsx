@@ -4,7 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { DesktopMenu } from './layout/DesktopMenu';
 import { MobileMenu } from './layout/MobileMenu';
 
-const Layout = () => {
+const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
