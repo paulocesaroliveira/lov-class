@@ -1,30 +1,48 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
-// Create a client
 const queryClient = new QueryClient();
 
-// Login form component
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { session } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  const { data: isAdmin } = useQuery({
+    queryKey: ["isAdmin", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return false;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error) {
+        console.error("Error checking admin role:", error);
+        return false;
+      }
+      
+      return data?.role === "admin";
+    },
+    enabled: !!session?.user?.id,
+  });
+
   React.useEffect(() => {
-    if (session) {
+    if (session && isAdmin) {
       console.info("User is already logged in as admin, redirecting...");
       navigate("/admin");
     }
-  }, [session, navigate]);
+  }, [session, isAdmin, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,13 +70,14 @@ const LoginForm = () => {
         return;
       }
 
+      toast.success("Login realizado com sucesso!");
       navigate("/admin");
     } catch (error: any) {
       toast.error(error.message);
     }
   };
 
-  if (session) return null;
+  if (session && isAdmin) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -100,7 +119,6 @@ const LoginForm = () => {
   );
 };
 
-// Main component
 function AdminLogin() {
   return (
     <QueryClientProvider client={queryClient}>

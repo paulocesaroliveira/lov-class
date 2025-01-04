@@ -19,7 +19,7 @@ export const Navigation = () => {
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("Error checking admin role:", error);
@@ -29,8 +29,6 @@ export const Navigation = () => {
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 
   const handleLogout = async () => {

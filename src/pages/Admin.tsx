@@ -9,7 +9,7 @@ import { AdsManagement } from "@/components/admin/AdsManagement";
 import { toast } from "sonner";
 import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 const Admin = () => {
   const { session } = useAuth();
