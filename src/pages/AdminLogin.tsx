@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-// Create a client outside of component render
+// Create a client
 const queryClient = new QueryClient();
 
 const AdminLoginContent = () => {
@@ -95,6 +95,7 @@ const AdminLoginContent = () => {
   );
 };
 
+// Wrap the entire app with QueryClientProvider
 const AdminLogin = () => {
   return (
     <QueryClientProvider client={queryClient}>
