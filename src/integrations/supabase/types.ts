@@ -391,21 +391,31 @@ export type Database = {
       }
       conversation_participants: {
         Row: {
+          advertisement_id: string | null
           conversation_id: string
           created_at: string
           user_id: string
         }
         Insert: {
+          advertisement_id?: string | null
           conversation_id: string
           created_at?: string
           user_id: string
         }
         Update: {
+          advertisement_id?: string | null
           conversation_id?: string
           created_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversation_participants_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversation_participants_conversation_id_fkey"
             columns: ["conversation_id"]
