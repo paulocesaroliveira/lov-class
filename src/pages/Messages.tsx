@@ -28,13 +28,22 @@ export const Messages = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles(name)
+          sender:sender_id(
+            name:profiles!inner(name)
+          )
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
       if (messagesError) throw messagesError;
-      return messagesData as Message[];
+      
+      // Transform the data to match our Message type
+      const transformedMessages = messagesData.map(msg => ({
+        ...msg,
+        sender: msg.sender?.name ? { name: msg.sender.name } : null
+      }));
+
+      return transformedMessages as Message[];
     },
     enabled: !!conversationId && !!session?.user,
   });
