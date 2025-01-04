@@ -29,8 +29,8 @@ export const Navigation = () => {
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
-    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
-    gcTime: 10 * 60 * 1000, // Manter no cache por 10 minutos
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   const handleLogout = async () => {
@@ -44,6 +44,11 @@ export const Navigation = () => {
   };
 
   const handleNavigation = (path: string) => {
+    if (path === '/admin' && !isAdmin) {
+      toast.error('Você não tem permissão para acessar esta página');
+      return;
+    }
+    
     if (path === location.pathname) {
       window.location.reload();
     } else {

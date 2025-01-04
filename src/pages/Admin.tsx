@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
@@ -11,9 +11,7 @@ import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "sonner";
 
-const queryClient = new QueryClient();
-
-const AdminContent = () => {
+const Admin = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
 
@@ -85,7 +83,7 @@ const AdminContent = () => {
 
     if (!isLoading && isAdmin === false) {
       toast.error("Você não tem permissão para acessar esta página");
-      navigate("/admin-login");
+      navigate("/");
     }
   }, [session, isAdmin, isLoading, navigate]);
 
@@ -154,16 +152,8 @@ const AdminContent = () => {
           <AdsManagement />
         </TabsContent>
       </Tabs>
-    </div>
-  );
-};
-
-const Admin = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AdminContent />
       <Toaster />
-    </QueryClientProvider>
+    </div>
   );
 };
 
