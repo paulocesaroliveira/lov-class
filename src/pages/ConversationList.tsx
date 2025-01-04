@@ -10,8 +10,10 @@ type Conversation = {
   updated_at: string;
   participants: {
     user_id: string;
-    profiles: {
-      name: string;
+    user: {
+      profile: {
+        name: string;
+      };
     };
   }[];
   last_message: {
@@ -25,20 +27,16 @@ export default function ConversationList() {
   const { data: conversations, isLoading } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const { data: conversationsData, error } = await supabase
+      const { data, error } = await supabase
         .from("conversations")
         .select(`
           id,
           updated_at,
           participants:conversation_participants(
             user_id,
-            profiles:profiles!conversation_participants_user_id_fkey(
-              name
-            )
+            user:profiles!inner(name)
           ),
-          last_message:messages(
-            content
-          )
+          last_message:messages(content)
         `)
         .order("updated_at", { ascending: false });
 
@@ -47,7 +45,7 @@ export default function ConversationList() {
         throw error;
       }
 
-      return conversationsData || [];
+      return data || [];
     },
     enabled: !!session?.user?.id,
   });
@@ -79,7 +77,7 @@ export default function ConversationList() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium">
-                    {otherParticipant?.profiles?.name || "Usuário"}
+                    {otherParticipant?.user?.profile?.name || "Usuário"}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-1">
                     {lastMessage || "Nenhuma mensagem"}
