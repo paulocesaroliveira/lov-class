@@ -11,7 +11,6 @@ import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "sonner";
 
-// Create a client
 const queryClient = new QueryClient();
 
 const AdminContent = () => {
@@ -39,7 +38,6 @@ const AdminContent = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Buscar contagem de usuários por papel
   const { data: userStats } = useQuery({
     queryKey: ["user-stats"],
     queryFn: async () => {
@@ -59,7 +57,6 @@ const AdminContent = () => {
     enabled: isAdmin === true,
   });
 
-  // Buscar anúncios pendentes de revisão
   const { data: pendingAds } = useQuery({
     queryKey: ["pending-ads"],
     queryFn: async () => {
@@ -118,7 +115,6 @@ const AdminContent = () => {
           Gerencie usuários e anúncios do sistema
         </p>
         
-        {/* User Stats */}
         <div className="flex gap-4 mt-4">
           <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
             <Users className="h-4 w-4" />
