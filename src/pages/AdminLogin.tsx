@@ -1,129 +1,105 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Shield } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-const AdminLogin = () => {
-  const navigate = useNavigate();
-  const { session } = useAuth();
+// Create a client outside of component render
+const queryClient = new QueryClient();
+
+const AdminLoginContent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { session } = useAuth();
+  const navigate = useNavigate();
 
-  const { data: isAdmin } = useQuery({
-    queryKey: ["isAdmin", session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return false;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error checking admin role:", error);
-        return false;
-      }
-      
-      return data?.role === "admin";
-    },
-    enabled: !!session?.user?.id,
-  });
-
-  // Check if user is already logged in and is admin
-  useEffect(() => {
-    if (isAdmin) {
-      console.log("User is already logged in as admin, redirecting...");
-      navigate("/admin");
-    }
-  }, [isAdmin, navigate]);
+  // Redirect if already logged in
+  if (session) {
+    console.info("User is already logged in as admin, redirecting...");
+    navigate("/admin");
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     try {
-      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) throw signInError;
+      if (error) throw error;
 
-      if (!session?.user?.id) {
-        throw new Error("Erro ao obter informações do usuário");
-      }
-
-      // Verificar se o usuário é admin
+      // Check if user is admin
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
+        .eq("id", (await supabase.auth.getUser()).data.user?.id)
+        .single();
 
       if (profileError) throw profileError;
 
       if (profile?.role !== "admin") {
         await supabase.auth.signOut();
-        throw new Error("Acesso não autorizado. Apenas administradores podem acessar esta área.");
+        toast.error("Você não tem permissão para acessar esta página");
+        return;
       }
 
-      toast.success("Login administrativo realizado com sucesso!");
-      console.log("Admin login successful, redirecting to /admin");
-      navigate("/admin", { replace: true });
+      navigate("/admin");
     } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer login");
-      console.error("Admin login error:", error);
-    } finally {
-      setLoading(false);
+      toast.error(error.message);
     }
   };
 
   return (
-    <div className="mx-auto max-w-sm space-y-6">
-      <div className="space-y-2 text-center">
-        <div className="flex justify-center">
-          <Shield className="h-12 w-12 text-primary" />
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="w-full max-w-md space-y-8 rounded-lg border bg-card p-6 shadow-sm">
+        <div>
+          <h2 className="text-2xl font-bold">Login Administrativo</h2>
+          <p className="text-muted-foreground">
+            Faça login para acessar o painel administrativo
+          </p>
         </div>
-        <h1 className="text-2xl font-bold">Login Administrativo</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Área restrita para administradores
-        </p>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div className="space-y-2">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <Button type="submit" className="w-full">
+            Entrar
+          </Button>
+        </form>
       </div>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            placeholder="admin@exemplo.com"
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Senha</Label>
-          <Input
-            id="password"
-            required
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <Button className="w-full" type="submit" disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </Button>
-      </form>
     </div>
+  );
+};
+
+const AdminLogin = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AdminLoginContent />
+    </QueryClientProvider>
   );
 };
 
