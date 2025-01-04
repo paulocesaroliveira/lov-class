@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { MessageList } from "@/components/chat/MessageList";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { Message } from "@/types/chat";
+import { useAdvertisement } from "@/hooks/useAdvertisement";
 
 export const Messages = () => {
   const { conversationId } = useParams();
@@ -15,6 +16,34 @@ export const Messages = () => {
   const [notificationPermission, setNotificationPermission] = useState(
     Notification.permission
   );
+
+  // First get the advertisement ID from the conversation participants
+  const { data: conversationData } = useQuery({
+    queryKey: ["conversation", conversationId],
+    queryFn: async () => {
+      if (!conversationId) return null;
+
+      const { data: participants, error } = await supabase
+        .from("conversation_participants")
+        .select(`
+          user_id,
+          advertisements!inner (
+            id,
+            name
+          )
+        `)
+        .eq("conversation_id", conversationId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching conversation:", error);
+        throw error;
+      }
+
+      return participants;
+    },
+    enabled: !!conversationId,
+  });
 
   const { data: messages = [], refetch } = useQuery({
     queryKey: ["messages", conversationId],
@@ -45,12 +74,14 @@ export const Messages = () => {
       // Transform the data to match our Message type
       const transformedMessages = messagesData.map(msg => ({
         ...msg,
-        sender: msg.sender ? { name: msg.sender.name } : null
+        sender: msg.sender ? { 
+          name: conversationData?.advertisements?.name || msg.sender.name 
+        } : null
       }));
 
       return transformedMessages as Message[];
     },
-    enabled: !!conversationId && !!session?.user,
+    enabled: !!conversationId && !!conversationData,
   });
 
   // Configurar listener para novas mensagens

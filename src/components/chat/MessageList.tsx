@@ -26,7 +26,7 @@ export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
           >
             <div className="flex items-center gap-2 mb-1.5">
               <span className="text-sm sm:text-base font-medium">
-                {message.sender?.name}
+                {message.sender?.name || "Usuário"}
               </span>
               <span className="text-xs sm:text-sm opacity-70">
                 {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
