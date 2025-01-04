@@ -8,22 +8,23 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Create a client outside of component to avoid recreation on each render
+// Create a client
 const queryClient = new QueryClient();
 
-// Separate the content component
-const AdminLoginContent = () => {
+// Login form component
+const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { session } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
-  if (session) {
-    console.info("User is already logged in as admin, redirecting...");
-    navigate("/admin");
-    return null;
-  }
+  React.useEffect(() => {
+    if (session) {
+      console.info("User is already logged in as admin, redirecting...");
+      navigate("/admin");
+    }
+  }, [session, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +57,8 @@ const AdminLoginContent = () => {
       toast.error(error.message);
     }
   };
+
+  if (session) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -97,12 +100,12 @@ const AdminLoginContent = () => {
   );
 };
 
-// Main component with providers
+// Main component
 const AdminLogin = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AdminLoginContent />
+        <LoginForm />
       </TooltipProvider>
     </QueryClientProvider>
   );
