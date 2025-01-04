@@ -21,7 +21,11 @@ export const useConversation = (conversationId: string | undefined) => {
         .eq("conversation_id", conversationId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching conversation:", error);
+        throw error;
+      }
+      
       if (!data) throw new Error("No conversation found");
       
       return data;

@@ -12,8 +12,8 @@ import { useMessageSubscription } from "./hooks/useMessageSubscription";
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
-  const { data: conversationData } = useConversation(conversationId);
-  const { data: messages = [], refetch } = useMessages(conversationId);
+  const { data: conversationData, isLoading: isLoadingConversation } = useConversation(conversationId);
+  const { data: messages = [], isLoading: isLoadingMessages, refetch } = useMessages(conversationId);
 
   useMessageSubscription(conversationId, refetch);
 
@@ -25,17 +25,35 @@ export const ChatContainer = () => {
     );
   }
 
+  if (isLoadingConversation || isLoadingMessages) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Carregando conversa...</p>
+      </div>
+    );
+  }
+
+  if (!conversationData) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Conversa não encontrada</p>
+      </div>
+    );
+  }
+
   const handleSendMessage = async (content: string) => {
     try {
       if (!conversationId || !conversationData) {
         throw new Error("Dados da conversa não disponíveis");
       }
       
-      await supabase.from("messages").insert({
+      const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
         sender_id: conversationData.user_id,
       });
+
+      if (error) throw error;
       
       refetch();
     } catch (error) {

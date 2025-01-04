@@ -23,7 +23,11 @@ export const useMessages = (conversationId: string | undefined) => {
           p_conversation_id: conversationId
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching messages:", error);
+        throw error;
+      }
+      
       if (!messagesData) return [];
       
       return (messagesData as MessageResponse[]).map(msg => ({
