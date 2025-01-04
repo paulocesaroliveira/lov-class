@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
 import { toast } from "sonner";
-import { AlertCircle, Users } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Toaster } from "@/components/ui/sonner";
 
 const Admin = () => {
@@ -36,45 +34,6 @@ const Admin = () => {
     enabled: !!session?.user?.id,
   });
 
-  const { data: userStats } = useQuery({
-    queryKey: ["user-stats"],
-    queryFn: async () => {
-      const { data: users, error } = await supabase
-        .from("profiles")
-        .select("role");
-
-      if (error) throw error;
-
-      const stats = {
-        clients: users.filter(user => user.role === "user").length,
-        advertisers: users.filter(user => user.role === "advertiser").length
-      };
-
-      return stats;
-    },
-    enabled: isAdmin === true,
-  });
-
-  const { data: pendingAds } = useQuery({
-    queryKey: ["pending-ads"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("advertisements")
-        .select(`
-          id,
-          advertisement_reviews!inner (
-            status
-          )
-        `)
-        .eq("advertisement_reviews.status", "pending")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: isAdmin === true,
-  });
-
   useEffect(() => {
     if (!session) {
       navigate("/admin-login");
@@ -99,12 +58,6 @@ const Admin = () => {
     return null;
   }
 
-  const getPendingAdsText = (count: number) => {
-    if (count === 0) return "Nenhum anúncio pendente de revisão";
-    if (count === 1) return "1 anúncio pendente de revisão";
-    return `${count} anúncios pendentes de revisão`;
-  };
-
   return (
     <div className="space-y-6">
       <div>
@@ -112,32 +65,6 @@ const Admin = () => {
         <p className="text-muted-foreground">
           Gerencie usuários e anúncios do sistema
         </p>
-        
-        <div className="flex gap-4 mt-4">
-          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
-            <Users className="h-4 w-4" />
-            <span className="text-sm">
-              Clientes: <strong>{userStats?.clients || 0}</strong>
-            </span>
-          </div>
-          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
-            <Users className="h-4 w-4" />
-            <span className="text-sm">
-              Anunciantes: <strong>{userStats?.advertisers || 0}</strong>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-end">
-        {pendingAds && pendingAds.length > 0 && (
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-yellow-500" />
-            <Badge variant="secondary">
-              {getPendingAdsText(pendingAds.length)}
-            </Badge>
-          </div>
-        )}
       </div>
 
       <Tabs defaultValue="ads">
