@@ -154,27 +154,28 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
           />
         </div>
 
-      <div className="flex flex-col gap-3">
-        <Button
-          className="w-full bg-whatsapp hover:bg-whatsapp/90"
-          size="lg"
-          onClick={onWhatsAppClick}
-        >
-          <MessageSquare className="w-5 h-5 mr-2" />
-          Chamar no WhatsApp
-        </Button>
-
-        {session && session.user.id !== advertisement.profile_id && (
+        <div className="flex flex-col gap-3">
           <Button
-            variant="outline"
-            className="w-full"
+            className="w-full bg-whatsapp hover:bg-whatsapp/90"
             size="lg"
-            onClick={startPrivateChat}
+            onClick={onWhatsAppClick}
           >
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Iniciar Chat Privado
+            <MessageSquare className="w-5 h-5 mr-2" />
+            Chamar no WhatsApp
           </Button>
-        )}
+
+          {session && session.user.id !== advertisement.profile_id && (
+            <Button
+              variant="outline"
+              className="w-full"
+              size="lg"
+              onClick={startPrivateChat}
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Iniciar Chat Privado
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
