@@ -14,19 +14,30 @@ export const ChatContainer = () => {
   const { conversationId } = useParams();
   const { session } = useAuth();
   
-  const { data: conversationData, isLoading: isLoadingConversation, error: conversationError } = useConversation(conversationId);
-  const { data: messages = [], isLoading: isLoadingMessages, refetch } = useMessages(conversationId);
+  const { 
+    data: conversationData, 
+    isLoading: isLoadingConversation, 
+    error: conversationError 
+  } = useConversation(conversationId);
+
+  const { 
+    data: messages = [], 
+    isLoading: isLoadingMessages, 
+    error: messagesError,
+    refetch 
+  } = useMessages(conversationId);
 
   useMessageSubscription(conversationId, refetch);
 
-  console.log("ChatContainer: Current state:", {
+  console.log("ChatContainer: Full state:", {
     conversationId,
     userId: session?.user?.id,
     conversationData,
     isLoadingConversation,
     conversationError,
     messages,
-    isLoadingMessages
+    isLoadingMessages,
+    messagesError
   });
 
   if (!session) {
@@ -48,7 +59,10 @@ export const ChatContainer = () => {
   }
 
   if (isLoadingConversation || isLoadingMessages) {
-    console.log("ChatContainer: Loading conversation or messages");
+    console.log("ChatContainer: Loading state", {
+      isLoadingConversation,
+      isLoadingMessages
+    });
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Carregando conversa...</p>
@@ -56,8 +70,11 @@ export const ChatContainer = () => {
     );
   }
 
-  if (conversationError) {
-    console.error("ChatContainer: Conversation error:", conversationError);
+  if (conversationError || messagesError) {
+    console.error("ChatContainer: Errors found:", {
+      conversationError,
+      messagesError
+    });
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Erro ao carregar a conversa</p>
@@ -90,10 +107,11 @@ export const ChatContainer = () => {
       console.log("ChatContainer: Sending message:", {
         conversationId,
         senderId: session.user.id,
-        content
+        content,
+        conversationData
       });
 
-      const { error } = await supabase.from("messages").insert({
+      const { data, error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
         sender_id: session.user.id,
@@ -103,9 +121,9 @@ export const ChatContainer = () => {
         console.error("ChatContainer: Error sending message:", error);
         throw error;
       }
-      
-      console.log("ChatContainer: Message sent successfully");
-      refetch();
+
+      console.log("ChatContainer: Message sent successfully:", data);
+      await refetch();
     } catch (error) {
       console.error("ChatContainer: Error in handleSendMessage:", error);
       toast.error("Erro ao enviar mensagem");

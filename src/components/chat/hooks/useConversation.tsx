@@ -10,16 +10,16 @@ export const useConversation = (conversationId: string | undefined) => {
     queryKey: ["conversation", conversationId],
     queryFn: async () => {
       if (!conversationId) {
-        console.error("No conversation ID provided to useConversation");
+        console.error("useConversation: No conversation ID provided");
         throw new Error("No conversation ID provided");
       }
       
       if (!session?.user?.id) {
-        console.error("No user session found in useConversation");
+        console.error("useConversation: No user session found");
         throw new Error("No user session found");
       }
 
-      console.log("useConversation: Fetching data for:", {
+      console.log("useConversation: Starting fetch for:", {
         conversationId,
         userId: session.user.id
       });
@@ -33,16 +33,16 @@ export const useConversation = (conversationId: string | undefined) => {
         .single();
 
       if (participantError) {
-        console.error("Error checking conversation participant:", participantError);
+        console.error("useConversation: Error checking participant:", participantError);
         throw participantError;
       }
 
       if (!participantData) {
-        console.error("User is not a participant in this conversation");
+        console.error("useConversation: User is not a participant");
         throw new Error("User is not a participant in this conversation");
       }
 
-      console.log("useConversation: User is confirmed as participant:", participantData);
+      console.log("useConversation: Participant data found:", participantData);
 
       // Then get the conversation details
       const { data, error } = await supabase
@@ -60,14 +60,14 @@ export const useConversation = (conversationId: string | undefined) => {
         .maybeSingle();
 
       if (error) {
-        console.error("Error fetching conversation details:", error);
+        console.error("useConversation: Error fetching conversation:", error);
         throw error;
       }
       
-      console.log("useConversation: Conversation details retrieved:", data);
+      console.log("useConversation: Conversation data retrieved:", data);
       
       if (!data) {
-        console.error("No conversation found for ID:", conversationId);
+        console.error("useConversation: No conversation found");
         return null;
       }
       

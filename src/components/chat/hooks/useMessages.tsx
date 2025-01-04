@@ -16,7 +16,12 @@ export const useMessages = (conversationId: string | undefined) => {
   return useQuery<Message[]>({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      if (!conversationId) return [];
+      if (!conversationId) {
+        console.error("useMessages: No conversation ID provided");
+        return [];
+      }
+
+      console.log("useMessages: Fetching messages for conversation:", conversationId);
 
       const { data: messagesData, error } = await supabase
         .rpc('get_messages_with_sender_names', {
@@ -24,11 +29,16 @@ export const useMessages = (conversationId: string | undefined) => {
         });
 
       if (error) {
-        console.error("Error fetching messages:", error);
+        console.error("useMessages: Error fetching messages:", error);
         throw error;
       }
       
-      if (!messagesData) return [];
+      if (!messagesData) {
+        console.log("useMessages: No messages found");
+        return [];
+      }
+      
+      console.log("useMessages: Messages retrieved:", messagesData);
       
       return (messagesData as MessageResponse[]).map(msg => ({
         id: msg.id,
