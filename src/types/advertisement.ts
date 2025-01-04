@@ -20,10 +20,10 @@ export interface Advertisement {
   city: string;
   neighborhood: string;
   hourly_rate: number;
-  custom_rate_description?: string | null;
-  custom_rate_value?: number | null;
+  custom_rate_description: string;  // Changed from optional to required
+  custom_rate_value: number | null;
   description: string;
-  profile_photo_url?: string | null;
+  profile_photo_url: string | null;
   created_at: string;
   updated_at: string;
   style: string;
