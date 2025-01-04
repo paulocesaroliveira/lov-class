@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogIn, UserPlus, User, Home, Grid, LogOut, Heart, Newspaper, Shield } from 'lucide-react';
+import { LogIn, UserPlus, User, Home, Grid, LogOut, Heart, Newspaper, Shield, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -62,7 +62,8 @@ export const Navigation = () => {
 
   if (session) {
     menuItems.push(
-      { path: '/favoritos', label: 'Favoritos', icon: Heart }
+      { path: '/favoritos', label: 'Favoritos', icon: Heart },
+      { path: '/mensagens/lista', label: 'Chat', icon: MessageSquare }
     );
   }
 
