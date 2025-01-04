@@ -40,8 +40,12 @@ export default function ConversationList() {
         `)
         .order("updated_at", { ascending: false });
 
-      if (error) throw error;
-      return conversationsData;
+      if (error) {
+        console.error("Error fetching conversations:", error);
+        throw error;
+      }
+
+      return conversationsData as Conversation[];
     },
     enabled: !!session?.user?.id,
   });
