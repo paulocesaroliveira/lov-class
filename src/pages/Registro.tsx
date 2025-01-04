@@ -1,8 +1,5 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
   FormControl,
@@ -10,12 +7,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import { useRegistration } from '@/hooks/useRegistration';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -27,9 +26,8 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 const Registro = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { isLoading, register } = useRegistration();
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -41,78 +39,9 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    setIsLoading(true);
-    
-    try {
-      // Primeiro, tenta criar o usuário
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-          },
-        },
-      });
-
-      if (signUpError) {
-        console.error('Signup error:', signUpError);
-        
-        if (signUpError.message.includes('User already registered')) {
-          toast({
-            title: "Email já cadastrado",
-            description: "Por favor, use outro email ou faça login.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Erro no cadastro",
-            description: signUpError.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
-            variant: "destructive",
-          });
-        }
-        return;
-      }
-
-      // Verifica se o usuário foi criado com sucesso
-      if (signUpData.user) {
-        // Aguarda um momento para garantir que o trigger do banco de dados seja executado
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Verifica se o perfil foi criado
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', signUpData.user.id)
-          .single();
-
-        if (profileError) {
-          console.error('Profile check error:', profileError);
-          toast({
-            title: "Erro na verificação do perfil",
-            description: "Sua conta foi criada, mas houve um problema ao configurar seu perfil.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (profileData) {
-          toast({
-            title: "Conta criada com sucesso!",
-            description: "Verifique seu e-mail para confirmar o cadastro.",
-          });
-          navigate('/login');
-        }
-      }
-    } catch (error: any) {
-      console.error('Registration error:', error);
-      toast({
-        title: "Erro ao criar conta",
-        description: "Ocorreu um erro inesperado. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    const success = await register(data);
+    if (success) {
+      navigate('/login');
     }
   };
 
