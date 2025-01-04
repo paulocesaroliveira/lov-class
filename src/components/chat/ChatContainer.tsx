@@ -63,9 +63,14 @@ export const ChatContainer = () => {
       if (!messagesData) return [];
       
       return messagesData.map(msg => ({
-        ...msg,
-        sender: msg.sender || null
-      }));
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.sender_id,
+        created_at: msg.created_at,
+        conversation_id: msg.conversation_id,
+        read_at: msg.read_at,
+        sender: msg.sender ? { name: msg.sender.name } : null
+      })) as Message[];
     },
     enabled: !!conversationId && !!conversationData,
   });
