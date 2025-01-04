@@ -3,7 +3,7 @@ import { useNavigation } from './Navigation';
 import { Button } from '@/components/ui/button';
 
 export const DesktopMenu = () => {
-  const { menuItems, authItems, handleNavigation } = useNavigation();
+  const { menuItems, authItems } = useNavigation();
 
   return (
     <div className="hidden md:flex items-center gap-4">
@@ -18,7 +18,7 @@ export const DesktopMenu = () => {
       ))}
 
       <div className="flex items-center gap-2">
-        {authItems.map((item, index) => (
+        {authItems.map((item) => (
           item.onClick ? (
             <Button
               key={item.label}
