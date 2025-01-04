@@ -30,6 +30,7 @@ const Admin = () => {
         return false;
       }
 
+      console.log("Admin check data:", data);
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
@@ -43,6 +44,7 @@ const Admin = () => {
     }
 
     if (!isLoading && !isAdmin) {
+      console.log("Access denied - User role:", isAdmin);
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/");
     }

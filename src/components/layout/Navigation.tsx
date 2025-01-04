@@ -31,7 +31,10 @@ export const useNavigation = () => {
   const { data: userRole, isLoading } = useQuery({
     queryKey: ['user-role', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return null;
+      if (!session?.user?.id) {
+        console.log('No user session');
+        return null;
+      }
 
       const { data, error } = await supabase
         .from('profiles')
@@ -45,13 +48,15 @@ export const useNavigation = () => {
         return null;
       }
 
-      console.log('User role:', data?.role);
+      console.log('User role data:', data);
       return data?.role;
     },
     enabled: !!session?.user?.id,
   });
 
   const isAdmin = userRole === 'admin';
+  console.log('User ID:', session?.user?.id);
+  console.log('User Role:', userRole);
   console.log('Is admin:', isAdmin);
 
   const adminItems = isAdmin
