@@ -52,7 +52,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles!sender_id (
+          profiles!sender_id (
             name
           )
         `)
@@ -69,7 +69,7 @@ export const ChatContainer = () => {
         created_at: msg.created_at,
         conversation_id: msg.conversation_id,
         read_at: msg.read_at,
-        sender: msg.sender ? { name: msg.sender.name } : null
+        sender: msg.profiles ? { name: msg.profiles.name } : null
       })) as Message[];
     },
     enabled: !!conversationId && !!conversationData,
