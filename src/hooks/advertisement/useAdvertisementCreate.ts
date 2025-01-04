@@ -8,11 +8,12 @@ export const useAdvertisementCreate = () => {
     userId: string,
     profilePhotoUrl: string | null
   ) => {
+    console.log("Checking for existing advertisement...");
+    
     const { data: existingAd, error: existingAdError } = await supabase
       .from("advertisements")
       .select()
       .eq("profile_id", userId)
-      .limit(1)
       .maybeSingle();
 
     if (existingAdError) {
@@ -24,25 +25,26 @@ export const useAdvertisementCreate = () => {
       throw new Error("Você já possui um anúncio cadastrado");
     }
 
+    console.log("Creating new advertisement...");
     const adData = prepareAdvertisementData(values, userId, profilePhotoUrl);
 
-    const { data: ad, error: adError } = await supabase
+    const { data, error } = await supabase
       .from("advertisements")
       .insert(adData)
       .select()
-      .limit(1)
-      .maybeSingle();
+      .single();
 
-    if (adError) {
-      console.error("Erro ao criar anúncio:", adError);
-      throw adError;
+    if (error) {
+      console.error("Erro ao criar anúncio:", error);
+      throw error;
     }
 
-    if (!ad) {
+    if (!data) {
       throw new Error("Erro ao criar anúncio");
     }
 
-    return ad;
+    console.log("Advertisement created successfully:", data);
+    return data;
   };
 
   return { createAdvertisement };
