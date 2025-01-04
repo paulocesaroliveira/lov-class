@@ -9,6 +9,16 @@ import { ChatHeader } from "./ChatHeader";
 import { Message, ConversationParticipant } from "@/types/chat";
 import { toast } from "sonner";
 
+interface MessageResponse {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  conversation_id: string;
+  read_at: string | null;
+  sender_name: string | null;
+}
+
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
@@ -44,33 +54,22 @@ export const ChatContainer = () => {
       if (!conversationId) return [];
 
       const { data: messagesData, error } = await supabase
-        .from("messages")
-        .select(`
-          id,
-          content,
-          sender_id,
-          created_at,
-          conversation_id,
-          read_at,
-          profiles!sender_id (
-            name
-          )
-        `)
-        .eq("conversation_id", conversationId)
-        .order("created_at", { ascending: true });
+        .rpc('get_messages_with_sender_names', {
+          p_conversation_id: conversationId
+        });
 
       if (error) throw error;
       if (!messagesData) return [];
       
-      return messagesData.map(msg => ({
+      return (messagesData as MessageResponse[]).map(msg => ({
         id: msg.id,
         content: msg.content,
         sender_id: msg.sender_id,
         created_at: msg.created_at,
         conversation_id: msg.conversation_id,
         read_at: msg.read_at,
-        sender: msg.profiles ? { name: msg.profiles.name } : null
-      })) as Message[];
+        sender: msg.sender_name ? { name: msg.sender_name } : null
+      }));
     },
     enabled: !!conversationId && !!conversationData,
   });
