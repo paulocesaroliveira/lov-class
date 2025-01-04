@@ -22,7 +22,7 @@ type Conversation = {
 export default function ConversationList() {
   const { session } = useAuth();
 
-  const { data: conversations, isLoading } = useQuery<Conversation[]>({
+  const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +32,7 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants(
             user_id,
-            user_profile:profiles(name)
+            user_profile:profiles!conversation_participants_user_id_fkey(name)
           ),
           last_message:messages(content)
         `)
@@ -52,7 +52,7 @@ export default function ConversationList() {
     return <div>Carregando conversas...</div>;
   }
 
-  if (!conversations?.length) {
+  if (!conversations.length) {
     return <div>Nenhuma conversa encontrada.</div>;
   }
 
