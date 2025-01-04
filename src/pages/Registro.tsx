@@ -44,6 +44,7 @@ const Registro = () => {
     setIsLoading(true);
     
     try {
+      // Primeiro, tenta criar o usuário
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -66,19 +67,42 @@ const Registro = () => {
         } else {
           toast({
             title: "Erro no cadastro",
-            description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            description: signUpError.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
             variant: "destructive",
           });
         }
         return;
       }
 
+      // Verifica se o usuário foi criado com sucesso
       if (signUpData.user) {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Verifique seu e-mail para confirmar o cadastro.",
-        });
-        navigate('/login');
+        // Aguarda um momento para garantir que o trigger do banco de dados seja executado
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Verifica se o perfil foi criado
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', signUpData.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Profile check error:', profileError);
+          toast({
+            title: "Erro na verificação do perfil",
+            description: "Sua conta foi criada, mas houve um problema ao configurar seu perfil.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (profileData) {
+          toast({
+            title: "Conta criada com sucesso!",
+            description: "Verifique seu e-mail para confirmar o cadastro.",
+          });
+          navigate('/login');
+        }
       }
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -174,7 +198,7 @@ const Registro = () => {
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin" />
+                  <Loader2 className="animate-spin mr-2" />
                   Criando conta...
                 </>
               ) : (
