@@ -11,7 +11,7 @@ const Feed = () => {
   const { session } = useAuth();
   const [posts, setPosts] = useState<FeedPost[]>([]);
 
-  // Check if user is an advertiser
+  // Check if user is an advertiser or admin
   const { data: isAdvertiser } = useQuery({
     queryKey: ["user-role", session?.user?.id],
     queryFn: async () => {
@@ -28,6 +28,7 @@ const Feed = () => {
         return false;
       }
       
+      // Allow both advertisers and admins to post
       return data?.role === "advertiser" || data?.role === "admin";
     },
     enabled: !!session?.user?.id,
