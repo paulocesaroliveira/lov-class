@@ -50,7 +50,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles (
+          profiles!sender_id (
             name
           )
         `)
@@ -60,7 +60,11 @@ export const ChatContainer = () => {
       if (error) throw error;
       if (!messagesData) return [];
       
-      return messagesData as Message[];
+      // Transform the data to match the Message type
+      return messagesData.map(msg => ({
+        ...msg,
+        sender: msg.profiles || null
+      }));
     },
     enabled: !!conversationId && !!conversationData,
   });
