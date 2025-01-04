@@ -9,13 +9,13 @@ type StyleSelectionProps = {
 };
 
 const styles = [
-  { value: "patricinha", label: "Patricinha" },
-  { value: "nerd", label: "Nerd" },
-  { value: "passista", label: "Passista" },
-  { value: "milf", label: "Milf" },
   { value: "fitness", label: "Fitness" },
-  { value: "ninfeta", label: "Ninfeta" },
   { value: "gordelicia", label: "Gordelicia" },
+  { value: "milf", label: "Milf" },
+  { value: "nerd", label: "Nerd" },
+  { value: "ninfeta", label: "Ninfeta" },
+  { value: "passista", label: "Passista" },
+  { value: "patricinha", label: "Patricinha" },
 ] as const;
 
 export const StyleSelection = ({ form }: StyleSelectionProps) => {
