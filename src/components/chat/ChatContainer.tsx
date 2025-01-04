@@ -19,10 +19,6 @@ export const ChatContainer = () => {
 
   useMessageSubscription(conversationId, refetch);
 
-  console.log("Current user ID:", session?.user?.id);
-  console.log("Current conversation data:", conversationData);
-  console.log("Current messages:", messages);
-
   if (!session) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
