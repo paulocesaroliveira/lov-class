@@ -56,16 +56,17 @@ const Admin = () => {
     }
   }, [session, isAdmin, isLoading, navigate]);
 
+  // Adicionando verificação extra para garantir que o usuário é admin
+  if (!session || !isAdmin) {
+    return null;
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  if (!isAdmin) {
-    return null;
   }
 
   return (
