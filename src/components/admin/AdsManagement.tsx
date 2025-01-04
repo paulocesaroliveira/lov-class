@@ -9,6 +9,7 @@ import { ActionDialog } from "./ads/ActionDialog";
 import { toast } from "sonner";
 
 export const AdsManagement = () => {
+  // Buscar anúncios com suas revisões mais recentes
   const { data: advertisements, refetch } = useQuery({
     queryKey: ["admin-advertisements"],
     queryFn: async () => {
@@ -20,7 +21,7 @@ export const AdsManagement = () => {
             name,
             role
           ),
-          advertisement_reviews!inner (
+          advertisement_reviews (
             status,
             review_notes,
             updated_at
@@ -33,10 +34,39 @@ export const AdsManagement = () => {
       // Agrupar revisões por anúncio e pegar a mais recente
       const processedData = data?.map(ad => ({
         ...ad,
-        advertisement_reviews: [ad.advertisement_reviews[ad.advertisement_reviews.length - 1]]
+        advertisement_reviews: ad.advertisement_reviews.length > 0 
+          ? [ad.advertisement_reviews.reduce((latest, current) => 
+              new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
+            )]
+          : []
       }));
 
       return processedData;
+    },
+  });
+
+  // Buscar contagem de usuários por papel
+  const { data: userStats } = useQuery({
+    queryKey: ["user-stats"],
+    queryFn: async () => {
+      const { data: advertisers, error: advertiserError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "advertiser");
+
+      if (advertiserError) throw advertiserError;
+
+      const { data: pendingReviews, error: reviewError } = await supabase
+        .from("advertisement_reviews")
+        .select("id")
+        .eq("status", "pending");
+
+      if (reviewError) throw reviewError;
+
+      return {
+        advertisers: advertisers?.length || 0,
+        pendingReviews: pendingReviews?.length || 0
+      };
     },
   });
 
@@ -116,6 +146,20 @@ export const AdsManagement = () => {
 
   return (
     <div className="space-y-4">
+      {/* Stats */}
+      <div className="flex gap-4">
+        <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
+          <span className="text-sm">
+            Anunciantes: <strong>{userStats?.advertisers || 0}</strong>
+          </span>
+        </div>
+        <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
+          <span className="text-sm">
+            Revisões Pendentes: <strong>{userStats?.pendingReviews || 0}</strong>
+          </span>
+        </div>
+      </div>
+
       <AdsTable
         advertisements={advertisements || []}
         onDelete={(id) => setActionDialog({ type: 'delete', adId: id, reason: "" })}
