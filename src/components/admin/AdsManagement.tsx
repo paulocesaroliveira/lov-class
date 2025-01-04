@@ -4,7 +4,6 @@ import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDia
 import { useAdvertisementActions } from "./ads/hooks/useAdvertisementActions";
 import { useAdvertisementReview } from "./ads/hooks/useAdvertisementReview";
 import { ActionDialog } from "./ads/ActionDialog";
-import { AdminStats } from "./ads/components/AdminStats";
 import { useAdvertisements } from "./ads/hooks/useAdvertisements";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,8 +87,6 @@ export const AdsManagement = () => {
 
   return (
     <div className="space-y-4">
-      <AdminStats />
-
       <AdsTable
         advertisements={advertisements || []}
         onDelete={(id) => setActionDialog({ type: 'delete', adId: id, reason: "" })}
