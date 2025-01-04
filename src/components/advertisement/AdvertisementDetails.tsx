@@ -41,10 +41,10 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     ? Number(advertisement.hourly_rate).toFixed(2) 
     : "0.00";
 
-  // Format the custom rate with a fallback to 0
-  const formattedCustomRate = advertisement?.custom_rate_value != null 
-    ? Number(advertisement.custom_rate_value).toFixed(2) 
-    : "0.00";
+  // Parse custom rates from JSON string
+  const customRates = advertisement?.custom_rate_description 
+    ? JSON.parse(advertisement.custom_rate_description)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -59,16 +59,16 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
             </p>
           </div>
 
-          {advertisement?.custom_rate_description && (
-            <div>
+          {customRates.map((rate: { description: string; value: number }, index: number) => (
+            <div key={index}>
               <span className="text-sm text-muted-foreground">
-                {advertisement.custom_rate_description}
+                {rate.description}
               </span>
               <p className="text-xl font-semibold">
-                R$ {formattedCustomRate}
+                R$ {Number(rate.value).toFixed(2)}
               </p>
             </div>
-          )}
+          ))}
         </div>
       </div>
 
