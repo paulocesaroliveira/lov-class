@@ -15,6 +15,23 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
+      // First check if user already exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', data.email)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast({
+          title: "Email já cadastrado",
+          description: "Este email já está em uso. Por favor, use outro email ou faça login.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Attempt to sign up the user
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -28,7 +45,6 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Signup error:', signUpError);
         
-        // Check specific error codes
         if (signUpError.message.includes('User already registered')) {
           toast({
             title: "Email já cadastrado",
@@ -56,8 +72,9 @@ export const useRegistration = () => {
       }
 
       // Wait for the database trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
+      // Check if profile was created
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
