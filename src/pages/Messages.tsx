@@ -77,8 +77,14 @@ export const Messages = () => {
           filter: `conversation_id=eq.${conversationId}`,
         },
         async (payload) => {
+          console.log("Nova mensagem recebida:", payload);
+          
           // Não mostrar notificação se a mensagem for do usuário atual
-          if (payload.new.sender_id === session.user.id) return;
+          if (payload.new.sender_id === session.user.id) {
+            console.log("Mensagem do usuário atual, atualizando lista...");
+            refetch();
+            return;
+          }
 
           // Buscar informações do remetente
           const { data: senderData } = await supabase
@@ -101,6 +107,7 @@ export const Messages = () => {
       .subscribe();
 
     return () => {
+      console.log("Desconectando do canal de mensagens");
       supabase.removeChannel(channel);
     };
   }, [conversationId, session?.user?.id, notificationPermission, refetch]);
@@ -117,6 +124,7 @@ export const Messages = () => {
 
       if (error) throw error;
       
+      // Atualizar a lista de mensagens imediatamente após enviar
       refetch();
     } catch (error: any) {
       console.error("Error sending message:", error);
