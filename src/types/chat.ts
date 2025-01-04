@@ -18,3 +18,16 @@ export interface ConversationParticipant {
     name: string;
   } | null;
 }
+
+export interface ChatHeaderProps {
+  title: string;
+}
+
+export interface MessageInputProps {
+  onSendMessage: (content: string) => Promise<void>;
+}
+
+export interface MessageListProps {
+  messages: Message[];
+  currentUserId?: string;
+}

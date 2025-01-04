@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { NotificationButton } from "./NotificationButton";
+import { ChatHeader } from "./ChatHeader";
 import { Message, ConversationParticipant } from "@/types/chat";
+import { toast } from "sonner";
 
 export const ChatContainer = () => {
   const { conversationId } = useParams();
@@ -50,7 +52,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          profiles!sender_id (
+          sender:profiles!sender_id (
             name
           )
         `)
@@ -60,10 +62,9 @@ export const ChatContainer = () => {
       if (error) throw error;
       if (!messagesData) return [];
       
-      // Transform the data to match the Message type
       return messagesData.map(msg => ({
         ...msg,
-        sender: msg.profiles || null
+        sender: msg.sender || null
       }));
     },
     enabled: !!conversationId && !!conversationData,
@@ -101,27 +102,32 @@ export const ChatContainer = () => {
     );
   }
 
+  const handleSendMessage = async (content: string) => {
+    try {
+      if (!conversationId || !conversationData) {
+        throw new Error("Dados da conversa não disponíveis");
+      }
+      
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        content,
+        sender_id: conversationData.user_id,
+      });
+      
+      refetch();
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+      toast.error("Erro ao enviar mensagem");
+    }
+  };
+
   return (
     <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
       <div className="glass-card h-full flex flex-col">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-semibold">
-            Chat com {conversationData?.advertisements?.name || "Usuário"}
-          </h1>
-        </div>
+        <ChatHeader title={conversationData?.advertisements?.name || "Usuário"} />
         <NotificationButton />
         <MessageList messages={messages} currentUserId={conversationData?.user_id} />
-        <MessageInput onSendMessage={async (content) => {
-          if (!conversationId || !conversationData) return;
-          
-          await supabase.from("messages").insert({
-            conversation_id: conversationId,
-            content,
-            sender_id: conversationData.user_id,
-          });
-          
-          refetch();
-        }} />
+        <MessageInput onSendMessage={handleSendMessage} />
       </div>
     </div>
   );

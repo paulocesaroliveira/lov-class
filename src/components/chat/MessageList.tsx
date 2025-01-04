@@ -1,11 +1,6 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Message } from "@/types/chat";
-
-interface MessageListProps {
-  messages: Message[];
-  currentUserId: string;
-}
+import { MessageListProps } from "@/types/chat";
 
 export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
   return (

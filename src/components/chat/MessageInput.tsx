@@ -4,10 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Smile } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface MessageInputProps {
-  onSendMessage: (content: string) => Promise<void>;
-}
+import { MessageInputProps } from "@/types/chat";
 
 export const MessageInput = ({ onSendMessage }: MessageInputProps) => {
   const [newMessage, setNewMessage] = useState("");
