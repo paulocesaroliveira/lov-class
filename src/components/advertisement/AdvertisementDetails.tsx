@@ -36,6 +36,16 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
   };
 
+  // Format the hourly rate with a fallback to 0
+  const formattedHourlyRate = advertisement?.hourly_rate != null 
+    ? Number(advertisement.hourly_rate).toFixed(2) 
+    : "0.00";
+
+  // Format the custom rate with a fallback to 0
+  const formattedCustomRate = advertisement?.custom_rate_value != null 
+    ? Number(advertisement.custom_rate_value).toFixed(2) 
+    : "0.00";
+
   return (
     <div className="space-y-6">
       {/* Valores */}
@@ -45,17 +55,17 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
           <div>
             <span className="text-sm text-muted-foreground">Valor por hora</span>
             <p className="text-xl font-semibold">
-              R$ {advertisement.hourly_rate.toFixed(2)}
+              R$ {formattedHourlyRate}
             </p>
           </div>
 
-          {advertisement.custom_rate_description && (
+          {advertisement?.custom_rate_description && (
             <div>
               <span className="text-sm text-muted-foreground">
                 {advertisement.custom_rate_description}
               </span>
               <p className="text-xl font-semibold">
-                R$ {advertisement.custom_rate_value.toFixed(2)}
+                R$ {formattedCustomRate}
               </p>
             </div>
           )}
