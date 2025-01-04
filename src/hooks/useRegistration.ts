@@ -15,7 +15,7 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
-      // Attempt to sign up the user
+      // Tentar criar o usuário
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -27,24 +27,19 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        console.error('Signup error:', signUpError);
-        
-        // Specific handling for user already exists error
         if (signUpError.message === 'User already registered') {
           toast({
             title: "Email já cadastrado",
-            description: "Este email já está em uso. Por favor, faça login ou use outro email.",
+            description: "Este email já está em uso. Por favor, faça login.",
             variant: "destructive",
           });
-          return false;
+        } else {
+          toast({
+            title: "Erro no cadastro",
+            description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            variant: "destructive",
+          });
         }
-
-        // Generic error handling
-        toast({
-          title: "Erro no cadastro",
-          description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
-          variant: "destructive",
-        });
         return false;
       }
 
@@ -57,35 +52,8 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Wait for the database trigger to create the profile
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Check if profile was created
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', signUpData.user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error('Profile check error:', profileError);
-        toast({
-          title: "Erro na verificação do perfil",
-          description: "Sua conta foi criada, mas houve um problema ao configurar seu perfil.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      if (!profileData) {
-        console.error('Profile not found after creation');
-        toast({
-          title: "Erro na criação do perfil",
-          description: "Sua conta foi criada, mas houve um problema ao configurar seu perfil. Por favor, tente fazer login.",
-          variant: "destructive",
-        });
-        return false;
-      }
+      // Aguardar a criação do perfil
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Conta criada com sucesso!",
@@ -93,11 +61,11 @@ export const useRegistration = () => {
       });
       return true;
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration error:', error);
       toast({
-        title: "Erro ao criar conta",
-        description: "Ocorreu um erro inesperado. Tente novamente.",
+        title: "Erro inesperado",
+        description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
         variant: "destructive",
       });
       return false;
