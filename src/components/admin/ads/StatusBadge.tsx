@@ -1,11 +1,21 @@
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, XCircle, Ban } from "lucide-react";
 
 type StatusBadgeProps = {
   status: string;
+  blocked?: boolean;
 };
 
-export const StatusBadge = ({ status }: StatusBadgeProps) => {
+export const StatusBadge = ({ status, blocked }: StatusBadgeProps) => {
+  if (blocked) {
+    return (
+      <Badge variant="destructive">
+        <Ban className="w-3 h-3 mr-1" />
+        Bloqueado
+      </Badge>
+    );
+  }
+
   switch (status) {
     case "pending":
       return (
