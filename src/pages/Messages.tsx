@@ -22,8 +22,13 @@ export const Messages = () => {
       const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
         .select(`
-          *,
-          sender:profiles!messages_sender_id_fkey(name)
+          id,
+          content,
+          sender_id,
+          created_at,
+          conversation_id,
+          read_at,
+          sender:profiles(name)
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
