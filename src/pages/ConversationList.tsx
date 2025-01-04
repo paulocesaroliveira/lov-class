@@ -26,18 +26,14 @@ export default function ConversationList() {
 
       console.log("Fetching conversations for user:", session.user.id);
 
-      // Buscar todas as conversas do usuário com participantes e última mensagem
+      // First get all conversations the user is part of
       const { data: userConversations, error } = await supabase
         .from("conversations")
         .select(`
           id,
           updated_at,
           conversation_participants!inner (
-            user_id,
-            profiles:profiles!inner (
-              id,
-              name
-            )
+            user_id
           ),
           messages (
             content,
@@ -54,31 +50,42 @@ export default function ConversationList() {
 
       console.log("Raw conversations data:", userConversations);
 
-      // Transformar os dados para o formato necessário
-      const formattedConversations = userConversations.map((conv: any) => {
-        // Filtrar participantes excluindo o usuário atual
-        const otherParticipants = conv.conversation_participants
-          .filter((p: any) => p.user_id !== session.user.id)
-          .map((p: any) => ({
-            user_id: p.user_id,
-            profile_name: p.profiles.name,
-          }));
+      // For each conversation, get the other participant's profile
+      const formattedConversations = await Promise.all(
+        userConversations.map(async (conv: any) => {
+          // Get other participants (excluding current user)
+          const otherParticipants = conv.conversation_participants.filter(
+            (p: any) => p.user_id !== session.user.id
+          );
 
-        // Pegar a última mensagem
-        const messages = conv.messages || [];
-        const lastMessage = messages.length > 0 
-          ? messages.sort((a: any, b: any) => 
-              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            )[0].content 
-          : null;
+          // Get profiles for other participants
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, name")
+            .in(
+              "id",
+              otherParticipants.map((p: any) => p.user_id)
+            );
 
-        return {
-          id: conv.id,
-          updated_at: conv.updated_at,
-          participants: otherParticipants,
-          last_message: lastMessage,
-        };
-      });
+          // Get the last message
+          const messages = conv.messages || [];
+          const lastMessage = messages.length > 0 
+            ? messages.sort((a: any, b: any) => 
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              )[0].content 
+            : null;
+
+          return {
+            id: conv.id,
+            updated_at: conv.updated_at,
+            participants: profiles?.map((profile) => ({
+              user_id: profile.id,
+              profile_name: profile.name,
+            })) || [],
+            last_message: lastMessage,
+          };
+        })
+      );
 
       console.log("Formatted conversations:", formattedConversations);
       return formattedConversations;
