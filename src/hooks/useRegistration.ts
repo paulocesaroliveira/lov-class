@@ -15,7 +15,22 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
-      // Tentar criar o usuário
+      // Primeiro, verificar se o usuário já existe
+      const { data: existingUser } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (existingUser?.user) {
+        toast({
+          title: "Usuário já cadastrado",
+          description: "Este email já está cadastrado. Por favor, faça login.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Se não existir, criar novo usuário
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -30,13 +45,13 @@ export const useRegistration = () => {
         if (signUpError.message === 'User already registered') {
           toast({
             title: "Email já cadastrado",
-            description: "Este email já está em uso. Por favor, faça login.",
+            description: "Este email já está cadastrado. Por favor, faça login.",
             variant: "destructive",
           });
         } else {
           toast({
             title: "Erro no cadastro",
-            description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            description: "Ocorreu um erro ao criar sua conta. Por favor, tente novamente.",
             variant: "destructive",
           });
         }
@@ -46,7 +61,7 @@ export const useRegistration = () => {
       if (!signUpData.user) {
         toast({
           title: "Erro no cadastro",
-          description: "Não foi possível criar sua conta. Tente novamente.",
+          description: "Não foi possível criar sua conta. Por favor, tente novamente.",
           variant: "destructive",
         });
         return false;
@@ -64,8 +79,8 @@ export const useRegistration = () => {
     } catch (error) {
       console.error('Registration error:', error);
       toast({
-        title: "Erro inesperado",
-        description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+        title: "Erro no cadastro",
+        description: "Ocorreu um erro inesperado. Por favor, tente novamente.",
         variant: "destructive",
       });
       return false;
