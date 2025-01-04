@@ -19,7 +19,18 @@ export const ChatContainer = () => {
 
   useMessageSubscription(conversationId, refetch);
 
+  console.log("ChatContainer: Current state:", {
+    conversationId,
+    userId: session?.user?.id,
+    conversationData,
+    isLoadingConversation,
+    conversationError,
+    messages,
+    isLoadingMessages
+  });
+
   if (!session) {
+    console.log("ChatContainer: No session found");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
@@ -28,6 +39,7 @@ export const ChatContainer = () => {
   }
 
   if (!conversationId) {
+    console.log("ChatContainer: No conversationId found");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Nenhuma conversa selecionada</p>
@@ -36,6 +48,7 @@ export const ChatContainer = () => {
   }
 
   if (isLoadingConversation || isLoadingMessages) {
+    console.log("ChatContainer: Loading conversation or messages");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Carregando conversa...</p>
@@ -44,7 +57,7 @@ export const ChatContainer = () => {
   }
 
   if (conversationError) {
-    console.error("Conversation error:", conversationError);
+    console.error("ChatContainer: Conversation error:", conversationError);
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Erro ao carregar a conversa</p>
@@ -53,7 +66,7 @@ export const ChatContainer = () => {
   }
 
   if (!conversationData) {
-    console.error("No conversation data found for ID:", conversationId);
+    console.error("ChatContainer: No conversation data found for ID:", conversationId);
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Conversa não encontrada</p>
@@ -63,26 +76,38 @@ export const ChatContainer = () => {
 
   const handleSendMessage = async (content: string) => {
     if (!session?.user?.id) {
+      console.error("ChatContainer: Attempted to send message without user session");
       toast.error("Você precisa estar logado para enviar mensagens");
       return;
     }
 
     try {
       if (!conversationId || !conversationData) {
+        console.error("ChatContainer: Missing conversation data for sending message");
         throw new Error("Dados da conversa não disponíveis");
       }
       
+      console.log("ChatContainer: Sending message:", {
+        conversationId,
+        senderId: session.user.id,
+        content
+      });
+
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
         sender_id: session.user.id,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("ChatContainer: Error sending message:", error);
+        throw error;
+      }
       
+      console.log("ChatContainer: Message sent successfully");
       refetch();
     } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
+      console.error("ChatContainer: Error in handleSendMessage:", error);
       toast.error("Erro ao enviar mensagem");
     }
   };

@@ -21,9 +21,15 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
 
     try {
-      console.log("Creating conversation between:", {
-        currentUserId: session.user.id,
-        advertisementProfileId: advertisement.profile_id,
+      console.log("Starting chat creation process...");
+      console.log("Current user:", {
+        id: session.user.id,
+        email: session.user.email
+      });
+      console.log("Advertisement details:", {
+        id: advertisement.id,
+        profile_id: advertisement.profile_id,
+        name: advertisement.name
       });
 
       const { data, error } = await supabase
@@ -33,19 +39,21 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         });
 
       if (error) {
-        console.error('Error creating conversation:', error);
+        console.error('Error in find_or_create_conversation:', error);
         throw error;
       }
 
       if (!data || data.length === 0) {
-        console.error('No conversation data returned');
+        console.error('No conversation data returned from find_or_create_conversation');
         throw new Error('No conversation data returned');
       }
 
-      console.log("Conversation created/found:", data);
+      console.log("Conversation successfully created/found:", data);
+      console.log("Navigating to conversation:", data[0].conversation_id);
+      
       navigate(`/mensagens/${data[0].conversation_id}`);
     } catch (error) {
-      console.error('Error creating conversation:', error);
+      console.error('Error in handleChatClick:', error);
       toast.error("Erro ao iniciar conversa");
     }
   };
