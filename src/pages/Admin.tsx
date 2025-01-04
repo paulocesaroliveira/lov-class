@@ -9,10 +9,12 @@ import { AdsManagement } from "@/components/admin/AdsManagement";
 import { toast } from "sonner";
 import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Toaster } from "@/components/ui/sonner";
 
 // Create a client
 const queryClient = new QueryClient();
 
+// Admin content component
 const AdminContent = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -161,10 +163,12 @@ const AdminContent = () => {
   );
 };
 
+// Main component
 const Admin = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AdminContent />
+      <Toaster />
     </QueryClientProvider>
   );
 };
