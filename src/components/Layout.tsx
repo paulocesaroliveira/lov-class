@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { DesktopMenu } from './layout/DesktopMenu';
 import { MobileMenu } from './layout/MobileMenu';
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
+const Layout = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
@@ -33,7 +33,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        {children}
+        <Outlet />
       </main>
 
       <footer className="glass-card mt-auto py-6">

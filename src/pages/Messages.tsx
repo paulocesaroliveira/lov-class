@@ -7,6 +7,19 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 
+type Message = {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  sender: {
+    id: string;
+    profiles: {
+      name: string;
+    }[];
+  };
+};
+
 export const Messages = () => {
   const { conversationId } = useParams();
   const { session } = useAuth();
@@ -22,14 +35,14 @@ export const Messages = () => {
           *,
           sender:sender_id(
             id,
-            profiles:profiles(name)
+            profiles(name)
           )
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as Message[];
     },
     enabled: !!conversationId && !!session?.user,
   });
@@ -82,7 +95,7 @@ export const Messages = () => {
                 }`}
               >
                 <p className="text-sm font-medium mb-1">
-                  {message.sender?.profiles?.name}
+                  {message.sender?.profiles?.[0]?.name}
                 </p>
                 <p>{message.content}</p>
               </div>

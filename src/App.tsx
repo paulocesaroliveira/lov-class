@@ -1,16 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Layout } from "./components/Layout";
-import { Index } from "./pages/Index";
-import { Login } from "./pages/Login";
-import { Registro } from "./pages/Registro";
-import { CriarAnuncio } from "./pages/CriarAnuncio";
-import { EditarAnuncio } from "./pages/EditarAnuncio";
-import { Perfil } from "./pages/Perfil";
-import { Feed } from "./pages/Feed";
-import { Anuncios } from "./pages/Anuncios";
-import { Favoritos } from "./pages/Favoritos";
-import { AdminLogin } from "./pages/AdminLogin";
-import { Admin } from "./pages/Admin";
+import Layout from "./components/Layout";
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Registro from "./pages/Registro";
+import CriarAnuncio from "./pages/CriarAnuncio";
+import EditarAnuncio from "./pages/EditarAnuncio";
+import Perfil from "./pages/Perfil";
+import Feed from "./pages/Feed";
+import Anuncios from "./pages/Anuncios";
+import Favoritos from "./pages/Favoritos";
+import AdminLogin from "./pages/AdminLogin";
+import Admin from "./pages/Admin";
 import { Messages } from "./pages/Messages";
 
 function App() {
