@@ -34,8 +34,8 @@ export interface Advertisement {
   hair_color: string;
   body_type: string;
   silicone: string;
-  blocked?: boolean | null;
-  block_reason?: string | null;
+  blocked: boolean;
+  block_reason: string | null;
   advertisement_services: { service: ServiceType }[];
   advertisement_service_locations: { location: ServiceLocationType }[];
   advertisement_photos: { id: string; photo_url: string }[];
