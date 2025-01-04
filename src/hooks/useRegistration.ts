@@ -15,22 +15,6 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
-      // Primeiro, verificar se o usuário já existe
-      const { data: existingUser } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (existingUser?.user) {
-        toast({
-          title: "Usuário já cadastrado",
-          description: "Este email já está cadastrado. Por favor, faça login.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Se não existir, criar novo usuário
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -42,7 +26,7 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        if (signUpError.message === 'User already registered') {
+        if (signUpError.message.includes('User already registered')) {
           toast({
             title: "Email já cadastrado",
             description: "Este email já está cadastrado. Por favor, faça login.",
@@ -54,6 +38,7 @@ export const useRegistration = () => {
             description: "Ocorreu um erro ao criar sua conta. Por favor, tente novamente.",
             variant: "destructive",
           });
+          console.error('Registration error:', signUpError);
         }
         return false;
       }
@@ -66,9 +51,6 @@ export const useRegistration = () => {
         });
         return false;
       }
-
-      // Aguardar a criação do perfil
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Conta criada com sucesso!",
