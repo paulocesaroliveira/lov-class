@@ -38,17 +38,27 @@ const Login = () => {
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          toast.error("Email ou senha incorretos");
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Por favor, confirme seu email antes de fazer login");
+        } else {
+          toast.error("Erro ao fazer login: " + error.message);
+        }
+        return;
+      }
 
       const state = location.state as { returnTo?: string } | null;
       toast.success("Login realizado com sucesso!");
       navigate(state?.returnTo || "/");
     } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer login");
+      console.error("Login error:", error);
+      toast.error("Erro ao fazer login. Tente novamente mais tarde.");
     } finally {
       setLoading(false);
     }
