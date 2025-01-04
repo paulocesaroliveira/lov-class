@@ -10,13 +10,9 @@ type Conversation = {
   updated_at: string;
   participants: {
     user_id: string;
-    profile: {
-      name: string;
-    };
+    profile_name: string;
   }[];
-  messages: {
-    content: string;
-  }[];
+  last_message: string | null;
 };
 
 export default function ConversationList() {
@@ -25,25 +21,54 @@ export default function ConversationList() {
   const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      if (!session?.user?.id) return [];
+
+      // Primeiro, buscamos as conversas do usuário
+      const { data: userConversations, error: conversationsError } = await supabase
         .from("conversations")
         .select(`
           id,
           updated_at,
-          participants:conversation_participants(
-            user_id,
-            profile:profiles(name)
-          ),
-          messages(content)
+          conversation_participants!inner(user_id)
         `)
+        .contains('conversation_participants.user_id', [session.user.id])
         .order("updated_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching conversations:", error);
-        throw error;
-      }
+      if (conversationsError) throw conversationsError;
 
-      return data || [];
+      // Para cada conversa, buscamos os detalhes dos participantes e a última mensagem
+      const conversationsWithDetails = await Promise.all(
+        userConversations.map(async (conv) => {
+          // Buscar participantes e seus nomes
+          const { data: participants } = await supabase
+            .from("conversation_participants")
+            .select(`
+              user_id,
+              profiles!inner(name)
+            `)
+            .eq("conversation_id", conv.id);
+
+          // Buscar última mensagem
+          const { data: messages } = await supabase
+            .from("messages")
+            .select("content")
+            .eq("conversation_id", conv.id)
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          return {
+            id: conv.id,
+            updated_at: conv.updated_at,
+            participants: participants?.map(p => ({
+              user_id: p.user_id,
+              profile_name: p.profiles.name
+            })) || [],
+            last_message: messages?.[0]?.content || null
+          };
+        })
+      );
+
+      return conversationsWithDetails;
     },
     enabled: !!session?.user?.id,
   });
@@ -65,7 +90,6 @@ export default function ConversationList() {
             const otherParticipant = conversation.participants.find(
               (p) => p.user_id !== session?.user?.id
             );
-            const lastMessage = conversation.messages[0]?.content;
 
             return (
               <Link
@@ -76,10 +100,10 @@ export default function ConversationList() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">
-                      {otherParticipant?.profile?.name || "Usuário"}
+                      {otherParticipant?.profile_name || "Usuário"}
                     </h3>
                     <p className="text-sm text-muted-foreground line-clamp-1">
-                      {lastMessage || "Nenhuma mensagem"}
+                      {conversation.last_message || "Nenhuma mensagem"}
                     </p>
                   </div>
                   <span className="text-xs text-muted-foreground">
