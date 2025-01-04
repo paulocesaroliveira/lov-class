@@ -5,16 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { NotificationButton } from "./NotificationButton";
-import { Message } from "@/types/chat";
+import { Message, ConversationParticipant } from "@/types/chat";
 
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
   // Get conversation details including advertisement
-  const { data: conversationData } = useQuery({
+  const { data: conversationData } = useQuery<ConversationParticipant>({
     queryKey: ["conversation", conversationId],
     queryFn: async () => {
-      if (!conversationId) return null;
+      if (!conversationId) throw new Error("No conversation ID provided");
 
       const { data, error } = await supabase
         .from("conversation_participants")
@@ -30,13 +30,15 @@ export const ChatContainer = () => {
         .single();
 
       if (error) throw error;
+      if (!data) throw new Error("No conversation found");
+      
       return data;
     },
     enabled: !!conversationId,
   });
 
   // Get messages
-  const { data: messages = [], refetch } = useQuery({
+  const { data: messages = [], refetch } = useQuery<Message[]>({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
       if (!conversationId) return [];
@@ -50,7 +52,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles!messages_sender_id_fkey (
+          sender:profiles (
             name
           )
         `)
@@ -58,14 +60,14 @@ export const ChatContainer = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
+      if (!messagesData) return [];
       
-      // Transform messages to include advertisement name for sender
       return messagesData.map(msg => ({
         ...msg,
         sender: {
-          name: conversationData?.advertisements?.name || msg.sender?.name || "Usuário"
+          name: msg.sender?.name || conversationData?.advertisements?.name || "Usuário"
         }
-      })) as Message[];
+      }));
     },
     enabled: !!conversationId && !!conversationData,
   });
@@ -75,7 +77,7 @@ export const ChatContainer = () => {
     if (!conversationId) return;
 
     const channel = supabase
-      .channel("messages")
+      .channel(`messages:${conversationId}`)
       .on(
         "postgres_changes",
         {
@@ -95,6 +97,14 @@ export const ChatContainer = () => {
     };
   }, [conversationId, refetch]);
 
+  if (!conversationId) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Nenhuma conversa selecionada</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
       <div className="glass-card h-full flex flex-col">
@@ -106,12 +116,12 @@ export const ChatContainer = () => {
         <NotificationButton />
         <MessageList messages={messages} currentUserId={conversationData?.user_id} />
         <MessageInput onSendMessage={async (content) => {
-          if (!conversationId) return;
+          if (!conversationId || !conversationData) return;
           
           await supabase.from("messages").insert({
             conversation_id: conversationId,
             content,
-            sender_id: conversationData?.user_id,
+            sender_id: conversationData.user_id,
           });
           
           refetch();
