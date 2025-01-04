@@ -13,7 +13,6 @@ const Favoritos = () => {
   const navigate = useNavigate();
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !session) {
       toast.error("Faça login para acessar seus favoritos");
@@ -26,7 +25,6 @@ const Favoritos = () => {
     }
   }, [session, navigate, authLoading]);
 
-  // Fetch favorites data
   const { data: favorites, isLoading } = useQuery({
     queryKey: ["favorites", session?.user?.id],
     queryFn: async () => {
@@ -63,6 +61,8 @@ const Favoritos = () => {
             hair_color,
             body_type,
             silicone,
+            blocked,
+            block_reason,
             advertisement_photos (
               id,
               photo_url
@@ -76,6 +76,9 @@ const Favoritos = () => {
             ),
             advertisement_service_locations (
               location
+            ),
+            advertisement_comments (
+              id
             )
           )
         `)
@@ -86,7 +89,6 @@ const Favoritos = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format
       const transformedFavorites = favorites
         .map(favorite => favorite.advertisements)
         .filter((ad): ad is Advertisement => ad !== null);
@@ -96,12 +98,10 @@ const Favoritos = () => {
     enabled: !!session?.user?.id,
   });
 
-  // Don't render anything while checking authentication
   if (authLoading) {
     return null;
   }
 
-  // Don't render if not authenticated
   if (!session) {
     return null;
   }
