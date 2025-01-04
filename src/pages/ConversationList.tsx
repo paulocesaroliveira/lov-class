@@ -11,10 +11,7 @@ type Conversation = {
   participants: {
     user_id: string;
     user: {
-      email: string;
-      profile: {
-        name: string;
-      };
+      name: string;
     };
   }[];
   messages: {
@@ -35,7 +32,7 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants(
             user_id,
-            user:profiles!inner(
+            user:profiles(
               name
             )
           ),
