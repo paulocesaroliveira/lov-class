@@ -37,7 +37,7 @@ export const ChatContainer = () => {
     enabled: !!conversationId,
   });
 
-  // Get messages
+  // Get messages with proper join syntax
   const { data: messages = [], refetch } = useQuery<Message[]>({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
@@ -52,7 +52,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles (
+          profiles!messages_sender_id_fkey (
             name
           )
         `)
@@ -65,7 +65,7 @@ export const ChatContainer = () => {
       return messagesData.map(msg => ({
         ...msg,
         sender: {
-          name: msg.sender?.name || conversationData?.advertisements?.name || "Usuário"
+          name: msg.profiles?.name || conversationData?.advertisements?.name || "Usuário"
         }
       }));
     },
