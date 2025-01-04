@@ -28,7 +28,6 @@ export const useNavigation = () => {
     navigate('/');
   };
 
-  // Check if user is an advertiser or admin by checking user role in profiles table
   const { data: userRole, isLoading } = useQuery({
     queryKey: ['user-role', session?.user?.id],
     queryFn: async () => {
@@ -53,7 +52,7 @@ export const useNavigation = () => {
   });
 
   const isAdmin = userRole === 'admin';
-  console.log('Is admin:', isAdmin); // Debug log
+  console.log('Is admin:', isAdmin);
 
   const adminItems = isAdmin
     ? [

@@ -42,7 +42,7 @@ const Admin = () => {
       return;
     }
 
-    if (!isLoading && isAdmin === false) {
+    if (!isLoading && !isAdmin) {
       toast.error("Você não tem permissão para acessar esta página");
       navigate("/");
     }
