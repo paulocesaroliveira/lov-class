@@ -20,7 +20,7 @@ export const AdsManagement = () => {
             name,
             role
           ),
-          advertisement_reviews (
+          advertisement_reviews!inner (
             status,
             review_notes,
             updated_at
@@ -29,7 +29,14 @@ export const AdsManagement = () => {
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      // Agrupar revisões por anúncio e pegar a mais recente
+      const processedData = data?.map(ad => ({
+        ...ad,
+        advertisement_reviews: [ad.advertisement_reviews[ad.advertisement_reviews.length - 1]]
+      }));
+
+      return processedData;
     },
   });
 
