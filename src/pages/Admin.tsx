@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
 import { toast } from "sonner";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const Admin = () => {
@@ -33,6 +33,26 @@ const Admin = () => {
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
+  });
+
+  // Buscar contagem de usuários por papel
+  const { data: userStats } = useQuery({
+    queryKey: ["user-stats"],
+    queryFn: async () => {
+      const { data: users, error } = await supabase
+        .from("profiles")
+        .select("role");
+
+      if (error) throw error;
+
+      const stats = {
+        clients: users.filter(user => user.role === "user").length,
+        advertisers: users.filter(user => user.role === "advertiser").length
+      };
+
+      return stats;
+    },
+    enabled: isAdmin === true,
   });
 
   // Buscar anúncios pendentes de revisão
@@ -81,13 +101,30 @@ const Admin = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Painel Administrativo</h1>
-          <p className="text-muted-foreground">
-            Gerencie usuários e anúncios do sistema
-          </p>
+      <div>
+        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+        <p className="text-muted-foreground">
+          Gerencie usuários e anúncios do sistema
+        </p>
+        
+        {/* User Stats */}
+        <div className="flex gap-4 mt-4">
+          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
+            <Users className="h-4 w-4" />
+            <span className="text-sm">
+              Clientes: <strong>{userStats?.clients || 0}</strong>
+            </span>
+          </div>
+          <div className="flex items-center gap-2 bg-secondary/50 rounded-lg px-4 py-2">
+            <Users className="h-4 w-4" />
+            <span className="text-sm">
+              Anunciantes: <strong>{userStats?.advertisers || 0}</strong>
+            </span>
+          </div>
         </div>
+      </div>
+
+      <div className="flex items-center justify-end">
         {pendingAds && pendingAds.length > 0 && (
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-yellow-500" />
