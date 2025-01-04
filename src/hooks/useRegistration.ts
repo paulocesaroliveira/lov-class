@@ -29,18 +29,20 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Signup error:', signUpError);
         
-        if (signUpError.message.includes('User already registered')) {
+        // Specific handling for user already exists error
+        if (signUpError.message === 'User already registered') {
           toast({
             title: "Email já cadastrado",
-            description: "Este email já está em uso. Por favor, use outro email ou faça login.",
+            description: "Este email já está em uso. Por favor, faça login ou use outro email.",
             variant: "destructive",
           });
           return false;
         }
 
+        // Generic error handling
         toast({
           title: "Erro no cadastro",
-          description: signUpError.message || "Ocorreu um erro ao criar sua conta. Tente novamente.",
+          description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
           variant: "destructive",
         });
         return false;
