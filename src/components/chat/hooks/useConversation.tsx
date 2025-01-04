@@ -10,6 +10,24 @@ export const useConversation = (conversationId: string | undefined) => {
 
       console.log("Fetching conversation data for ID:", conversationId);
 
+      // First check if the user is a participant in this conversation
+      const { data: participantData, error: participantError } = await supabase
+        .from("conversation_participants")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .single();
+
+      if (participantError) {
+        console.error("Error checking conversation participant:", participantError);
+        throw participantError;
+      }
+
+      if (!participantData) {
+        console.error("User is not a participant in this conversation");
+        throw new Error("User is not a participant in this conversation");
+      }
+
+      // Then get the conversation details
       const { data, error } = await supabase
         .from("conversation_participants")
         .select(`

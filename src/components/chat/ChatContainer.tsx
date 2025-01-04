@@ -8,17 +8,28 @@ import { toast } from "sonner";
 import { useMessages } from "./hooks/useMessages";
 import { useConversation } from "./hooks/useConversation";
 import { useMessageSubscription } from "./hooks/useMessageSubscription";
+import { useAuth } from "@/hooks/useAuth";
 
 export const ChatContainer = () => {
   const { conversationId } = useParams();
+  const { session } = useAuth();
   
   const { data: conversationData, isLoading: isLoadingConversation, error: conversationError } = useConversation(conversationId);
   const { data: messages = [], isLoading: isLoadingMessages, refetch } = useMessages(conversationId);
 
   useMessageSubscription(conversationId, refetch);
 
+  console.log("Current user ID:", session?.user?.id);
   console.log("Current conversation data:", conversationData);
   console.log("Current messages:", messages);
+
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
+      </div>
+    );
+  }
 
   if (!conversationId) {
     return (
@@ -55,6 +66,11 @@ export const ChatContainer = () => {
   }
 
   const handleSendMessage = async (content: string) => {
+    if (!session?.user?.id) {
+      toast.error("Você precisa estar logado para enviar mensagens");
+      return;
+    }
+
     try {
       if (!conversationId || !conversationData) {
         throw new Error("Dados da conversa não disponíveis");
@@ -63,7 +79,7 @@ export const ChatContainer = () => {
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
-        sender_id: conversationData.user_id,
+        sender_id: session.user.id,
       });
 
       if (error) throw error;
@@ -80,7 +96,7 @@ export const ChatContainer = () => {
       <div className="glass-card h-full flex flex-col">
         <ChatHeader title={conversationData?.advertisements?.name || "Usuário"} />
         <NotificationButton />
-        <MessageList messages={messages} currentUserId={conversationData?.user_id} />
+        <MessageList messages={messages} currentUserId={session?.user?.id} />
         <MessageInput onSendMessage={handleSendMessage} />
       </div>
     </div>
