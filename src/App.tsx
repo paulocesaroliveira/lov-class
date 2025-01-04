@@ -13,6 +13,7 @@ import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import { Messages } from "./pages/Messages";
 import ConversationList from "./pages/ConversationList";
+import InstallApp from "./pages/InstallApp";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({
@@ -45,6 +46,7 @@ function App() {
             <Route path="admin" element={<Admin />} />
             <Route path="mensagens/lista" element={<ConversationList />} />
             <Route path="mensagens/:conversationId" element={<Messages />} />
+            <Route path="instalar" element={<InstallApp />} />
           </Route>
         </Routes>
       </BrowserRouter>
