@@ -21,7 +21,10 @@ export const Messages = () => {
     queryFn: async () => {
       const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
-        .select("*, sender:profiles(name)")
+        .select(`
+          *,
+          sender:profiles!messages_sender_id_fkey(name)
+        `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
