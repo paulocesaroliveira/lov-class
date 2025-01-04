@@ -62,9 +62,16 @@ const Login = () => {
         .from("profiles")
         .select("*")
         .eq("id", authData.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError || !profile) {
+      if (profileError) {
+        console.error("Erro ao verificar perfil:", profileError);
+        toast.error("Erro ao verificar perfil de usuário");
+        await supabase.auth.signOut();
+        return;
+      }
+
+      if (!profile) {
         // Se não existir perfil, criar um novo
         const { error: createProfileError } = await supabase
           .from("profiles")
