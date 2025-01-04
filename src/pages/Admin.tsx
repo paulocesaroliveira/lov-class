@@ -26,6 +26,7 @@ const Admin = () => {
 
       if (error) {
         console.error("Error checking admin role:", error);
+        toast.error("Erro ao verificar permissões de administrador");
         return false;
       }
 
@@ -36,7 +37,8 @@ const Admin = () => {
 
   useEffect(() => {
     if (!session) {
-      navigate("/admin-login");
+      toast.error("Você precisa estar logado para acessar esta página");
+      navigate("/login");
       return;
     }
 

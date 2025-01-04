@@ -3,6 +3,7 @@ import { Home, Search, MessageSquare, Heart, Download, Settings, Grid, Users, Lo
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export const navigationItems = [
   { path: "/", label: "Início", icon: Home },
@@ -28,7 +29,7 @@ export const useNavigation = () => {
   };
 
   // Check if user is an advertiser or admin by checking user role in profiles table
-  const { data: userRole } = useQuery({
+  const { data: userRole, isLoading } = useQuery({
     queryKey: ['user-role', session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -41,6 +42,7 @@ export const useNavigation = () => {
 
       if (error) {
         console.error('Error fetching user role:', error);
+        toast.error('Erro ao verificar permissões');
         return null;
       }
 
