@@ -62,12 +62,7 @@ export const ChatContainer = () => {
       if (error) throw error;
       if (!messagesData) return [];
       
-      return messagesData.map(msg => ({
-        ...msg,
-        sender: {
-          name: msg.profiles?.name || conversationData?.advertisements?.name || "Usuário"
-        }
-      }));
+      return messagesData;
     },
     enabled: !!conversationId && !!conversationData,
   });

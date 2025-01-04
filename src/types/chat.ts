@@ -6,7 +6,7 @@ export interface Message {
   conversation_id: string;
   read_at: string | null;
   profiles?: {
-    name: string;
+    name: string | null;
   } | null;
 }
 
