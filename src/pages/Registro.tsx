@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
@@ -44,24 +44,7 @@ const Registro = () => {
     setIsLoading(true);
     
     try {
-      // First, check if the email is already registered
-      const { data: emailCheck } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: 'dummy-password-for-check',
-      });
-
-      if (emailCheck?.user) {
-        toast({
-          title: "Erro no cadastro",
-          description: "Este email já está registrado. Por favor, use outro email ou faça login.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // If email is not registered, proceed with signup
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -71,21 +54,37 @@ const Registro = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        
+        if (signUpError.message.includes('User already registered')) {
+          toast({
+            title: "Email já cadastrado",
+            description: "Por favor, use outro email ou faça login.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erro no cadastro",
+            description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
 
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Verifique seu e-mail para confirmar o cadastro.",
-      });
-      
-      navigate('/login');
+      if (signUpData.user) {
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Verifique seu e-mail para confirmar o cadastro.",
+        });
+        navigate('/login');
+      }
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
         title: "Erro ao criar conta",
-        description: error.message === 'User already registered'
-          ? "Este email já está registrado. Por favor, use outro email."
-          : "Ocorreu um erro ao criar sua conta. Tente novamente.",
+        description: "Ocorreu um erro inesperado. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -94,7 +93,7 @@ const Registro = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="max-w-md w-full glass-card p-8">
         <h2 className="text-2xl font-bold text-center mb-6">Criar Conta</h2>
         
@@ -111,6 +110,7 @@ const Registro = () => {
                       placeholder="Seu nome" 
                       {...field} 
                       disabled={isLoading}
+                      className="input-styled"
                     />
                   </FormControl>
                   <FormMessage />
@@ -130,6 +130,7 @@ const Registro = () => {
                       placeholder="seu@email.com" 
                       {...field} 
                       disabled={isLoading}
+                      className="input-styled"
                     />
                   </FormControl>
                   <FormMessage />
@@ -150,6 +151,7 @@ const Registro = () => {
                         placeholder="********"
                         {...field}
                         disabled={isLoading}
+                        className="input-styled"
                       />
                       <button
                         type="button"
@@ -167,10 +169,17 @@ const Registro = () => {
 
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full btn-primary"
               disabled={isLoading}
             >
-              {isLoading ? "Criando conta..." : "Criar Conta"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Criando conta...
+                </>
+              ) : (
+                "Criar Conta"
+              )}
             </Button>
 
             <p className="text-center text-sm text-foreground/70">
