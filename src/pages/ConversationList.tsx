@@ -30,9 +30,9 @@ export default function ConversationList() {
         .select(`
           id,
           updated_at,
-          participants:conversation_participants(
+          participants:conversation_participants!inner(
             user_id,
-            profile:profiles(name)
+            profile:profiles!inner(name)
           ),
           messages(content)
         `)
@@ -57,39 +57,41 @@ export default function ConversationList() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Minhas Conversas</h1>
-      <div className="grid gap-4">
-        {conversations.map((conversation) => {
-          const otherParticipant = conversation.participants.find(
-            (p) => p.user_id !== session?.user?.id
-          );
-          const lastMessage = conversation.messages[0]?.content;
+    <div className="container mx-auto max-w-4xl p-4">
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Minhas Conversas</h1>
+        <div className="grid gap-4">
+          {conversations.map((conversation) => {
+            const otherParticipant = conversation.participants.find(
+              (p) => p.user_id !== session?.user?.id
+            );
+            const lastMessage = conversation.messages[0]?.content;
 
-          return (
-            <Link
-              key={conversation.id}
-              to={`/mensagens/${conversation.id}`}
-              className="block p-4 rounded-lg border hover:border-primary transition-colors"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-medium">
-                    {otherParticipant?.profile?.name || "Usuário"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {lastMessage || "Nenhuma mensagem"}
-                  </p>
+            return (
+              <Link
+                key={conversation.id}
+                to={`/mensagens/${conversation.id}`}
+                className="block p-4 rounded-lg border hover:border-primary transition-colors"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-medium">
+                      {otherParticipant?.profile?.name || "Usuário"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {lastMessage || "Nenhuma mensagem"}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {format(new Date(conversation.updated_at), "dd/MM/yyyy HH:mm", {
+                      locale: ptBR,
+                    })}
+                  </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {format(new Date(conversation.updated_at), "dd/MM/yyyy HH:mm", {
-                    locale: ptBR,
-                  })}
-                </span>
-              </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
