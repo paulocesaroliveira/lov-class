@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { DesktopMenu } from './layout/DesktopMenu';
 import { MobileMenu } from './layout/MobileMenu';
 
+const MemoizedDesktopMenu = memo(DesktopMenu);
+const MemoizedMobileMenu = memo(MobileMenu);
+
 const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  const toggleMenu = React.useCallback(() => {
+    setIsMenuOpen(prev => !prev);
+  }, []);
+
+  const closeMenu = React.useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -16,12 +27,11 @@ const Layout: React.FC = () => {
               Lov Class
             </Link>
 
-            <DesktopMenu />
+            <MemoizedDesktopMenu />
 
-            {/* Mobile Menu Button */}
             <button
               className="md:hidden p-2"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={toggleMenu}
               aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -29,7 +39,7 @@ const Layout: React.FC = () => {
           </div>
         </div>
 
-        <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        <MemoizedMobileMenu isOpen={isMenuOpen} onClose={closeMenu} />
       </nav>
 
       <main className="container mx-auto px-4 py-8">
@@ -45,4 +55,4 @@ const Layout: React.FC = () => {
   );
 };
 
-export default Layout;
+export default memo(Layout);
