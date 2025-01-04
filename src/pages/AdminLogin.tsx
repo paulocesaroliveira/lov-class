@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -95,11 +96,13 @@ const AdminLoginContent = () => {
   );
 };
 
-// Wrap the entire app with QueryClientProvider
+// Wrap the entire app with QueryClientProvider and TooltipProvider
 const AdminLogin = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AdminLoginContent />
+      <TooltipProvider>
+        <AdminLoginContent />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
