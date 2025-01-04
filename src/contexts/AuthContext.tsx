@@ -27,15 +27,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
+          console.error('Session error:', sessionError);
           throw sessionError;
         }
 
         if (!session?.user) {
+          console.log('No session found');
           setIsAdmin(false);
           setUserId(null);
           return;
         }
 
+        console.log('User ID:', session.user.id);
         setUserId(session.user.id);
 
         const { data: profile, error: profileError } = await supabase
@@ -45,10 +48,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .single();
 
         if (profileError) {
+          console.error('Profile error:', profileError);
           throw profileError;
         }
 
-        setIsAdmin(profile?.role === 'admin');
+        console.log('User role data:', profile);
+        const userIsAdmin = profile?.role === 'admin';
+        console.log('User Role:', profile?.role);
+        console.log('Is admin:', userIsAdmin);
+        setIsAdmin(userIsAdmin);
       } catch (error) {
         console.error('Auth check error:', error);
         toast.error('Erro ao verificar autenticação');
