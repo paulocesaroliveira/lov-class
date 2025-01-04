@@ -22,7 +22,7 @@ type Conversation = {
 export default function ConversationList() {
   const { session } = useAuth();
 
-  const { data: conversations, isLoading } = useQuery({
+  const { data: conversations, isLoading } = useQuery<Conversation[]>({
     queryKey: ["conversations"],
     queryFn: async () => {
       const { data: conversationsData, error } = await supabase
@@ -41,7 +41,7 @@ export default function ConversationList() {
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
-      return conversationsData as Conversation[];
+      return conversationsData;
     },
     enabled: !!session?.user?.id,
   });
