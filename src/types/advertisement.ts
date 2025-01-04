@@ -20,7 +20,7 @@ export interface Advertisement {
   city: string;
   neighborhood: string;
   hourly_rate: number;
-  custom_rate_description: string;  // Changed from optional to required
+  custom_rate_description: string;
   custom_rate_value: number | null;
   description: string;
   profile_photo_url: string | null;
@@ -33,9 +33,9 @@ export interface Advertisement {
   silicone: string;
   blocked?: boolean | null;
   block_reason?: string | null;
-  advertisement_services?: { service: string }[];
-  advertisement_service_locations?: { location: string }[];
-  advertisement_photos?: { id: string; photo_url: string }[];
-  advertisement_videos?: { id: string; video_url: string }[];
-  advertisement_comments?: { id: string }[];
+  advertisement_services: { service: string }[];
+  advertisement_service_locations: { location: string }[];
+  advertisement_photos: { id: string; photo_url: string }[];
+  advertisement_videos: { id: string; video_url: string }[];
+  advertisement_comments: { id: string }[];
 }
