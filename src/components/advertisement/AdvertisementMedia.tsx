@@ -9,10 +9,51 @@ type AdvertisementMediaProps = {
 };
 
 export const AdvertisementMedia = ({ profilePhotoUrl, photos, videos, name }: AdvertisementMediaProps) => {
-  const [selectedMedia, setSelectedMedia] = useState<{ type: "image" | "video"; url: string } | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<{ type: "image" | "video"; url: string; index: number } | null>(null);
+
+  const allMedia = [
+    ...(profilePhotoUrl ? [{
+      type: "image" as const,
+      url: `https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/profile_photos/${profilePhotoUrl}`,
+      id: "profile"
+    }] : []),
+    ...(photos?.map(photo => ({
+      type: "image" as const,
+      url: `https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/ad_photos/${photo.photo_url}`,
+      id: photo.id
+    })) || []),
+    ...(videos?.map(video => ({
+      type: "video" as const,
+      url: `https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/ad_videos/${video.video_url}`,
+      id: video.id
+    })) || [])
+  ];
 
   const handleMediaClick = (type: "image" | "video", url: string) => {
-    setSelectedMedia({ type, url });
+    const index = allMedia.findIndex(media => media.url === url);
+    setSelectedMedia({ type, url, index });
+  };
+
+  const handleNext = () => {
+    if (selectedMedia && selectedMedia.index < allMedia.length - 1) {
+      const nextMedia = allMedia[selectedMedia.index + 1];
+      setSelectedMedia({ 
+        type: nextMedia.type, 
+        url: nextMedia.url, 
+        index: selectedMedia.index + 1 
+      });
+    }
+  };
+
+  const handlePrevious = () => {
+    if (selectedMedia && selectedMedia.index > 0) {
+      const previousMedia = allMedia[selectedMedia.index - 1];
+      setSelectedMedia({ 
+        type: previousMedia.type, 
+        url: previousMedia.url, 
+        index: selectedMedia.index - 1 
+      });
+    }
   };
 
   return (
@@ -93,6 +134,10 @@ export const AdvertisementMedia = ({ profilePhotoUrl, photos, videos, name }: Ad
           url={selectedMedia.url}
           isOpen={!!selectedMedia}
           onClose={() => setSelectedMedia(null)}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          hasNext={selectedMedia.index < allMedia.length - 1}
+          hasPrevious={selectedMedia.index > 0}
         />
       )}
     </div>
