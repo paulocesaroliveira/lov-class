@@ -50,7 +50,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          profiles (
+          sender:profiles!messages_sender_id_fkey (
             name
           )
         `)
@@ -63,7 +63,7 @@ export const ChatContainer = () => {
       return messagesData.map(msg => ({
         ...msg,
         sender: {
-          name: conversationData?.advertisements?.name || msg.profiles?.name || "Usuário"
+          name: conversationData?.advertisements?.name || msg.sender?.name || "Usuário"
         }
       })) as Message[];
     },
