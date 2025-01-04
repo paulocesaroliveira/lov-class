@@ -42,13 +42,24 @@ export default function ConversationList() {
           // Buscar participantes
           const { data: participants } = await supabase
             .from("conversation_participants")
-            .select(`
-              user_id,
-              profiles:user_id (
-                name
-              )
-            `)
+            .select('user_id')
             .eq("conversation_id", conv.conversation.id);
+
+          // Buscar perfis dos participantes
+          const participantsWithProfiles = await Promise.all(
+            (participants || []).map(async (participant) => {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select('name')
+                .eq('id', participant.user_id)
+                .single();
+
+              return {
+                user_id: participant.user_id,
+                profile_name: profileData?.name || "Usuário"
+              };
+            })
+          );
 
           // Buscar última mensagem
           const { data: messages } = await supabase
@@ -61,10 +72,7 @@ export default function ConversationList() {
           return {
             id: conv.conversation.id,
             updated_at: conv.conversation.updated_at,
-            participants: participants?.map(p => ({
-              user_id: p.user_id,
-              profile_name: p.profiles?.name || "Usuário"
-            })) || [],
+            participants: participantsWithProfiles,
             last_message: messages?.[0]?.content || null
           };
         })
