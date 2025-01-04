@@ -15,6 +15,7 @@ import { Description } from "./Description";
 import { MediaUpload } from "./MediaUpload";
 import { FormActions } from "./FormActions";
 import { ServiceLocations } from "./ServiceLocations";
+import { IdentityDocument } from "./IdentityDocument";
 import { formSchema } from "./advertisementSchema";
 import { FormValues } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
@@ -28,6 +29,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [identityDocument, setIdentityDocument] = useState<File | null>(null);
 
   useEffect(() => {
     const getUser = async () => {
@@ -117,7 +119,40 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         return;
       }
 
+      if (!identityDocument && !advertisement) {
+        toast.error("Por favor, envie uma foto do seu documento de identidade");
+        return;
+      }
+
       console.log("Usuário autenticado:", user.id);
+
+      // Upload do documento de identidade
+      if (identityDocument) {
+        const documentFileName = `${user.id}/${Date.now()}-${identityDocument.name}`;
+        const { error: documentError } = await supabase.storage
+          .from("identity_documents")
+          .upload(documentFileName, identityDocument);
+
+        if (documentError) {
+          console.error("Erro ao enviar documento:", documentError);
+          toast.error("Erro ao enviar documento de identidade");
+          return;
+        }
+
+        // Salvar referência do documento
+        const { error: docRefError } = await supabase
+          .from("advertiser_documents")
+          .insert({
+            advertisement_id: advertisement?.id,
+            document_url: documentFileName,
+          });
+
+        if (docRefError) {
+          console.error("Erro ao salvar referência do documento:", docRefError);
+          toast.error("Erro ao salvar referência do documento");
+          return;
+        }
+      }
 
       const profilePhotoUrl = await uploadProfilePhoto();
       console.log("Foto de perfil enviada:", profilePhotoUrl);
@@ -152,14 +187,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       navigate("/anuncios");
     } catch (error: any) {
       console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
-      
-      // Melhor tratamento de erros específicos
-      if (error.message?.includes("row violates row-level security policy")) {
-        toast.error("Erro de permissão. Por favor, tente fazer login novamente.");
-        navigate("/login");
-      } else {
-        toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
-      }
+      toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
     } finally {
       setIsLoading(false);
     }
@@ -176,6 +204,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         <ServicesSelection form={form} />
         <ServiceLocations form={form} />
         <Description form={form} />
+        <IdentityDocument form={form} setIdentityDocument={setIdentityDocument} />
         <MediaUpload
           setProfilePhoto={setProfilePhoto}
           setPhotos={setPhotos}

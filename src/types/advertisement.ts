@@ -8,6 +8,7 @@ type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
 export type StyleType = z.infer<typeof formSchema>["style"];
 export type FormValues = z.infer<typeof formSchema> & {
   id?: string;
+  identityDocument?: File;
 };
 
 export interface Advertisement {
