@@ -56,11 +56,11 @@ const Anuncios = () => {
       if (filters.category) {
         query = query.eq("category", filters.category);
       }
-      if (filters.state) {
-        query = query.ilike("state", `%${filters.state}%`);
-      }
       if (filters.city) {
-        query = query.ilike("city", `%${filters.city}%`);
+        query = query.eq("city", filters.city);
+      }
+      if (filters.neighborhood) {
+        query = query.eq("neighborhood", filters.neighborhood);
       }
       if (filters.minPrice !== undefined) {
         query = query.gte("hourly_rate", filters.minPrice);

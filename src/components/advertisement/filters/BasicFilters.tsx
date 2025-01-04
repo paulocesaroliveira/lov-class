@@ -12,6 +12,7 @@ type BasicFiltersProps = {
 
 export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
   const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchCities = async () => {
@@ -31,6 +32,34 @@ export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => 
     fetchCities();
   }, []);
 
+  useEffect(() => {
+    const fetchNeighborhoods = async () => {
+      if (!filters.city) {
+        setAvailableNeighborhoods([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('advertisements')
+        .select('neighborhood')
+        .eq('blocked', false)
+        .eq('city', filters.city)
+        .not('neighborhood', 'is', null);
+
+      if (!error && data) {
+        // Remove duplicates and sort neighborhoods
+        const uniqueNeighborhoods = [...new Set(data.map(ad => ad.neighborhood))].sort();
+        setAvailableNeighborhoods(uniqueNeighborhoods);
+      }
+    };
+
+    fetchNeighborhoods();
+    // Reset neighborhood when city changes
+    if (filters.neighborhood && !filters.city) {
+      onFilterChange({ neighborhood: undefined });
+    }
+  }, [filters.city]);
+
   return (
     <div className="space-y-6">
       {/* Localização */}
@@ -39,7 +68,12 @@ export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => 
           <Label>Cidade</Label>
           <Select
             value={filters.city || ""}
-            onValueChange={(value) => onFilterChange({ city: value })}
+            onValueChange={(value) => {
+              onFilterChange({ 
+                city: value,
+                neighborhood: undefined // Reset neighborhood when city changes
+              });
+            }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione uma cidade" />
@@ -48,6 +82,26 @@ export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => 
               {availableCities.map((city) => (
                 <SelectItem key={city} value={city}>
                   {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Bairro</Label>
+          <Select
+            value={filters.neighborhood || ""}
+            onValueChange={(value) => onFilterChange({ neighborhood: value })}
+            disabled={!filters.city}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={filters.city ? "Selecione um bairro" : "Selecione primeiro uma cidade"} />
+            </SelectTrigger>
+            <SelectContent>
+              {availableNeighborhoods.map((neighborhood) => (
+                <SelectItem key={neighborhood} value={neighborhood}>
+                  {neighborhood}
                 </SelectItem>
               ))}
             </SelectContent>
