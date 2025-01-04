@@ -39,12 +39,12 @@ export default function ConversationList() {
       // Para cada conversa, buscamos os detalhes dos participantes e a última mensagem
       const conversationsWithDetails = await Promise.all(
         userConversations.map(async (conv) => {
-          // Buscar participantes e seus nomes
+          // Buscar participantes
           const { data: participants } = await supabase
             .from("conversation_participants")
             .select(`
               user_id,
-              profiles (
+              profiles:user_id (
                 name
               )
             `)
