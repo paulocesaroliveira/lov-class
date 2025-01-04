@@ -100,13 +100,11 @@ const AdminLoginContent = () => {
 // Main component with providers
 const AdminLogin = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AdminLoginContent />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AdminLoginContent />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
