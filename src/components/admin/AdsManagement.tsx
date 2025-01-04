@@ -70,6 +70,17 @@ export const AdsManagement = () => {
 
       const reviewId = reviews?.[0]?.id;
 
+      // Atualizar o status do anúncio para não bloqueado
+      const { error: unblockError } = await supabase
+        .from("advertisements")
+        .update({ 
+          blocked: false,
+          block_reason: null
+        })
+        .eq("id", ad.id);
+
+      if (unblockError) throw unblockError;
+
       if (reviewId) {
         // Se existe uma revisão, atualiza ela
         const { error: updateError } = await supabase
