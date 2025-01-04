@@ -48,19 +48,10 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
     services: [],
     serviceLocations: [],
   });
-  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [ageRange, setAgeRange] = useState([18, 60]);
 
   const handleTempFilterChange = (newFilters: Partial<Filters>) => {
     setTempFilters(prev => ({ ...prev, ...newFilters }));
-  };
-
-  const handlePriceChange = (value: number[]) => {
-    setPriceRange(value);
-    handleTempFilterChange({
-      minPrice: value[0],
-      maxPrice: value[1],
-    });
   };
 
   const handleAgeChange = (value: number[]) => {
@@ -128,7 +119,7 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
           </div>
 
           {/* Faixa de Preço */}
-          <PriceFilter priceRange={priceRange} onPriceChange={handlePriceChange} />
+          <PriceFilter filters={tempFilters} onFilterChange={handleTempFilterChange} />
 
           {/* Faixa de Idade */}
           <AgeFilter ageRange={ageRange} onAgeChange={handleAgeChange} />

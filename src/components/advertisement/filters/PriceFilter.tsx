@@ -1,26 +1,34 @@
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 
 type PriceFilterProps = {
-  priceRange: number[];
-  onPriceChange: (value: number[]) => void;
+  filters: any;
+  onFilterChange: (filters: any) => void;
 };
 
-export const PriceFilter = ({ priceRange, onPriceChange }: PriceFilterProps) => {
+export const PriceFilter = ({ filters, onFilterChange }: PriceFilterProps) => {
   return (
     <div className="space-y-4">
       <Label>Faixa de Preço (R$)</Label>
-      <Slider
-        min={0}
-        max={1000}
-        step={50}
-        value={priceRange}
-        onValueChange={onPriceChange}
-        className="mt-2"
-      />
-      <div className="flex justify-between text-sm text-muted-foreground">
-        <span>R$ {priceRange[0]}</span>
-        <span>R$ {priceRange[1]}</span>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Valor Mínimo</Label>
+          <Input
+            type="number"
+            placeholder="Ex: 100"
+            value={filters.minPrice || ""}
+            onChange={(e) => onFilterChange({ minPrice: Number(e.target.value) || undefined })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Valor Máximo</Label>
+          <Input
+            type="number"
+            placeholder="Ex: 1000"
+            value={filters.maxPrice || ""}
+            onChange={(e) => onFilterChange({ maxPrice: Number(e.target.value) || undefined })}
+          />
+        </div>
       </div>
     </div>
   );
