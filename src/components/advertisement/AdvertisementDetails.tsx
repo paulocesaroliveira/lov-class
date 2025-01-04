@@ -23,16 +23,20 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
 
     try {
-      // Check if a conversation already exists
+      // Primeiro, buscar as conversas do anunciante
+      const { data: advertiserConversations } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', advertisement.profile_id);
+
+      const conversationIds = advertiserConversations?.map(c => c.conversation_id) || [];
+
+      // Depois, verificar se o usuário atual participa de alguma dessas conversas
       const { data: existingConversation } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
         .eq('user_id', session.user.id)
-        .in('conversation_id', (sub) =>
-          sub.from('conversation_participants')
-            .select('conversation_id')
-            .eq('user_id', advertisement.profile_id)
-        )
+        .in('conversation_id', conversationIds)
         .maybeSingle();
 
       if (existingConversation) {
