@@ -16,7 +16,6 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Se já estiver logado, redireciona
   useEffect(() => {
     if (session) {
       const state = location.state as { returnTo?: string } | null;
@@ -24,7 +23,6 @@ const Login = () => {
     }
   }, [session, navigate, location.state]);
 
-  // Se houver mensagem no state, mostra
   useEffect(() => {
     const state = location.state as { message?: string } | null;
     if (state?.message) {
@@ -37,20 +35,54 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Primeiro, tentar fazer login
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
-      if (error) {
-        if (error.message === "Invalid login credentials") {
+      if (authError) {
+        if (authError.message === "Invalid login credentials") {
           toast.error("Email ou senha incorretos");
-        } else if (error.message.includes("Email not confirmed")) {
+        } else if (authError.message.includes("Email not confirmed")) {
           toast.error("Por favor, confirme seu email antes de fazer login");
         } else {
-          toast.error("Erro ao fazer login: " + error.message);
+          toast.error("Erro ao fazer login: " + authError.message);
         }
         return;
+      }
+
+      if (!authData.user) {
+        toast.error("Erro ao recuperar dados do usuário");
+        return;
+      }
+
+      // Verificar se o perfil existe
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        // Se não existir perfil, criar um novo
+        const { error: createProfileError } = await supabase
+          .from("profiles")
+          .insert([
+            {
+              id: authData.user.id,
+              name: email.split("@")[0],
+              role: "user",
+            },
+          ]);
+
+        if (createProfileError) {
+          console.error("Erro ao criar perfil:", createProfileError);
+          toast.error("Erro ao criar perfil de usuário");
+          // Fazer logout se não conseguir criar o perfil
+          await supabase.auth.signOut();
+          return;
+        }
       }
 
       const state = location.state as { returnTo?: string } | null;
