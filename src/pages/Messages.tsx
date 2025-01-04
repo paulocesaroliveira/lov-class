@@ -16,10 +16,12 @@ export const Messages = () => {
     Notification.permission
   );
 
-  const { data: messages, refetch } = useQuery({
+  const { data: messages = [], refetch } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      const { data: messagesData, error: messagesError } = await supabase
+      if (!conversationId) return [];
+
+      const { data: messagesData, error } = await supabase
         .from("messages")
         .select(`
           id,
@@ -33,34 +35,23 @@ export const Messages = () => {
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
-      if (messagesError) throw messagesError;
+      if (error) {
+        console.error("Error fetching messages:", error);
+        throw error;
+      }
+
+      console.log("Fetched messages:", messagesData);
       
       // Transform the data to match our Message type
       const transformedMessages = messagesData.map(msg => ({
         ...msg,
-        sender: msg.sender && Array.isArray(msg.sender) && msg.sender[0] 
-          ? { name: msg.sender[0].name } 
-          : null
+        sender: msg.sender ? { name: msg.sender[0]?.name } : null
       }));
 
       return transformedMessages as Message[];
     },
     enabled: !!conversationId && !!session?.user,
   });
-
-  // Solicitar permissão para notificações
-  const requestNotificationPermission = async () => {
-    try {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-      if (permission === "granted") {
-        toast.success("Notificações ativadas com sucesso!");
-      }
-    } catch (error) {
-      console.error("Erro ao solicitar permissão:", error);
-      toast.error("Erro ao ativar notificações");
-    }
-  };
 
   // Configurar listener para novas mensagens
   useEffect(() => {
@@ -153,7 +144,18 @@ export const Messages = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={requestNotificationPermission}
+              onClick={async () => {
+                try {
+                  const permission = await Notification.requestPermission();
+                  setNotificationPermission(permission);
+                  if (permission === "granted") {
+                    toast.success("Notificações ativadas com sucesso!");
+                  }
+                } catch (error) {
+                  console.error("Erro ao solicitar permissão:", error);
+                  toast.error("Erro ao ativar notificações");
+                }
+              }}
               className="bg-primary/20 hover:bg-primary/30"
             >
               Ativar Notificações
@@ -162,7 +164,7 @@ export const Messages = () => {
         )}
 
         <MessageList 
-          messages={messages || []} 
+          messages={messages} 
           currentUserId={session.user.id} 
         />
         
