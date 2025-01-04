@@ -81,6 +81,7 @@ export type Database = {
           advertisement_id: string
           created_at: string
           id: string
+          moderation_message: string | null
           review_notes: string | null
           reviewer_id: string | null
           status: string
@@ -90,6 +91,7 @@ export type Database = {
           advertisement_id: string
           created_at?: string
           id?: string
+          moderation_message?: string | null
           review_notes?: string | null
           reviewer_id?: string | null
           status?: string
@@ -99,6 +101,7 @@ export type Database = {
           advertisement_id?: string
           created_at?: string
           id?: string
+          moderation_message?: string | null
           review_notes?: string | null
           reviewer_id?: string | null
           status?: string

@@ -3,6 +3,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { BasicInformation } from "./BasicInformation";
@@ -30,6 +39,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
+  const [showModerationAlert, setShowModerationAlert] = useState(false);
   const { user } = useAuthCheck();
   
   const form = useForm<FormValues>({
@@ -154,8 +164,12 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       await savePhotos(ad.id, photoUrls);
       await saveVideos(ad.id, videoUrls);
 
-      toast.success(advertisement ? "Anúncio atualizado com sucesso!" : "Anúncio criado com sucesso!");
-      navigate("/anuncios");
+      if (!advertisement) {
+        setShowModerationAlert(true);
+      } else {
+        toast.success("Anúncio atualizado com sucesso!");
+        navigate("/anuncios");
+      }
     } catch (error: any) {
       console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
       toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
@@ -165,24 +179,45 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <BasicInformation form={form} />
-        <Appearance form={form} />
-        <ContactLocation form={form} />
-        <CustomRates form={form} />
-        <StyleSelection form={form} />
-        <ServicesSelection form={form} />
-        <ServiceLocations form={form} />
-        <Description form={form} />
-        <MediaUpload
-          setProfilePhoto={setProfilePhoto}
-          setPhotos={setPhotos}
-          setVideos={setVideos}
-        />
-        <IdentityDocument form={form} setIdentityDocument={setIdentityDocument} />
-        <FormActions isLoading={isLoading} isEditing={!!advertisement} />
-      </form>
-    </Form>
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <BasicInformation form={form} />
+          <Appearance form={form} />
+          <ContactLocation form={form} />
+          <CustomRates form={form} />
+          <StyleSelection form={form} />
+          <ServicesSelection form={form} />
+          <ServiceLocations form={form} />
+          <Description form={form} />
+          <MediaUpload
+            setProfilePhoto={setProfilePhoto}
+            setPhotos={setPhotos}
+            setVideos={setVideos}
+          />
+          <IdentityDocument form={form} setIdentityDocument={setIdentityDocument} />
+          <FormActions isLoading={isLoading} isEditing={!!advertisement} />
+        </form>
+      </Form>
+
+      <AlertDialog open={showModerationAlert} onOpenChange={setShowModerationAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Anúncio Enviado para Moderação</AlertDialogTitle>
+            <AlertDialogDescription>
+              Seu anúncio foi criado com sucesso e está em análise. Ele será publicado após aprovação da moderação.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => {
+              setShowModerationAlert(false);
+              navigate("/anuncios");
+            }}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
