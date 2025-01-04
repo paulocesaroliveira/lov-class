@@ -62,7 +62,7 @@ export const useRegistration = () => {
         .from('profiles')
         .select('*')
         .eq('id', signUpData.user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Profile check error:', profileError);
@@ -74,15 +74,22 @@ export const useRegistration = () => {
         return false;
       }
 
-      if (profileData) {
+      if (!profileData) {
+        console.error('Profile not found after creation');
         toast({
-          title: "Conta criada com sucesso!",
-          description: "Verifique seu e-mail para confirmar o cadastro.",
+          title: "Erro na criação do perfil",
+          description: "Sua conta foi criada, mas houve um problema ao configurar seu perfil. Por favor, tente fazer login.",
+          variant: "destructive",
         });
-        return true;
+        return false;
       }
 
-      return false;
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Verifique seu e-mail para confirmar o cadastro.",
+      });
+      return true;
+
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
