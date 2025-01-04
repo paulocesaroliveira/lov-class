@@ -5,7 +5,7 @@ export interface Message {
   created_at: string;
   conversation_id: string;
   read_at: string | null;
-  sender: {
+  profiles?: {
     name: string;
   } | null;
 }
