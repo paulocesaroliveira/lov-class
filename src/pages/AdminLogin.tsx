@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -101,14 +101,16 @@ const LoginForm = () => {
 };
 
 // Main component
-const AdminLogin = () => {
+function AdminLogin() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LoginForm />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LoginForm />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
-};
+}
 
 export default AdminLogin;
