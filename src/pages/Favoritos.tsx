@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
+import { Advertisement } from "@/types/advertisement";
 import { toast } from "sonner";
 
 const Favoritos = () => {
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [selectedAd, setSelectedAd] = useState<any>(null);
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -40,6 +41,7 @@ const Favoritos = () => {
           advertisement_id,
           advertisements (
             id,
+            profile_id,
             name,
             birth_date,
             height,
@@ -84,13 +86,10 @@ const Favoritos = () => {
         throw error;
       }
 
-      // Transform the data to match the expected format and ensure favorites are marked
-      const transformedFavorites = favorites.map(favorite => ({
-        ...favorite.advertisements,
-      }));
-
-      // Create an array of advertisement IDs that are favorites
-      const favoriteIds = favorites.map(fav => fav.advertisement_id);
+      // Transform the data to match the expected format
+      const transformedFavorites = favorites
+        .map(favorite => favorite.advertisements)
+        .filter((ad): ad is Advertisement => ad !== null);
 
       return transformedFavorites;
     },
