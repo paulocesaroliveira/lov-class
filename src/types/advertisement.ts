@@ -43,3 +43,5 @@ export interface Advertisement {
   advertisement_videos: { id: string; video_url: string }[];
   advertisement_comments: { id: string }[];
 }
+
+export type { ServiceType, ServiceLocationType };

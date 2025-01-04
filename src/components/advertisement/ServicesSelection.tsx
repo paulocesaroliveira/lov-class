@@ -4,10 +4,11 @@ import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { formSchema } from "./advertisementSchema";
 import { services } from "./constants";
+import { ServiceType } from "@/types/advertisement";
 
 type ServicesSelectionProps = {
   form?: UseFormReturn<z.infer<typeof formSchema>>;
-  services?: { service: string }[];
+  services?: { service: ServiceType }[];
 };
 
 export const ServicesSelection = ({ form, services: servicesList }: ServicesSelectionProps) => {
@@ -54,7 +55,7 @@ export const ServicesSelection = ({ form, services: servicesList }: ServicesSele
                             checked={field.value?.includes(service.id)}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, service.id])
+                                ? field.onChange([...field.value, service.id as ServiceType])
                                 : field.onChange(
                                     field.value?.filter(
                                       (value) => value !== service.id

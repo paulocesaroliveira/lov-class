@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { Database } from "@/integrations/supabase/types";
+
+type ServiceType = Database["public"]["Enums"]["service_type"];
+type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -24,8 +28,8 @@ export const formSchema = z.object({
     })
   ),
   style: z.string(),
-  services: z.array(z.string()),
-  serviceLocations: z.array(z.string()),
+  services: z.array(z.custom<ServiceType>()),
+  serviceLocations: z.array(z.custom<ServiceLocationType>()),
   description: z.string().min(20, "Descrição deve ter pelo menos 20 caracteres"),
   identityDocument: z.any(),
 });
