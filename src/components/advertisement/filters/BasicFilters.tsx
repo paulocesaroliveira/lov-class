@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 type BasicFiltersProps = {
   filters: any;
@@ -8,25 +11,47 @@ type BasicFiltersProps = {
 };
 
 export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      const { data, error } = await supabase
+        .from('advertisements')
+        .select('city')
+        .eq('blocked', false)
+        .not('city', 'is', null);
+
+      if (!error && data) {
+        // Remove duplicates and sort cities
+        const uniqueCities = [...new Set(data.map(ad => ad.city))].sort();
+        setAvailableCities(uniqueCities);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Localização */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Estado</Label>
-          <Input
-            placeholder="Ex: SP"
-            value={filters.state || ""}
-            onChange={(e) => onFilterChange({ state: e.target.value })}
-          />
-        </div>
-        <div className="space-y-2">
           <Label>Cidade</Label>
-          <Input
-            placeholder="Ex: São Paulo"
+          <Select
             value={filters.city || ""}
-            onChange={(e) => onFilterChange({ city: e.target.value })}
-          />
+            onValueChange={(value) => onFilterChange({ city: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione uma cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableCities.map((city) => (
+                <SelectItem key={city} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
