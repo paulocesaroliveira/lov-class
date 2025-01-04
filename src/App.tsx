@@ -12,27 +12,32 @@ import Favoritos from "./pages/Favoritos";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import { Messages } from "./pages/Messages";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Index />} />
-          <Route path="login" element={<Login />} />
-          <Route path="registro" element={<Registro />} />
-          <Route path="criar-anuncio" element={<CriarAnuncio />} />
-          <Route path="editar-anuncio/:id" element={<EditarAnuncio />} />
-          <Route path="perfil" element={<Perfil />} />
-          <Route path="feed" element={<Feed />} />
-          <Route path="anuncios" element={<Anuncios />} />
-          <Route path="favoritos" element={<Favoritos />} />
-          <Route path="admin/login" element={<AdminLogin />} />
-          <Route path="admin" element={<Admin />} />
-          <Route path="mensagens/:conversationId" element={<Messages />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Index />} />
+            <Route path="login" element={<Login />} />
+            <Route path="registro" element={<Registro />} />
+            <Route path="criar-anuncio" element={<CriarAnuncio />} />
+            <Route path="editar-anuncio/:id" element={<EditarAnuncio />} />
+            <Route path="perfil" element={<Perfil />} />
+            <Route path="feed" element={<Feed />} />
+            <Route path="anuncios" element={<Anuncios />} />
+            <Route path="favoritos" element={<Favoritos />} />
+            <Route path="admin/login" element={<AdminLogin />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="mensagens/:conversationId" element={<Messages />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

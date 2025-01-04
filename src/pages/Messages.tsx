@@ -7,17 +7,21 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 
+type Profile = {
+  name: string;
+};
+
+type Sender = {
+  id: string;
+  profiles: Profile[];
+};
+
 type Message = {
   id: string;
   content: string;
   sender_id: string;
   created_at: string;
-  sender: {
-    id: string;
-    profiles: {
-      name: string;
-    }[];
-  };
+  sender: Sender;
 };
 
 export const Messages = () => {
@@ -33,16 +37,16 @@ export const Messages = () => {
         .from("messages")
         .select(`
           *,
-          sender:sender_id(
+          sender:profiles!messages_sender_id_fkey(
             id,
-            profiles(name)
+            name
           )
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as Message[];
+      return data as unknown as Message[];
     },
     enabled: !!conversationId && !!session?.user,
   });
@@ -95,7 +99,7 @@ export const Messages = () => {
                 }`}
               >
                 <p className="text-sm font-medium mb-1">
-                  {message.sender?.profiles?.[0]?.name}
+                  {message.sender?.name}
                 </p>
                 <p>{message.content}</p>
               </div>
