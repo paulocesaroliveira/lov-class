@@ -49,19 +49,19 @@ export type Database = {
       }
       advertisement_photos: {
         Row: {
-          advertisement_id: string | null
+          advertisement_id: string
           created_at: string
           id: string
           photo_url: string
         }
         Insert: {
-          advertisement_id?: string | null
+          advertisement_id: string
           created_at?: string
           id?: string
           photo_url: string
         }
         Update: {
-          advertisement_id?: string | null
+          advertisement_id?: string
           created_at?: string
           id?: string
           photo_url?: string
@@ -172,19 +172,19 @@ export type Database = {
       }
       advertisement_videos: {
         Row: {
-          advertisement_id: string | null
+          advertisement_id: string
           created_at: string
           id: string
           video_url: string
         }
         Insert: {
-          advertisement_id?: string | null
+          advertisement_id: string
           created_at?: string
           id?: string
           video_url: string
         }
         Update: {
-          advertisement_id?: string | null
+          advertisement_id?: string
           created_at?: string
           id?: string
           video_url?: string
