@@ -10,7 +10,6 @@ import { Message, ConversationParticipant } from "@/types/chat";
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
-  // Get conversation details including advertisement
   const { data: conversationData } = useQuery<ConversationParticipant>({
     queryKey: ["conversation", conversationId],
     queryFn: async () => {
@@ -37,7 +36,6 @@ export const ChatContainer = () => {
     enabled: !!conversationId,
   });
 
-  // Get messages
   const { data: messages = [], refetch } = useQuery<Message[]>({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
@@ -52,7 +50,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          profiles (
+          profiles:sender_id (
             name
           )
         `)
@@ -62,12 +60,11 @@ export const ChatContainer = () => {
       if (error) throw error;
       if (!messagesData) return [];
       
-      return messagesData;
+      return messagesData as Message[];
     },
     enabled: !!conversationId && !!conversationData,
   });
 
-  // Setup realtime subscription
   useEffect(() => {
     if (!conversationId) return;
 
