@@ -17,7 +17,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   };
 
   return (
-    <div className="md:hidden fixed inset-x-0 top-16 bg-background/80 backdrop-blur-lg border-t border-white/10">
+    <div className="md:hidden fixed inset-x-0 top-16 bg-background/80 backdrop-blur-lg border-t border-border">
       <div className="container mx-auto px-4 py-4">
         <nav className="flex flex-col gap-4">
           {menuItems.map((item) => (
@@ -26,12 +26,12 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               onClick={() => handleItemClick(item.path)}
               className="flex items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
             >
-              <item.icon size={20} />
+              <item.icon className="h-4 w-4" />
               {item.label}
             </button>
           ))}
 
-          <div className="border-t border-white/10 pt-4 mt-2">
+          <div className="border-t border-border pt-4 mt-2">
             {authItems.map((item) => (
               item.onClick ? (
                 <Button
@@ -43,7 +43,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                   }}
                   className="w-full justify-start gap-2 text-foreground/60 hover:text-foreground"
                 >
-                  <item.icon size={20} />
+                  <item.icon className="h-4 w-4" />
                   {item.label}
                 </Button>
               ) : (
@@ -52,7 +52,7 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                   onClick={() => handleItemClick(item.path || '')}
                   className="flex w-full items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
                 >
-                  <item.icon size={20} />
+                  <item.icon className="h-4 w-4" />
                   {item.label}
                 </button>
               )
