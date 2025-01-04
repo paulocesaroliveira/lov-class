@@ -10,11 +10,11 @@ type Conversation = {
   updated_at: string;
   participants: {
     user_id: string;
-    user_profile: {
+    profile: {
       name: string;
-    } | null;
+    };
   }[];
-  last_message: {
+  messages: {
     content: string;
   }[];
 };
@@ -32,9 +32,9 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants(
             user_id,
-            user_profile:profiles!conversation_participants_user_id_fkey(name)
+            profile:profiles(name)
           ),
-          last_message:messages(content)
+          messages(content)
         `)
         .order("updated_at", { ascending: false });
 
@@ -64,7 +64,7 @@ export default function ConversationList() {
           const otherParticipant = conversation.participants.find(
             (p) => p.user_id !== session?.user?.id
           );
-          const lastMessage = conversation.last_message[0]?.content;
+          const lastMessage = conversation.messages[0]?.content;
 
           return (
             <Link
@@ -75,7 +75,7 @@ export default function ConversationList() {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium">
-                    {otherParticipant?.user_profile?.name || "Usuário"}
+                    {otherParticipant?.profile?.name || "Usuário"}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-1">
                     {lastMessage || "Nenhuma mensagem"}
