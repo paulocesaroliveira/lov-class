@@ -8,12 +8,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type Profile = {
-  name: string;
-};
-
-type Sender = {
   id: string;
-  profiles: Profile[];
+  name: string;
 };
 
 type Message = {
@@ -21,7 +17,7 @@ type Message = {
   content: string;
   sender_id: string;
   created_at: string;
-  sender: Sender;
+  sender: Profile;
 };
 
 export const Messages = () => {
@@ -33,20 +29,31 @@ export const Messages = () => {
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get messages
+      const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
-        .select(`
-          *,
-          sender:profiles!messages_sender_id_fkey(
-            id,
-            name
-          )
-        `)
+        .select("*")
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
-      return data as unknown as Message[];
+      if (messagesError) throw messagesError;
+
+      // Then get profiles for all senders
+      const senderIds = [...new Set(messagesData.map(m => m.sender_id))];
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .in("id", senderIds);
+
+      if (profilesError) throw profilesError;
+
+      // Map profiles to messages
+      const messagesWithSenders = messagesData.map(message => ({
+        ...message,
+        sender: profilesData.find(p => p.id === message.sender_id)
+      }));
+
+      return messagesWithSenders as Message[];
     },
     enabled: !!conversationId && !!session?.user,
   });
