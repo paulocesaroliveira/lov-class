@@ -38,51 +38,31 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <h3 className="text-2xl font-semibold">{advertisement.name}</h3>
-        <p className="text-muted-foreground">
-          {advertisement.city}, {advertisement.state}
-        </p>
-      </div>
-
+      {/* Valores */}
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <h2 className="text-xl font-semibold">Valores</h2>
+        <div className="space-y-2">
           <div>
-            <p className="text-sm text-muted-foreground">Altura</p>
-            <p className="font-medium">{advertisement.height}m</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Peso</p>
-            <p className="font-medium">{advertisement.weight}kg</p>
-          </div>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Valor por hora</p>
-          <p className="font-medium">
-            R$ {advertisement.hourly_rate.toFixed(2)}
-          </p>
-        </div>
-
-        {advertisement.custom_rate_description && (
-          <div>
-            <p className="text-sm text-muted-foreground">
-              {advertisement.custom_rate_description}
-            </p>
-            <p className="font-medium">
-              R$ {advertisement.custom_rate_value.toFixed(2)}
+            <span className="text-sm text-muted-foreground">Valor por hora</span>
+            <p className="text-xl font-semibold">
+              R$ {advertisement.hourly_rate.toFixed(2)}
             </p>
           </div>
-        )}
+
+          {advertisement.custom_rate_description && (
+            <div>
+              <span className="text-sm text-muted-foreground">
+                {advertisement.custom_rate_description}
+              </span>
+              <p className="text-xl font-semibold">
+                R$ {advertisement.custom_rate_value.toFixed(2)}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <p className="font-medium">Descrição</p>
-        <p className="text-muted-foreground whitespace-pre-wrap">
-          {advertisement.description}
-        </p>
-      </div>
-
+      {/* Botões de Ação */}
       <div className="flex flex-col gap-4">
         <Button 
           className="w-full bg-[#ea384c] hover:bg-[#ea384c]/90" 
