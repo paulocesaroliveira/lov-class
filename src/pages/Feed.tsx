@@ -11,28 +11,30 @@ const Feed = () => {
   const { session } = useAuth();
   const [posts, setPosts] = useState<FeedPost[]>([]);
 
-  // Check if user is an advertiser or admin
-  const { data: isAdvertiser } = useQuery({
-    queryKey: ["user-role", session?.user?.id],
+  // Check if user is an advertiser or admin by checking user role in profiles table
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role', session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return false;
+      if (!session?.user?.id) return null;
 
       const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
         .single();
 
       if (error) {
-        console.error("Error checking user role:", error);
-        return false;
+        console.error('Error fetching user role:', error);
+        return null;
       }
-      
-      // Allow both advertisers and admins to post
-      return data?.role === "advertiser" || data?.role === "admin";
+
+      return data?.role;
     },
     enabled: !!session?.user?.id,
   });
+
+  const isAdvertiserOrAdmin = userRole === 'advertiser' || userRole === 'admin';
+  const isAdmin = userRole === 'admin';
 
   const fetchPosts = async () => {
     try {
@@ -110,7 +112,7 @@ const Feed = () => {
       </div>
 
       {session ? (
-        isAdvertiser ? (
+        isAdvertiserOrAdmin ? (
           <CreatePost onPostCreated={fetchPosts} />
         ) : (
           <div className="glass-card p-4 text-center">
@@ -127,7 +129,7 @@ const Feed = () => {
         </div>
       )}
 
-      <PostList posts={posts} isAdmin={isAdvertiser === true} onPostDeleted={fetchPosts} />
+      <PostList posts={posts} isAdmin={isAdmin} onPostDeleted={fetchPosts} />
     </div>
   );
 };

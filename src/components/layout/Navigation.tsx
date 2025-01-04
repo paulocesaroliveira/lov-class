@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, MessageSquare, Heart, Download, Settings, Grid, Users, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 export const navigationItems = [
   { path: "/", label: "Início", icon: Home },
@@ -26,15 +27,31 @@ export const useNavigation = () => {
     navigate('/');
   };
 
-  // Check if user has admin role by checking user metadata
-  const isAdmin = session?.user?.user_metadata?.role === 'admin' || 
-                 // Also check in the session claims for the role
-                 session?.user?.app_metadata?.role === 'admin';
+  // Check if user is an advertiser or admin by checking user role in profiles table
+  const { data: userRole } = useQuery({
+    queryKey: ['user-role', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
 
-  console.log('User session:', session); // Debug log
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+      }
+
+      console.log('User role:', data?.role);
+      return data?.role;
+    },
+    enabled: !!session?.user?.id,
+  });
+
+  const isAdmin = userRole === 'admin';
   console.log('Is admin:', isAdmin); // Debug log
-  console.log('User metadata:', session?.user?.user_metadata); // Debug log
-  console.log('App metadata:', session?.user?.app_metadata); // Debug log
 
   const adminItems = isAdmin
     ? [
@@ -53,7 +70,7 @@ export const useNavigation = () => {
           label: "Perfil",
           icon: Settings,
         },
-        ...adminItems, // Add admin items before the logout button
+        ...adminItems,
         {
           label: "Sair",
           icon: LogOut,
