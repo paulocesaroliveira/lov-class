@@ -10,14 +10,14 @@ const Index = () => {
       <section className="relative py-20 px-4">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 -z-10" />
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-fade-in">
             Encontre os Melhores Acompanhantes
           </h1>
-          <p className="text-xl text-foreground/80 max-w-2xl mx-auto">
+          <p className="text-xl text-foreground/80 max-w-2xl mx-auto animate-fade-in">
             A plataforma mais segura e discreta para encontrar acompanhantes de luxo. 
             Anúncios verificados e experiências únicas.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Link to="/anuncios">
               <Button size="lg" className="w-full sm:w-auto">
                 <Search className="mr-2" />
@@ -41,7 +41,7 @@ const Index = () => {
             Por que escolher o Lov Class?
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <Shield className="w-12 h-12 mx-auto text-primary" />
                 <h3 className="text-xl font-semibold">Segurança Garantida</h3>
@@ -51,7 +51,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <Star className="w-12 h-12 mx-auto text-secondary" />
                 <h3 className="text-xl font-semibold">Anúncios Premium</h3>
@@ -61,7 +61,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <MessageSquare className="w-12 h-12 mx-auto text-accent" />
                 <h3 className="text-xl font-semibold">Chat Privativo</h3>
@@ -71,7 +71,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <Heart className="w-12 h-12 mx-auto text-primary" />
                 <h3 className="text-xl font-semibold">Lista de Favoritos</h3>
@@ -81,7 +81,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <Clock className="w-12 h-12 mx-auto text-secondary" />
                 <h3 className="text-xl font-semibold">Disponibilidade</h3>
@@ -91,7 +91,7 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card hover:scale-105 transition-transform duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <MapPin className="w-12 h-12 mx-auto text-accent" />
                 <h3 className="text-xl font-semibold">Localização</h3>
@@ -131,4 +131,5 @@ const Index = () => {
   );
 };
 
+// Make sure to export the component as default
 export default Index;
