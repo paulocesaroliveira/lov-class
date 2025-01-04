@@ -340,6 +340,38 @@ export type Database = {
           },
         ]
       }
+      advertiser_documents: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          document_url: string
+          id: string
+          verified: boolean | null
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          document_url: string
+          id?: string
+          verified?: boolean | null
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          document_url?: string
+          id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_documents_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: true
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           advertisement_id: string
