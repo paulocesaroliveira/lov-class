@@ -10,7 +10,8 @@ export const useAdvertisementReview = (refetch: () => void) => {
     if (!selectedAd) return;
 
     try {
-      const { error } = await supabase
+      // Inserir nova revisão
+      const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
@@ -19,7 +20,7 @@ export const useAdvertisementReview = (refetch: () => void) => {
           reviewer_id: (await supabase.auth.getUser()).data.user?.id
         });
 
-      if (error) throw error;
+      if (reviewError) throw reviewError;
 
       toast.success(`Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} com sucesso`);
       setSelectedAd(null);
