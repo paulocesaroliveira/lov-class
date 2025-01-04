@@ -19,7 +19,7 @@ export const Navigation = () => {
         .from("profiles")
         .select("role")
         .eq("id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking admin role:", error);
