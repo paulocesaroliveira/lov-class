@@ -18,7 +18,8 @@ const Anuncios = () => {
     isLoading, 
     isFetchingNextPage, 
     hasNextPage, 
-    fetchNextPage 
+    fetchNextPage,
+    refetch 
   } = useInfiniteQuery({
     queryKey: ["advertisements", filters],
     queryFn: async ({ pageParam = 0 }) => {
@@ -137,6 +138,11 @@ const Anuncios = () => {
     initialPageParam: 0
   });
 
+  const handleFilterChange = (newFilters: any) => {
+    setFilters(newFilters);
+    refetch();
+  };
+
   const allAds = data?.pages?.flatMap(page => page.data) || [];
   const totalCount = data?.pages?.[0]?.count || 0;
   const canLoadMore = allAds.length < totalCount;
@@ -145,7 +151,7 @@ const Anuncios = () => {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Anúncios</h1>
-        <AdvancedFilter onFilterChange={setFilters} />
+        <AdvancedFilter onFilterChange={handleFilterChange} />
       </div>
       
       <AdvertisementList 

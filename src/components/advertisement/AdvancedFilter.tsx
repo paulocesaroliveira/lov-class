@@ -5,6 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal } from "lucide-react";
@@ -15,6 +16,7 @@ import { ServiceLocationsFilter } from "./ServiceLocationsFilter";
 import { styles } from "./constants";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "sonner";
 
 type Filters = {
   category?: "mulher" | "trans" | "homem";
@@ -41,22 +43,21 @@ type AdvancedFilterProps = {
 };
 
 export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
-  const [filters, setFilters] = useState<Filters>({
+  const [isOpen, setIsOpen] = useState(false);
+  const [tempFilters, setTempFilters] = useState<Filters>({
     services: [],
     serviceLocations: [],
   });
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [ageRange, setAgeRange] = useState([18, 60]);
 
-  const handleFilterChange = (newFilters: Partial<Filters>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
-    onFilterChange(updatedFilters);
+  const handleTempFilterChange = (newFilters: Partial<Filters>) => {
+    setTempFilters(prev => ({ ...prev, ...newFilters }));
   };
 
   const handlePriceChange = (value: number[]) => {
     setPriceRange(value);
-    handleFilterChange({
+    handleTempFilterChange({
       minPrice: value[0],
       maxPrice: value[1],
     });
@@ -64,23 +65,29 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
 
   const handleAgeChange = (value: number[]) => {
     setAgeRange(value);
-    handleFilterChange({
+    handleTempFilterChange({
       minAge: value[0],
       maxAge: value[1],
     });
   };
 
   const handleLocationToggle = (locationId: string) => {
-    const currentLocations = filters.serviceLocations || [];
+    const currentLocations = tempFilters.serviceLocations || [];
     const updatedLocations = currentLocations.includes(locationId)
       ? currentLocations.filter((id) => id !== locationId)
       : [...currentLocations, locationId];
 
-    handleFilterChange({ serviceLocations: updatedLocations });
+    handleTempFilterChange({ serviceLocations: updatedLocations });
+  };
+
+  const applyFilters = () => {
+    onFilterChange(tempFilters);
+    setIsOpen(false);
+    toast.success("Filtros aplicados com sucesso!");
   };
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
           variant="default"
@@ -104,10 +111,10 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
               {["mulher", "trans", "homem"].map((category) => (
                 <Button
                   key={category}
-                  variant={filters.category === category ? "default" : "outline"}
+                  variant={tempFilters.category === category ? "default" : "outline"}
                   onClick={() =>
-                    handleFilterChange({
-                      category: filters.category === category 
+                    handleTempFilterChange({
+                      category: tempFilters.category === category 
                         ? undefined 
                         : (category as "mulher" | "trans" | "homem")
                     })
@@ -127,14 +134,14 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
           <AgeFilter ageRange={ageRange} onAgeChange={handleAgeChange} />
 
           {/* Características Físicas e outros filtros */}
-          <BasicFilters filters={filters} onFilterChange={handleFilterChange} />
+          <BasicFilters filters={tempFilters} onFilterChange={handleTempFilterChange} />
 
           {/* Estilo */}
           <div className="space-y-4">
             <Label>Estilo</Label>
             <RadioGroup
-              value={filters.style}
-              onValueChange={(value) => handleFilterChange({ style: value })}
+              value={tempFilters.style}
+              onValueChange={(value) => handleTempFilterChange({ style: value })}
               className="grid grid-cols-2 gap-4"
             >
               {styles.map((style) => (
@@ -148,10 +155,20 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
 
           {/* Locais de Atendimento */}
           <ServiceLocationsFilter
-            selectedLocations={filters.serviceLocations || []}
+            selectedLocations={tempFilters.serviceLocations || []}
             onLocationToggle={handleLocationToggle}
           />
         </div>
+
+        <SheetFooter className="mt-6">
+          <Button 
+            onClick={applyFilters}
+            className="w-full"
+            size="lg"
+          >
+            Aplicar Filtros
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
