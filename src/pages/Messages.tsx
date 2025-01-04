@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import EmojiPicker from "emoji-picker-react";
+import { Smile } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type Profile = {
   id: string;
@@ -24,12 +28,12 @@ export const Messages = () => {
   const { conversationId } = useParams();
   const { session } = useAuth();
   const [newMessage, setNewMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Fetch messages
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
-      // First get messages
       const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
         .select("*")
@@ -38,7 +42,6 @@ export const Messages = () => {
 
       if (messagesError) throw messagesError;
 
-      // Then get profiles for all senders
       const senderIds = [...new Set(messagesData.map(m => m.sender_id))];
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
@@ -47,7 +50,6 @@ export const Messages = () => {
 
       if (profilesError) throw profilesError;
 
-      // Map profiles to messages
       const messagesWithSenders = messagesData.map(message => ({
         ...message,
         sender: profilesData.find(p => p.id === message.sender_id)
@@ -82,13 +84,25 @@ export const Messages = () => {
     }
   };
 
-  if (!session) return <div>Faça login para ver as mensagens</div>;
+  const onEmojiClick = (emojiObject: any) => {
+    setNewMessage(prev => prev + emojiObject.emoji);
+    setShowEmojiPicker(false);
+  };
+
+  if (!session) return (
+    <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="text-center space-y-4">
+        <h2 className="text-2xl font-bold">Faça login para ver as mensagens</h2>
+        <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="container mx-auto max-w-4xl p-4 space-y-4">
-      <div className="bg-white rounded-lg shadow-md p-4 min-h-[500px] flex flex-col">
+    <div className="container mx-auto max-w-4xl p-4 h-[calc(100vh-4rem)]">
+      <div className="glass-card h-full flex flex-col">
         {/* Messages */}
-        <div className="flex-1 space-y-4 overflow-y-auto mb-4">
+        <div className="flex-1 space-y-4 overflow-y-auto p-4">
           {messages?.map((message) => (
             <div
               key={message.id}
@@ -99,31 +113,54 @@ export const Messages = () => {
               }`}
             >
               <div
-                className={`max-w-[70%] rounded-lg p-3 ${
+                className={`max-w-[70%] rounded-2xl p-3 ${
                   message.sender_id === session.user.id
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                    ? "bg-primary text-primary-foreground ml-12"
+                    : "bg-black/20 text-white mr-12"
                 }`}
               >
-                <p className="text-sm font-medium mb-1">
-                  {message.sender?.name}
-                </p>
-                <p>{message.content}</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-medium">
+                    {message.sender?.name}
+                  </span>
+                  <span className="text-xs opacity-70">
+                    {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
+                  </span>
+                </div>
+                <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Message Input */}
-        <form onSubmit={sendMessage} className="flex gap-2">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            className="flex-1"
-          />
-          <Button type="submit">Enviar</Button>
-        </form>
+        <div className="p-4 bg-black/10 backdrop-blur-sm border-t border-white/10">
+          <form onSubmit={sendMessage} className="flex gap-2 relative">
+            <div className="relative flex-1">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                className="pr-10 bg-black/20 border-white/10 text-white placeholder:text-white/50"
+              />
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors"
+              >
+                <Smile size={20} />
+              </button>
+              {showEmojiPicker && (
+                <div className="absolute bottom-full right-0 mb-2">
+                  <EmojiPicker onEmojiClick={onEmojiClick} />
+                </div>
+              )}
+            </div>
+            <Button type="submit" className="bg-primary hover:bg-primary/90">
+              Enviar
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );
