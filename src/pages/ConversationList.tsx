@@ -32,7 +32,9 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants(
             user_id,
-            profiles:profiles(name)
+            profiles(
+              name
+            )
           ),
           last_message:messages(
             content
@@ -45,7 +47,7 @@ export default function ConversationList() {
         throw error;
       }
 
-      return conversationsData as Conversation[];
+      return conversationsData || [];
     },
     enabled: !!session?.user?.id,
   });
