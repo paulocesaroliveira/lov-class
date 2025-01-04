@@ -16,7 +16,10 @@ const Admin = () => {
   const { data: isAdmin, isLoading } = useQuery({
     queryKey: ["isAdmin", session?.user?.id],
     queryFn: async () => {
-      if (!session?.user?.id) return false;
+      if (!session?.user?.id) {
+        console.log("No session found, redirecting to login");
+        return false;
+      }
 
       const { data, error } = await supabase
         .from("profiles")
@@ -34,10 +37,13 @@ const Admin = () => {
       return data?.role === "admin";
     },
     enabled: !!session?.user?.id,
+    retry: false,
+    staleTime: 30000, // Cache por 30 segundos
   });
 
   useEffect(() => {
     if (!session) {
+      console.log("No session, redirecting to login");
       toast.error("Você precisa estar logado para acessar esta página");
       navigate("/login");
       return;
