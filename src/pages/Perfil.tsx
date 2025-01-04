@@ -6,9 +6,11 @@ import { useAdvertisementStats } from "@/hooks/useAdvertisement";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import { AdvertisementSection } from "@/components/profile/AdvertisementSection";
 import { PasswordChangeSection } from "@/components/profile/PasswordChangeSection";
+import { useAuth } from "@/hooks/useAuth";
 
 const Perfil = () => {
   const navigate = useNavigate();
+  const { session, loading: authLoading } = useAuth();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
@@ -21,56 +23,62 @@ const Perfil = () => {
   } = useAdvertisementStats(advertisementId);
 
   useEffect(() => {
-    const checkExistingAd = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          toast.error("Você precisa estar logado para acessar seu perfil");
-          navigate("/login");
-          return;
-        }
+    const checkAuth = async () => {
+      if (authLoading) return;
 
-        const { data: profile } = await supabase
+      if (!session?.user) {
+        toast.error("Você precisa estar logado para acessar seu perfil");
+        navigate("/login", { state: { returnTo: "/perfil" } });
+        return;
+      }
+
+      try {
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("id")
-          .eq("id", user.id)
+          .eq("id", session.user.id)
           .maybeSingle();
 
+        if (profileError) throw profileError;
+
         if (!profile) {
-          toast.error("Perfil não encontrado. Por favor, faça login novamente.");
+          toast.error("Perfil não encontrado");
           await supabase.auth.signOut();
           navigate("/login");
           return;
         }
 
-        const { data: advertisements } = await supabase
+        const { data: advertisements, error: adError } = await supabase
           .from("advertisements")
           .select("id")
           .eq("profile_id", profile.id);
+
+        if (adError) throw adError;
 
         if (advertisements && advertisements.length > 0) {
           setHasAd(true);
           setAdvertisementId(advertisements[0].id);
         }
-      } catch (error) {
-        console.error("Error checking advertisement:", error);
+      } catch (error: any) {
+        console.error("Error checking profile:", error);
         toast.error("Erro ao carregar informações do perfil");
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkExistingAd();
-  }, [navigate]);
+    checkAuth();
+  }, [session, authLoading, navigate]);
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
+
+  if (!session) return null;
 
   return (
     <div className="space-y-8">
