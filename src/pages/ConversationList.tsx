@@ -32,7 +32,7 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants(
             user_id,
-            profiles(
+            profiles:profiles!conversation_participants_user_id_fkey(
               name
             )
           ),
