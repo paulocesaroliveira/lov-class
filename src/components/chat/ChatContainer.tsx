@@ -50,7 +50,7 @@ export const ChatContainer = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:profiles!sender_id (
+          sender:profiles (
             name
           )
         `)
