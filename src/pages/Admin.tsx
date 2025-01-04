@@ -67,10 +67,11 @@ const Admin = () => {
             status
           )
         `)
-        .eq("advertisement_reviews.status", "pending");
+        .eq("advertisement_reviews.status", "pending")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: isAdmin === true,
   });
