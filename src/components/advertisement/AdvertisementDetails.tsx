@@ -32,26 +32,64 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      const { data, error } = await supabase
-        .rpc('find_or_create_conversation', {
-          current_user_id: session.user.id,
-          other_user_id: advertisement.profile_id
-        });
+      // Primeiro, vamos verificar se já existe uma conversa
+      const { data: existingConversations, error: searchError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', session.user.id)
+        .eq('advertisement_id', advertisement.id);
 
-      if (error) {
-        console.error('Error in find_or_create_conversation:', error);
-        throw error;
+      if (searchError) {
+        console.error('Error searching for existing conversation:', searchError);
+        throw searchError;
       }
 
-      if (!data || data.length === 0) {
-        console.error('No conversation data returned from find_or_create_conversation');
-        throw new Error('No conversation data returned');
+      let conversationId;
+
+      if (existingConversations && existingConversations.length > 0) {
+        // Se já existe uma conversa, use ela
+        conversationId = existingConversations[0].conversation_id;
+        console.log("Found existing conversation:", conversationId);
+      } else {
+        // Se não existe, crie uma nova conversa
+        const { data: newConversation, error: conversationError } = await supabase
+          .from('conversations')
+          .insert({})
+          .select()
+          .single();
+
+        if (conversationError) {
+          console.error('Error creating conversation:', conversationError);
+          throw conversationError;
+        }
+
+        conversationId = newConversation.id;
+        console.log("Created new conversation:", conversationId);
+
+        // Adicione os participantes à conversa
+        const { error: participantsError } = await supabase
+          .from('conversation_participants')
+          .insert([
+            {
+              conversation_id: conversationId,
+              user_id: session.user.id,
+              advertisement_id: advertisement.id
+            },
+            {
+              conversation_id: conversationId,
+              user_id: advertisement.profile_id,
+              advertisement_id: advertisement.id
+            }
+          ]);
+
+        if (participantsError) {
+          console.error('Error adding participants:', participantsError);
+          throw participantsError;
+        }
       }
 
-      console.log("Conversation successfully created/found:", data);
-      console.log("Navigating to conversation:", data[0].conversation_id);
-      
-      navigate(`/mensagens/${data[0].conversation_id}`);
+      console.log("Navigating to conversation:", conversationId);
+      navigate(`/mensagens/${conversationId}`);
     } catch (error) {
       console.error('Error in handleChatClick:', error);
       toast.error("Erro ao iniciar conversa");
