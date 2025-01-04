@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useRegistration } from '@/hooks/useRegistration';
+import { useRegistration, RegistrationData } from '@/hooks/useRegistration';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -39,7 +39,7 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    const success = await register(data);
+    const success = await register(data as RegistrationData);
     if (success) {
       navigate('/login');
     }
