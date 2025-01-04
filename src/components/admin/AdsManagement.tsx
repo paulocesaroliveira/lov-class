@@ -6,6 +6,22 @@ import { useNavigate } from "react-router-dom";
 import { AdsTable } from "./ads/AdsTable";
 import { ReviewDialog } from "./ads/ReviewDialog";
 
+// Define valid table names as a const array for type safety
+const RELATED_TABLES = [
+  'advertisement_whatsapp_clicks',
+  'advertisement_views',
+  'advertisement_videos',
+  'advertisement_photos',
+  'advertisement_services',
+  'advertisement_service_locations',
+  'advertisement_reviews',
+  'advertisement_comments',
+  'favorites'
+] as const;
+
+// Create a type from the array
+type RelatedTable = typeof RELATED_TABLES[number];
+
 export const AdsManagement = () => {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -41,19 +57,7 @@ export const AdsManagement = () => {
       setDeleting(id);
 
       // Delete related records first
-      const tables = [
-        'advertisement_whatsapp_clicks',
-        'advertisement_views',
-        'advertisement_videos',
-        'advertisement_photos',
-        'advertisement_services',
-        'advertisement_service_locations',
-        'advertisement_reviews',
-        'advertisement_comments',
-        'favorites'
-      ];
-
-      for (const table of tables) {
+      for (const table of RELATED_TABLES) {
         const { error } = await supabase
           .from(table)
           .delete()
