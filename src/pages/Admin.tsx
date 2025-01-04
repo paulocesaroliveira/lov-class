@@ -1,11 +1,28 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
 import { Toaster } from "@/components/ui/sonner";
-import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Admin = () => {
-  const { isLoading, isAdmin } = useAdminGuard();
+  const { isAdmin, isLoading, userId } = useAuthContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && !userId) {
+      toast.error("Você precisa estar logado para acessar esta página");
+      navigate("/login");
+      return;
+    }
+
+    if (!isLoading && !isAdmin) {
+      toast.error("Você não tem permissão para acessar esta página");
+      navigate("/");
+    }
+  }, [isAdmin, isLoading, userId, navigate]);
 
   if (isLoading) {
     return (

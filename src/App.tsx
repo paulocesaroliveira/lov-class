@@ -15,6 +15,7 @@ import EditarAnuncio from './pages/EditarAnuncio';
 import Perfil from './pages/Perfil';
 import Admin from './pages/Admin';
 import AdminLogin from './pages/AdminLogin';
+import { AuthProvider } from './contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
@@ -22,24 +23,26 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} />
-            <Route path="/anuncios" element={<Anuncios />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/mensagens/:id" element={<Messages />} />
-            <Route path="/mensagens/lista" element={<ConversationList />} />
-            <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/instalar" element={<InstallApp />} />
-            <Route path="/criar-anuncio" element={<CriarAnuncio />} />
-            <Route path="/editar-anuncio/:id" element={<EditarAnuncio />} />
-            <Route path="/perfil" element={<Perfil />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
-          </Route>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registro" element={<Registro />} />
+              <Route path="/anuncios" element={<Anuncios />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/mensagens/:id" element={<Messages />} />
+              <Route path="/mensagens/lista" element={<ConversationList />} />
+              <Route path="/favoritos" element={<Favoritos />} />
+              <Route path="/instalar" element={<InstallApp />} />
+              <Route path="/criar-anuncio" element={<CriarAnuncio />} />
+              <Route path="/editar-anuncio/:id" element={<EditarAnuncio />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
       </Router>
     </QueryClientProvider>
   );
