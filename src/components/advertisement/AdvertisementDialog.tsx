@@ -56,23 +56,6 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
     }
   }, [advertisement, queryClient]);
 
-  const handleWhatsAppClick = async () => {
-    if (advertisement) {
-      await supabase
-        .from("advertisement_whatsapp_clicks")
-        .insert({ advertisement_id: advertisement.id });
-      
-      queryClient.invalidateQueries({
-        queryKey: ["profile-whatsapp-clicks", advertisement.id],
-      });
-
-      const whatsappUrl = `https://wa.me/${advertisement.whatsapp}`;
-      window.open(whatsappUrl, '_blank');
-    }
-  };
-
-  if (!advertisement) return null;
-
   const calculateAge = (birthDate: string) => {
     const today = new Date();
     const birth = new Date(birthDate);
@@ -85,6 +68,8 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
     
     return age;
   };
+
+  if (!advertisement) return null;
 
   return (
     <Dialog open={!!advertisement} onOpenChange={onOpenChange}>
@@ -101,14 +86,25 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
         
         <div className="space-y-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Coluna da Esquerda - Mídia e Informações Básicas */}
-            <div className="space-y-6">
+            {/* Coluna da Esquerda - Mídia */}
+            <div>
               <AdvertisementMedia
                 profilePhotoUrl={advertisement.profile_photo_url}
                 photos={advertisement.advertisement_photos}
                 videos={advertisement.advertisement_videos}
                 name={advertisement.name}
               />
+            </div>
+
+            {/* Coluna da Direita - Informações */}
+            <div className="space-y-6">
+              {/* Sobre */}
+              <div className="glass-card p-6 space-y-4">
+                <h2 className="text-xl font-semibold">Sobre</h2>
+                <p className="whitespace-pre-wrap text-muted-foreground">
+                  {advertisement.description}
+                </p>
+              </div>
 
               {/* Informações Básicas */}
               <div className="glass-card p-6 space-y-4">
@@ -149,42 +145,43 @@ export const AdvertisementDialog = ({ advertisement, onOpenChange }: Advertiseme
                 </div>
               </div>
 
-              {/* Serviços */}
-              <div className="glass-card p-6 space-y-4">
-                <h2 className="text-xl font-semibold">Serviços</h2>
-                <ServicesSelection services={advertisement.advertisement_services} />
-              </div>
+              {/* Valores e Botões de Ação */}
+              <AdvertisementDetails 
+                advertisement={advertisement}
+                onWhatsAppClick={async () => {
+                  await supabase
+                    .from("advertisement_whatsapp_clicks")
+                    .insert({ advertisement_id: advertisement.id });
+                  
+                  queryClient.invalidateQueries({
+                    queryKey: ["profile-whatsapp-clicks", advertisement.id],
+                  });
 
-              {/* Locais de Atendimento */}
-              <div className="glass-card p-6 space-y-4">
-                <h2 className="text-xl font-semibold">Locais de Atendimento</h2>
-                <ServiceLocations locations={advertisement.advertisement_service_locations} />
-              </div>
+                  const whatsappUrl = `https://wa.me/${advertisement.whatsapp}`;
+                  window.open(whatsappUrl, '_blank');
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Seção inferior - Serviços e Locais */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Serviços */}
+            <div className="glass-card p-6 space-y-4">
+              <h2 className="text-xl font-semibold">Serviços</h2>
+              <ServicesSelection services={advertisement.advertisement_services} />
             </div>
 
-            {/* Coluna da Direita - Detalhes e Descrição */}
-            <div className="space-y-6">
-              <div className="glass-card p-6">
-                <AdvertisementDetails 
-                  advertisement={advertisement}
-                  onWhatsAppClick={handleWhatsAppClick}
-                />
-              </div>
-
-              {/* Descrição */}
-              <div className="glass-card p-6 space-y-4">
-                <h2 className="text-xl font-semibold">Sobre</h2>
-                <p className="whitespace-pre-wrap text-muted-foreground">
-                  {advertisement.description}
-                </p>
-              </div>
-
-              {/* Comentários */}
-              <div className="glass-card p-6 space-y-4">
-                <h2 className="text-xl font-semibold">Comentários</h2>
-                <AdvertisementComments advertisementId={advertisement.id} />
-              </div>
+            {/* Locais de Atendimento */}
+            <div className="glass-card p-6 space-y-4">
+              <h2 className="text-xl font-semibold">Locais de Atendimento</h2>
+              <ServiceLocations locations={advertisement.advertisement_service_locations} />
             </div>
+          </div>
+
+          {/* Comentários */}
+          <div className="glass-card p-6">
+            <AdvertisementComments advertisementId={advertisement.id} />
           </div>
 
           {/* Contador de Visualizações */}
