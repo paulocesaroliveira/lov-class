@@ -51,15 +51,42 @@ export const AdsManagement = () => {
 
   const handleApprove = async (ad: any) => {
     try {
-      const { error: reviewError } = await supabase
+      // Primeiro, buscar a revisão mais recente
+      const { data: reviews, error: fetchError } = await supabase
         .from("advertisement_reviews")
-        .insert({
-          advertisement_id: ad.id,
-          status: 'approved',
-          reviewer_id: (await supabase.auth.getUser()).data.user?.id
-        });
+        .select("*")
+        .eq("advertisement_id", ad.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-      if (reviewError) throw reviewError;
+      if (fetchError) throw fetchError;
+
+      const reviewId = reviews?.[0]?.id;
+
+      if (reviewId) {
+        // Se existe uma revisão, atualiza ela
+        const { error: updateError } = await supabase
+          .from("advertisement_reviews")
+          .update({
+            status: 'approved',
+            reviewer_id: (await supabase.auth.getUser()).data.user?.id,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", reviewId);
+
+        if (updateError) throw updateError;
+      } else {
+        // Se não existe, cria uma nova
+        const { error: insertError } = await supabase
+          .from("advertisement_reviews")
+          .insert({
+            advertisement_id: ad.id,
+            status: 'approved',
+            reviewer_id: (await supabase.auth.getUser()).data.user?.id
+          });
+
+        if (insertError) throw insertError;
+      }
 
       toast.success("Anúncio aprovado com sucesso");
       refetch();
