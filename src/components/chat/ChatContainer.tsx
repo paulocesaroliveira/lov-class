@@ -1,102 +1,21 @@
-import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { NotificationButton } from "./NotificationButton";
 import { ChatHeader } from "./ChatHeader";
-import { Message, ConversationParticipant } from "@/types/chat";
 import { toast } from "sonner";
-
-interface MessageResponse {
-  id: string;
-  content: string;
-  sender_id: string;
-  created_at: string;
-  conversation_id: string;
-  read_at: string | null;
-  sender_name: string | null;
-}
+import { useMessages } from "./hooks/useMessages";
+import { useConversation } from "./hooks/useConversation";
+import { useMessageSubscription } from "./hooks/useMessageSubscription";
 
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
-  const { data: conversationData } = useQuery<ConversationParticipant>({
-    queryKey: ["conversation", conversationId],
-    queryFn: async () => {
-      if (!conversationId) throw new Error("No conversation ID provided");
+  const { data: conversationData } = useConversation(conversationId);
+  const { data: messages = [], refetch } = useMessages(conversationId);
 
-      const { data, error } = await supabase
-        .from("conversation_participants")
-        .select(`
-          user_id,
-          advertisement_id,
-          advertisements (
-            id,
-            name
-          )
-        `)
-        .eq("conversation_id", conversationId)
-        .single();
-
-      if (error) throw error;
-      if (!data) throw new Error("No conversation found");
-      
-      return data;
-    },
-    enabled: !!conversationId,
-  });
-
-  const { data: messages = [], refetch } = useQuery<Message[]>({
-    queryKey: ["messages", conversationId],
-    queryFn: async () => {
-      if (!conversationId) return [];
-
-      const { data: messagesData, error } = await supabase
-        .rpc('get_messages_with_sender_names', {
-          p_conversation_id: conversationId
-        });
-
-      if (error) throw error;
-      if (!messagesData) return [];
-      
-      return (messagesData as MessageResponse[]).map(msg => ({
-        id: msg.id,
-        content: msg.content,
-        sender_id: msg.sender_id,
-        created_at: msg.created_at,
-        conversation_id: msg.conversation_id,
-        read_at: msg.read_at,
-        sender: msg.sender_name ? { name: msg.sender_name } : null
-      }));
-    },
-    enabled: !!conversationId && !!conversationData,
-  });
-
-  useEffect(() => {
-    if (!conversationId) return;
-
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        () => {
-          refetch();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId, refetch]);
+  useMessageSubscription(conversationId, refetch);
 
   if (!conversationId) {
     return (
