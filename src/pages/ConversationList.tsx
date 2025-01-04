@@ -4,7 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 type Conversation = {
   id: string;
@@ -19,14 +21,13 @@ type Conversation = {
 export default function ConversationList() {
   const { session } = useAuth();
 
-  const { data: conversations = [], isLoading } = useQuery<Conversation[]>({
+  const { data: conversations = [], isLoading, refetch } = useQuery<Conversation[]>({
     queryKey: ["conversations", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
 
       console.log("Fetching conversations for user:", session.user.id);
 
-      // First get all conversations the user is part of
       const { data: userConversations, error } = await supabase
         .from("conversations")
         .select(`
@@ -50,15 +51,12 @@ export default function ConversationList() {
 
       console.log("Raw conversations data:", userConversations);
 
-      // For each conversation, get the other participant's profile
       const formattedConversations = await Promise.all(
         userConversations.map(async (conv: any) => {
-          // Get other participants (excluding current user)
           const otherParticipants = conv.conversation_participants.filter(
             (p: any) => p.user_id !== session.user.id
           );
 
-          // Get profiles for other participants
           const { data: profiles } = await supabase
             .from("profiles")
             .select("id, name")
@@ -67,7 +65,6 @@ export default function ConversationList() {
               otherParticipants.map((p: any) => p.user_id)
             );
 
-          // Get the last message
           const messages = conv.messages || [];
           const lastMessage = messages.length > 0 
             ? messages.sort((a: any, b: any) => 
@@ -92,6 +89,27 @@ export default function ConversationList() {
     },
     enabled: !!session?.user?.id,
   });
+
+  const handleDelete = async (conversationId: string) => {
+    try {
+      const { error } = await supabase
+        .from("conversations")
+        .delete()
+        .eq("id", conversationId);
+
+      if (error) {
+        console.error("Error deleting conversation:", error);
+        toast.error("Erro ao deletar conversa");
+        return;
+      }
+
+      toast.success("Conversa deletada com sucesso");
+      refetch();
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Erro ao deletar conversa");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -130,27 +148,39 @@ export default function ConversationList() {
             const otherParticipant = conversation.participants[0];
 
             return (
-              <Link
+              <div
                 key={conversation.id}
-                to={`/mensagens/${conversation.id}`}
-                className="block p-4 rounded-lg border hover:border-primary transition-colors bg-black/20 backdrop-blur-sm"
+                className="flex items-center justify-between p-4 rounded-lg border hover:border-primary transition-colors bg-black/20 backdrop-blur-sm"
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium">
-                      {otherParticipant?.profile_name || "Usuário"}
-                    </h3>
-                    <p className="text-sm text-muted-foreground line-clamp-1">
-                      {conversation.last_message || "Nenhuma mensagem"}
-                    </p>
+                <Link
+                  to={`/mensagens/${conversation.id}`}
+                  className="flex-1"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium">
+                        {otherParticipant?.profile_name || "Usuário"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {conversation.last_message || "Nenhuma mensagem"}
+                      </p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(conversation.updated_at), "dd/MM/yyyy HH:mm", {
+                        locale: ptBR,
+                      })}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(conversation.updated_at), "dd/MM/yyyy HH:mm", {
-                      locale: ptBR,
-                    })}
-                  </span>
-                </div>
-              </Link>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-2 text-destructive hover:text-destructive/90"
+                  onClick={() => handleDelete(conversation.id)}
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              </div>
             );
           })}
         </div>
