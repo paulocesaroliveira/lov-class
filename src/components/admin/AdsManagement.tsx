@@ -6,6 +6,7 @@ import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDia
 import { useAdvertisementActions } from "./ads/hooks/useAdvertisementActions";
 import { useAdvertisementReview } from "./ads/hooks/useAdvertisementReview";
 import { ActionDialog } from "./ads/ActionDialog";
+import { toast } from "sonner";
 
 export const AdsManagement = () => {
   const { data: advertisements, refetch } = useQuery({
@@ -48,6 +49,26 @@ export const AdsManagement = () => {
     handleReview
   } = useAdvertisementReview(refetch);
 
+  const handleApprove = async (ad: any) => {
+    try {
+      const { error: reviewError } = await supabase
+        .from("advertisement_reviews")
+        .insert({
+          advertisement_id: ad.id,
+          status: 'approved',
+          reviewer_id: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (reviewError) throw reviewError;
+
+      toast.success("Anúncio aprovado com sucesso");
+      refetch();
+    } catch (error) {
+      console.error("Erro ao aprovar anúncio:", error);
+      toast.error("Erro ao aprovar anúncio");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <AdsTable
@@ -55,6 +76,7 @@ export const AdsManagement = () => {
         onDelete={(id) => setActionDialog({ type: 'delete', adId: id, reason: "" })}
         onBlock={(id) => setActionDialog({ type: 'block', adId: id, reason: "" })}
         onView={setSelectedAd}
+        onApprove={handleApprove}
         onReview={setSelectedAd}
         deleting={deleting}
       />

@@ -15,6 +15,7 @@ type AdsTableProps = {
   onDelete: (id: string) => void;
   onBlock: (id: string) => void;
   onView: (ad: any) => void;
+  onApprove: (ad: any) => void;
   onReview: (ad: any) => void;
   deleting: string | null;
 };
@@ -24,6 +25,7 @@ export const AdsTable = ({
   onDelete,
   onBlock,
   onView,
+  onApprove,
   onReview,
   deleting,
 }: AdsTableProps) => {
@@ -71,7 +73,8 @@ export const AdsTable = ({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => onReview(ad)}
+                    onClick={() => onApprove(ad)}
+                    className="text-green-500 hover:text-green-600"
                   >
                     <CheckCircle className="h-4 w-4" />
                   </Button>
