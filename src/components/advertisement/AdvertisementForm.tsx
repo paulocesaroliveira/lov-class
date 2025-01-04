@@ -17,7 +17,7 @@ import { FormActions } from "./FormActions";
 import { ServiceLocations } from "./ServiceLocations";
 import { IdentityDocument } from "./IdentityDocument";
 import { formSchema } from "./advertisementSchema";
-import { FormValues } from "@/types/advertisement";
+import { FormValues, ServiceType, ServiceLocationType } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 
@@ -32,32 +32,44 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
 
   useEffect(() => {
-    const getUser = async () => {
+    const checkAuth = async () => {
       try {
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error("Erro ao obter usuário:", error);
+          console.error("Erro ao verificar sessão:", error);
           toast.error("Erro ao verificar autenticação");
           navigate("/login");
           return;
         }
 
-        if (!user) {
+        if (!session) {
           toast.error("Você precisa estar logado para criar um anúncio");
           navigate("/login");
           return;
         }
 
-        console.log("Usuário autenticado:", user.id);
-        setUser(user);
+        console.log("Usuário autenticado:", session.user.id);
+        setUser(session.user);
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
         toast.error("Erro ao verificar autenticação");
         navigate("/login");
       }
     };
-    getUser();
+
+    checkAuth();
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
   
   const form = useForm<FormValues>({
@@ -79,8 +91,8 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       hourlyRate: 200,
       customRates: [],
       style: "patricinha",
-      services: [],
-      serviceLocations: [],
+      services: [] as ServiceType[],
+      serviceLocations: [] as ServiceLocationType[],
       description: "",
     },
     mode: "onBlur",
@@ -168,10 +180,10 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
       console.log("Anúncio salvo com sucesso:", ad);
       
-      await saveServices(ad.id, values.services);
+      await saveServices(ad.id, values.services as ServiceType[]);
       console.log("Serviços salvos com sucesso");
       
-      await saveServiceLocations(ad.id, values.serviceLocations);
+      await saveServiceLocations(ad.id, values.serviceLocations as ServiceLocationType[]);
       console.log("Locais de atendimento salvos com sucesso");
 
       const photoUrls = await uploadPhotos(ad.id);
