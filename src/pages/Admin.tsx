@@ -63,7 +63,7 @@ const Admin = () => {
         .from("advertisements")
         .select(`
           id,
-          advertisement_reviews (
+          advertisement_reviews!inner (
             status
           )
         `)
@@ -99,6 +99,12 @@ const Admin = () => {
     return null;
   }
 
+  const getPendingAdsText = (count: number) => {
+    if (count === 0) return "Nenhum anúncio pendente de revisão";
+    if (count === 1) return "1 anúncio pendente de revisão";
+    return `${count} anúncios pendentes de revisão`;
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -129,7 +135,7 @@ const Admin = () => {
           <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-yellow-500" />
             <Badge variant="secondary">
-              {pendingAds.length} anúncios pendentes de revisão
+              {getPendingAdsText(pendingAds.length)}
             </Badge>
           </div>
         )}
