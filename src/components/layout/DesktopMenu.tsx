@@ -1,48 +1,43 @@
 import { Link } from 'react-router-dom';
-import { Navigation } from './Navigation';
+import { useNavigation } from './Navigation';
+import { Button } from '@/components/ui/button';
 
 export const DesktopMenu = () => {
-  const { menuItems, authItems, handleNavigation, location } = Navigation();
+  const { menuItems, authItems, handleNavigation } = useNavigation();
 
   return (
-    <div className="hidden md:flex items-center space-x-4">
+    <div className="hidden md:flex items-center gap-4">
       {menuItems.map((item) => (
-        <button
+        <Link
           key={item.path}
-          onClick={() => handleNavigation(item.path)}
-          className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
-            location.pathname === item.path ? 'text-primary' : 'text-foreground'
-          }`}
+          to={item.path}
+          className="text-foreground/60 hover:text-foreground transition-colors"
         >
-          <item.icon className="h-4 w-4" />
           {item.label}
-        </button>
+        </Link>
       ))}
+
       <div className="flex items-center gap-2">
-        {authItems.map((item) => {
-          const Icon = item.icon;
-          return item.onClick ? (
-            <button
+        {authItems.map((item, index) => (
+          item.onClick ? (
+            <Button
               key={item.label}
+              variant="ghost"
               onClick={item.onClick}
-              className="btn-primary flex items-center gap-2"
+              className="text-foreground/60 hover:text-foreground"
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </button>
+              {item.label}
+            </Button>
           ) : (
             <Link
               key={item.path}
-              to={item.path}
-              className={`btn-primary flex items-center gap-2 ${
-                item.path === '/registro' ? 'btn-secondary' : ''
-              }`}
+              to={item.path || ''}
+              className="text-foreground/60 hover:text-foreground transition-colors"
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
+              {item.label}
             </Link>
-          );
-        })}
+          )
+        ))}
       </div>
     </div>
   );

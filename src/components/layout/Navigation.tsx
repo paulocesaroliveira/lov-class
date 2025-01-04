@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, MessageSquare, Heart, Download, Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const navigationItems = [
   { path: "/", label: "Início", icon: Home },
@@ -11,21 +12,26 @@ export const navigationItems = [
   { path: "/instalar", label: "Instalar App", icon: Download },
 ];
 
-export const Navigation = () => {
+export const useNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { session } = useAuth();
 
   const handleNavigation = (path: string) => {
     navigate(path);
   };
 
-  const authItems = user
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
+  const authItems = session
     ? [
         {
           label: "Sair",
           icon: Menu,
-          onClick: signOut,
+          onClick: handleSignOut,
         },
       ]
     : [

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Navigation } from './Navigation';
+import { useNavigation } from './Navigation';
+import { Button } from '@/components/ui/button';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -7,56 +7,58 @@ interface MobileMenuProps {
 }
 
 export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
-  const { menuItems, authItems, handleNavigation, location } = Navigation();
+  const { menuItems, authItems, handleNavigation } = useNavigation();
 
   if (!isOpen) return null;
 
+  const handleItemClick = (path: string) => {
+    handleNavigation(path);
+    onClose();
+  };
+
   return (
-    <div className="md:hidden glass-card absolute top-16 left-0 right-0 p-4">
-      <div className="flex flex-col space-y-4">
-        {menuItems.map((item) => (
-          <button
-            key={item.path}
-            onClick={() => {
-              handleNavigation(item.path);
-              onClose();
-            }}
-            className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
-              location.pathname === item.path ? 'text-primary' : 'text-foreground'
-            }`}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </button>
-        ))}
-        {authItems.map((item) => {
-          const Icon = item.icon;
-          return item.onClick ? (
+    <div className="md:hidden fixed inset-x-0 top-16 bg-background/80 backdrop-blur-lg border-t border-white/10">
+      <div className="container mx-auto px-4 py-4">
+        <nav className="flex flex-col gap-4">
+          {menuItems.map((item) => (
             <button
-              key={item.label}
-              onClick={() => {
-                item.onClick();
-                onClose();
-              }}
-              className="btn-primary flex items-center justify-center gap-2"
-            >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </button>
-          ) : (
-            <Link
               key={item.path}
-              to={item.path}
-              className={`btn-primary flex items-center justify-center gap-2 ${
-                item.path === '/registro' ? 'btn-secondary' : ''
-              }`}
-              onClick={onClose}
+              onClick={() => handleItemClick(item.path)}
+              className="flex items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
+              <item.icon size={20} />
+              {item.label}
+            </button>
+          ))}
+
+          <div className="border-t border-white/10 pt-4 mt-2">
+            {authItems.map((item) => (
+              item.onClick ? (
+                <Button
+                  key={item.label}
+                  variant="ghost"
+                  onClick={() => {
+                    item.onClick?.();
+                    onClose();
+                  }}
+                  className="w-full justify-start gap-2 text-foreground/60 hover:text-foreground"
+                >
+                  <item.icon size={20} />
+                  {item.label}
+                </Button>
+              ) : (
+                <button
+                  key={item.path}
+                  onClick={() => handleItemClick(item.path || '')}
+                  className="flex w-full items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
+                >
+                  <item.icon size={20} />
+                  {item.label}
+                </button>
+              )
+            ))}
+          </div>
+        </nav>
       </div>
     </div>
   );
