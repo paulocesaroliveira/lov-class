@@ -11,11 +11,11 @@ type AdvertisementDetailsProps = {
 };
 
 export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: AdvertisementDetailsProps) => {
-  const { user } = useAuth();
+  const { session } = useAuth();
   const navigate = useNavigate();
 
   const handleChatClick = async () => {
-    if (!user) {
+    if (!session?.user) {
       navigate("/login");
       return;
     }
@@ -23,7 +23,7 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     try {
       const { data, error } = await supabase
         .rpc('find_or_create_conversation', {
-          current_user_id: user.id,
+          current_user_id: session.user.id,
           other_user_id: advertisement.profile_id
         });
 
