@@ -98,6 +98,11 @@ export const ChatContainer = () => {
   return (
     <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
       <div className="glass-card h-full flex flex-col">
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-semibold">
+            Chat com {conversationData?.advertisements?.name || "Usuário"}
+          </h1>
+        </div>
         <NotificationButton />
         <MessageList messages={messages} currentUserId={conversationData?.user_id} />
         <MessageInput onSendMessage={async (content) => {
