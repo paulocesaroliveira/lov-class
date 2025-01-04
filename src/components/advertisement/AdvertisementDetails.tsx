@@ -23,17 +23,17 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
 
     try {
-      // First, check if a conversation already exists
       const { data: existingConversation, error: existingError } = await supabase
         .rpc('find_or_create_conversation', {
           current_user_id: session.user.id,
           other_user_id: advertisement.profile_id
-        });
+        }) as { data: { conversation_id: string }[] | null, error: any };
 
       if (existingError) throw existingError;
+      if (!existingConversation?.[0]) throw new Error("Failed to create conversation");
 
       // Navigate to the conversation
-      navigate(`/mensagens/${existingConversation.conversation_id}`);
+      navigate(`/mensagens/${existingConversation[0].conversation_id}`);
     } catch (error: any) {
       console.error('Error starting chat:', error);
       toast.error(error.message || "Erro ao iniciar chat privado");

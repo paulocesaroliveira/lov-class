@@ -585,6 +585,15 @@ export type Database = {
           created_at: string
         }[]
       }
+      find_or_create_conversation: {
+        Args: {
+          current_user_id: string
+          other_user_id: string
+        }
+        Returns: {
+          conversation_id: string
+        }[]
+      }
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
