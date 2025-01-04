@@ -8,6 +8,8 @@ export const useConversation = (conversationId: string | undefined) => {
     queryFn: async () => {
       if (!conversationId) throw new Error("No conversation ID provided");
 
+      console.log("Fetching conversation data for ID:", conversationId);
+
       const { data, error } = await supabase
         .from("conversation_participants")
         .select(`
@@ -19,14 +21,19 @@ export const useConversation = (conversationId: string | undefined) => {
           )
         `)
         .eq("conversation_id", conversationId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching conversation:", error);
         throw error;
       }
       
-      if (!data) throw new Error("No conversation found");
+      console.log("Conversation data received:", data);
+      
+      if (!data) {
+        console.error("No conversation found for ID:", conversationId);
+        return null;
+      }
       
       return data;
     },

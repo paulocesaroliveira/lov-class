@@ -12,10 +12,13 @@ import { useMessageSubscription } from "./hooks/useMessageSubscription";
 export const ChatContainer = () => {
   const { conversationId } = useParams();
   
-  const { data: conversationData, isLoading: isLoadingConversation } = useConversation(conversationId);
+  const { data: conversationData, isLoading: isLoadingConversation, error: conversationError } = useConversation(conversationId);
   const { data: messages = [], isLoading: isLoadingMessages, refetch } = useMessages(conversationId);
 
   useMessageSubscription(conversationId, refetch);
+
+  console.log("Current conversation data:", conversationData);
+  console.log("Current messages:", messages);
 
   if (!conversationId) {
     return (
@@ -33,7 +36,17 @@ export const ChatContainer = () => {
     );
   }
 
+  if (conversationError) {
+    console.error("Conversation error:", conversationError);
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Erro ao carregar a conversa</p>
+      </div>
+    );
+  }
+
   if (!conversationData) {
+    console.error("No conversation data found for ID:", conversationId);
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Conversa não encontrada</p>
