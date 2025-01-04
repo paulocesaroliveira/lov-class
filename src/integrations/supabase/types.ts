@@ -201,17 +201,17 @@ export type Database = {
       }
       advertisement_views: {
         Row: {
-          advertisement_id: string | null
+          advertisement_id: string
           id: string
           viewed_at: string
         }
         Insert: {
-          advertisement_id?: string | null
+          advertisement_id: string
           id?: string
           viewed_at?: string
         }
         Update: {
-          advertisement_id?: string | null
+          advertisement_id?: string
           id?: string
           viewed_at?: string
         }
@@ -223,27 +223,41 @@ export type Database = {
             referencedRelation: "advertisements"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_advertisement_views_advertisement"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
         ]
       }
       advertisement_whatsapp_clicks: {
         Row: {
-          advertisement_id: string | null
+          advertisement_id: string
           clicked_at: string
           id: string
         }
         Insert: {
-          advertisement_id?: string | null
+          advertisement_id: string
           clicked_at?: string
           id?: string
         }
         Update: {
-          advertisement_id?: string | null
+          advertisement_id?: string
           clicked_at?: string
           id?: string
         }
         Relationships: [
           {
             foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_advertisement_whatsapp_clicks_advertisement"
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
