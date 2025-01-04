@@ -529,27 +529,27 @@ export type Database = {
       messages: {
         Row: {
           content: string
-          conversation_id: string | null
+          conversation_id: string
           created_at: string
           id: string
           read_at: string | null
-          sender_id: string | null
+          sender_id: string
         }
         Insert: {
           content: string
-          conversation_id?: string | null
+          conversation_id: string
           created_at?: string
           id?: string
           read_at?: string | null
-          sender_id?: string | null
+          sender_id: string
         }
         Update: {
           content?: string
-          conversation_id?: string | null
+          conversation_id?: string
           created_at?: string
           id?: string
           read_at?: string | null
-          sender_id?: string | null
+          sender_id?: string
         }
         Relationships: [
           {
