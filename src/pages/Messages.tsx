@@ -28,9 +28,7 @@ export const Messages = () => {
           created_at,
           conversation_id,
           read_at,
-          sender:sender_id(
-            name:profiles!inner(name)
-          )
+          sender:profiles!messages_sender_id_fkey(name)
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
@@ -40,7 +38,7 @@ export const Messages = () => {
       // Transform the data to match our Message type
       const transformedMessages = messagesData.map(msg => ({
         ...msg,
-        sender: msg.sender?.name ? { name: msg.sender.name } : null
+        sender: msg.sender ? { name: msg.sender.name } : null
       }));
 
       return transformedMessages as Message[];
