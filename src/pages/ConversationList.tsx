@@ -10,8 +10,10 @@ type Conversation = {
   updated_at: string;
   participants: {
     user_id: string;
-    profiles: {
-      name: string;
+    user: {
+      profile: {
+        name: string;
+      };
     };
   }[];
   messages: {
@@ -32,7 +34,9 @@ export default function ConversationList() {
           updated_at,
           participants:conversation_participants!inner(
             user_id,
-            profiles!inner(name)
+            user:user_id(
+              profile:profiles!inner(name)
+            )
           ),
           messages(content)
         `)
@@ -76,7 +80,7 @@ export default function ConversationList() {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-medium">
-                      {otherParticipant?.profiles?.name || "Usuário"}
+                      {otherParticipant?.user?.profile?.name || "Usuário"}
                     </h3>
                     <p className="text-sm text-muted-foreground line-clamp-1">
                       {lastMessage || "Nenhuma mensagem"}
