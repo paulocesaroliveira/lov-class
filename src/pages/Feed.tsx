@@ -28,7 +28,7 @@ const Feed = () => {
         return false;
       }
       
-      return data?.role === "advertiser";
+      return data?.role === "advertiser" || data?.role === "admin";
     },
     enabled: !!session?.user?.id,
   });
@@ -126,7 +126,7 @@ const Feed = () => {
         </div>
       )}
 
-      <PostList posts={posts} />
+      <PostList posts={posts} isAdmin={isAdvertiser === true} onPostDeleted={fetchPosts} />
     </div>
   );
 };
