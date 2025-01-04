@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import EmojiPicker from "emoji-picker-react";
 import { Smile } from "lucide-react";
@@ -31,8 +31,63 @@ export const Messages = () => {
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const isMobile = useIsMobile();
+  const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
 
-  // Fetch messages
+  // Solicitar permissão para notificações
+  const requestNotificationPermission = async () => {
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      if (permission === "granted") {
+        toast.success("Notificações ativadas com sucesso!");
+      }
+    } catch (error) {
+      console.error("Erro ao solicitar permissão:", error);
+      toast.error("Erro ao ativar notificações");
+    }
+  };
+
+  // Configurar listener para novas mensagens
+  useEffect(() => {
+    if (!session?.user?.id || !conversationId) return;
+
+    const channel = supabase
+      .channel('messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          // Não mostrar notificação se a mensagem for do usuário atual
+          if (payload.new.sender_id === session.user.id) return;
+
+          // Buscar informações do remetente
+          const { data: senderData } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', payload.new.sender_id)
+            .single();
+
+          // Mostrar notificação se permitido
+          if (notificationPermission === "granted" && document.hidden) {
+            new Notification("Nova mensagem", {
+              body: `${senderData?.name}: ${payload.new.content}`,
+              icon: "/favicon.ico", // Adicione o caminho do seu ícone
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [conversationId, session?.user?.id, notificationPermission]);
+
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", conversationId],
     queryFn: async () => {
@@ -103,6 +158,20 @@ export const Messages = () => {
   return (
     <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
       <div className="glass-card h-full flex flex-col">
+        {notificationPermission === "default" && (
+          <div className="bg-primary/10 p-2 text-center">
+            <p className="text-sm mb-2">Ative as notificações para receber alertas de novas mensagens</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={requestNotificationPermission}
+              className="bg-primary/20 hover:bg-primary/30"
+            >
+              Ativar Notificações
+            </Button>
+          </div>
+        )}
+        
         {/* Messages */}
         <div className="flex-1 space-y-6 overflow-y-auto p-3 sm:p-4">
           {messages?.map((message) => (
