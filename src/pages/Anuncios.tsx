@@ -5,14 +5,21 @@ import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { toast } from "sonner";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
+import { Button } from "@/components/ui/button";
+
+const ITEMS_PER_PAGE = 30;
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [filters, setFilters] = useState<any>({});
+  const [page, setPage] = useState(1);
 
-  const { data: advertisements, isLoading } = useQuery({
-    queryKey: ["advertisements", filters],
-    queryFn: async () => {
+  const { data: advertisements, isLoading, isFetching, hasNextPage, fetchNextPage } = useQuery({
+    queryKey: ["advertisements", filters, page],
+    queryFn: async ({ pageParam = 1 }) => {
+      const from = (pageParam - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
       let query = supabase
         .from("advertisements")
         .select(`
@@ -35,8 +42,9 @@ const Anuncios = () => {
             id
           )
         `)
-        .eq('blocked', false) // Filter out blocked advertisements
-        .order("created_at", { ascending: false });
+        .eq('blocked', false)
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
       // Apply filters
       if (filters.category) {
@@ -85,7 +93,7 @@ const Anuncios = () => {
             serviceIds.map((item) => item.advertisement_id)
           );
         } else {
-          return [];
+          return { data: [], count: 0 };
         }
       }
 
@@ -102,11 +110,11 @@ const Anuncios = () => {
             locationIds.map((item) => item.advertisement_id)
           );
         } else {
-          return [];
+          return { data: [], count: 0 };
         }
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query.select('*', { count: 'exact' });
 
       if (error) {
         console.error("Error fetching advertisements:", error);
@@ -114,9 +122,23 @@ const Anuncios = () => {
         throw error;
       }
 
-      return data;
+      return {
+        data,
+        nextPage: data.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+        totalCount: count
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    keepPreviousData: true
   });
+
+  const loadMore = () => {
+    setPage(prev => prev + 1);
+  };
+
+  const allAds = advertisements?.pages?.flatMap(page => page.data) || [];
+  const totalCount = advertisements?.pages?.[0]?.totalCount || 0;
+  const canLoadMore = allAds.length < totalCount;
 
   return (
     <div className="space-y-8">
@@ -126,10 +148,24 @@ const Anuncios = () => {
       </div>
       
       <AdvertisementList 
-        advertisements={advertisements}
+        advertisements={allAds}
         isLoading={isLoading}
         onSelectAd={setSelectedAd}
       />
+
+      {canLoadMore && (
+        <div className="flex justify-center">
+          <Button
+            onClick={loadMore}
+            disabled={isFetching}
+            variant="secondary"
+            size="lg"
+            className="w-full max-w-xs"
+          >
+            {isFetching ? "Carregando..." : "Carregar mais anúncios"}
+          </Button>
+        </div>
+      )}
 
       <AdvertisementDialog 
         advertisement={selectedAd} 
