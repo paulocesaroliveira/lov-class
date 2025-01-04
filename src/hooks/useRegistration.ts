@@ -15,22 +15,6 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
-      // First check if user already exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', data.email)
-        .maybeSingle();
-
-      if (existingUser) {
-        toast({
-          title: "Email já cadastrado",
-          description: "Este email já está em uso. Por favor, use outro email ou faça login.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
       // Attempt to sign up the user
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
