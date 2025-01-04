@@ -45,7 +45,9 @@ export default function ConversationList() {
         throw error;
       }
 
-      return conversationsData as Conversation[];
+      // Ensure the data matches our type
+      const typedData = (conversationsData || []) as unknown as Conversation[];
+      return typedData;
     },
     enabled: !!session?.user?.id,
   });
