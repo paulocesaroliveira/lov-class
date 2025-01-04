@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, MessageSquare, Heart, Download, Settings, Grid, Users } from 'lucide-react';
+import { Home, Search, MessageSquare, Heart, Download, Settings, Grid, Users, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -26,8 +26,15 @@ export const useNavigation = () => {
     navigate('/');
   };
 
-  // Check if user has admin role
-  const isAdmin = session?.user?.user_metadata?.role === 'admin';
+  // Check if user has admin role by checking user metadata
+  const isAdmin = session?.user?.user_metadata?.role === 'admin' || 
+                 // Also check in the session claims for the role
+                 session?.user?.app_metadata?.role === 'admin';
+
+  console.log('User session:', session); // Debug log
+  console.log('Is admin:', isAdmin); // Debug log
+  console.log('User metadata:', session?.user?.user_metadata); // Debug log
+  console.log('App metadata:', session?.user?.app_metadata); // Debug log
 
   const adminItems = isAdmin
     ? [
@@ -46,12 +53,12 @@ export const useNavigation = () => {
           label: "Perfil",
           icon: Settings,
         },
+        ...adminItems, // Add admin items before the logout button
         {
           label: "Sair",
-          icon: Settings,
+          icon: LogOut,
           onClick: handleSignOut,
         },
-        ...adminItems,
       ]
     : [
         {
