@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-// Create a client
+// Create a client outside of component to avoid recreation on each render
 const queryClient = new QueryClient();
 
+// Separate the content component
 const AdminLoginContent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -96,14 +97,16 @@ const AdminLoginContent = () => {
   );
 };
 
-// Wrap the entire app with QueryClientProvider and TooltipProvider
+// Main component with providers
 const AdminLogin = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AdminLoginContent />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AdminLoginContent />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
   );
 };
 
