@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
@@ -10,7 +10,10 @@ import { toast } from "sonner";
 import { AlertCircle, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-const Admin = () => {
+// Create a client
+const queryClient = new QueryClient();
+
+const AdminContent = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
 
@@ -155,6 +158,14 @@ const Admin = () => {
         </TabsContent>
       </Tabs>
     </div>
+  );
+};
+
+const Admin = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AdminContent />
+    </QueryClientProvider>
   );
 };
 

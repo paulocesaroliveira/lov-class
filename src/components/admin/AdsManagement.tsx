@@ -7,6 +7,7 @@ import { ActionDialog } from "./ads/ActionDialog";
 import { AdminStats } from "./ads/components/AdminStats";
 import { useAdvertisements } from "./ads/hooks/useAdvertisements";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const AdsManagement = () => {
   const { data: advertisements, refetch } = useAdvertisements();
