@@ -1,5 +1,7 @@
 import { MediaViewer } from "./MediaViewer";
 import { useState } from "react";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type AdvertisementMediaProps = {
   profilePhotoUrl?: string;
@@ -105,9 +107,9 @@ export const AdvertisementMedia = ({ profilePhotoUrl, photos, videos, name }: Ad
       )}
 
       {/* Vídeos */}
-      {videos && videos.length > 0 && (
-        <div>
-          <h3 className="font-semibold mb-2">Vídeos</h3>
+      <div>
+        <h3 className="font-semibold mb-2">Vídeos</h3>
+        {videos && videos.length > 0 ? (
           <div className="grid grid-cols-2 gap-2">
             {videos.map((video) => (
               <div 
@@ -125,8 +127,15 @@ export const AdvertisementMedia = ({ profilePhotoUrl, photos, videos, name }: Ad
               </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <Alert variant="default" className="bg-muted/50">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Este anúncio não possui vídeos.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
 
       {selectedMedia && (
         <MediaViewer
