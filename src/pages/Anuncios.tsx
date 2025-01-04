@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
@@ -12,12 +12,17 @@ const ITEMS_PER_PAGE = 30;
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [filters, setFilters] = useState<any>({});
-  const [page, setPage] = useState(1);
 
-  const { data: advertisements, isLoading, isFetching, hasNextPage, fetchNextPage } = useQuery({
-    queryKey: ["advertisements", filters, page],
-    queryFn: async ({ pageParam = 1 }) => {
-      const from = (pageParam - 1) * ITEMS_PER_PAGE;
+  const { 
+    data, 
+    isLoading, 
+    isFetchingNextPage, 
+    hasNextPage, 
+    fetchNextPage 
+  } = useInfiniteQuery({
+    queryKey: ["advertisements", filters],
+    queryFn: async ({ pageParam = 0 }) => {
+      const from = pageParam * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
       let query = supabase
@@ -41,7 +46,7 @@ const Anuncios = () => {
           advertisement_comments (
             id
           )
-        `)
+        `, { count: 'exact' })
         .eq('blocked', false)
         .order("created_at", { ascending: false })
         .range(from, to);
@@ -114,7 +119,7 @@ const Anuncios = () => {
         }
       }
 
-      const { data, error, count } = await query.select('*', { count: 'exact' });
+      const { data, error, count } = await query;
 
       if (error) {
         console.error("Error fetching advertisements:", error);
@@ -124,20 +129,16 @@ const Anuncios = () => {
 
       return {
         data,
-        nextPage: data.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
-        totalCount: count
+        count,
+        nextPage: data?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    keepPreviousData: true
+    initialPageParam: 0
   });
 
-  const loadMore = () => {
-    setPage(prev => prev + 1);
-  };
-
-  const allAds = advertisements?.pages?.flatMap(page => page.data) || [];
-  const totalCount = advertisements?.pages?.[0]?.totalCount || 0;
+  const allAds = data?.pages?.flatMap(page => page.data) || [];
+  const totalCount = data?.pages?.[0]?.count || 0;
   const canLoadMore = allAds.length < totalCount;
 
   return (
@@ -156,13 +157,13 @@ const Anuncios = () => {
       {canLoadMore && (
         <div className="flex justify-center">
           <Button
-            onClick={loadMore}
-            disabled={isFetching}
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
             variant="secondary"
             size="lg"
             className="w-full max-w-xs"
           >
-            {isFetching ? "Carregando..." : "Carregar mais anúncios"}
+            {isFetchingNextPage ? "Carregando..." : "Carregar mais anúncios"}
           </Button>
         </div>
       )}
