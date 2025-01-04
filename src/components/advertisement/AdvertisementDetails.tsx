@@ -23,55 +23,17 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
     }
 
     try {
-      // Primeiro, buscar as conversas do anunciante
-      const { data: advertiserConversations, error: advertiserError } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', advertisement.profile_id);
+      // First, check if a conversation already exists
+      const { data: existingConversation, error: existingError } = await supabase
+        .rpc('find_or_create_conversation', {
+          current_user_id: session.user.id,
+          other_user_id: advertisement.profile_id
+        });
 
-      if (advertiserError) throw advertiserError;
+      if (existingError) throw existingError;
 
-      const conversationIds = advertiserConversations?.map(c => c.conversation_id) || [];
-
-      if (conversationIds.length > 0) {
-        // Depois, verificar se o usuário atual participa de alguma dessas conversas
-        const { data: existingConversation, error: participantError } = await supabase
-          .from('conversation_participants')
-          .select('conversation_id')
-          .eq('user_id', session.user.id)
-          .in('conversation_id', conversationIds)
-          .maybeSingle();
-
-        if (participantError) throw participantError;
-
-        if (existingConversation) {
-          navigate(`/mensagens/${existingConversation.conversation_id}`);
-          return;
-        }
-      }
-
-      // Create new conversation
-      const { data: newConversation, error: conversationError } = await supabase
-        .from('conversations')
-        .insert({})
-        .select()
-        .single();
-
-      if (conversationError) throw conversationError;
-
-      // Add participants
-      const { error: participantsError } = await supabase
-        .from('conversation_participants')
-        .insert([
-          { conversation_id: newConversation.id, user_id: session.user.id },
-          { conversation_id: newConversation.id, user_id: advertisement.profile_id }
-        ]);
-
-      if (participantsError) throw participantsError;
-
-      // Navigate to new conversation
-      navigate(`/mensagens/${newConversation.id}`);
-      
+      // Navigate to the conversation
+      navigate(`/mensagens/${existingConversation.conversation_id}`);
     } catch (error: any) {
       console.error('Error starting chat:', error);
       toast.error(error.message || "Erro ao iniciar chat privado");
