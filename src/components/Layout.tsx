@@ -7,7 +7,7 @@ import { MobileMenu } from './layout/MobileMenu';
 const MemoizedDesktopMenu = memo(DesktopMenu);
 const MemoizedMobileMenu = memo(MobileMenu);
 
-const Layout: React.FC = () => {
+export const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const toggleMenu = React.useCallback(() => {
@@ -54,5 +54,3 @@ const Layout: React.FC = () => {
     </div>
   );
 };
-
-export default memo(Layout);

@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Anuncios from './pages/Anuncios';
 import Feed from './pages/Feed';
-import Messages from './pages/Messages';
+import { Messages } from './pages/Messages';
 import ConversationList from './pages/ConversationList';
 import Favoritos from './pages/Favoritos';
 import InstallApp from './pages/InstallApp';
