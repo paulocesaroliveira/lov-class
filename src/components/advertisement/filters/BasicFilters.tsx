@@ -1,6 +1,5 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type BasicFiltersProps = {
@@ -11,27 +10,6 @@ type BasicFiltersProps = {
 export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
   return (
     <div className="space-y-6">
-      {/* Categoria */}
-      <div className="space-y-2">
-        <Label>Categoria</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {["mulher", "trans", "homem"].map((category) => (
-            <Button
-              key={category}
-              variant={filters.category === category ? "default" : "outline"}
-              onClick={() =>
-                onFilterChange({
-                  category: filters.category === category ? undefined : category,
-                })
-              }
-              className="capitalize"
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-      </div>
-
       {/* Localização */}
       <div className="space-y-4">
         <div className="space-y-2">

@@ -68,6 +68,18 @@ const Anuncios = () => {
       if (filters.maxPrice !== undefined) {
         query = query.lte("hourly_rate", filters.maxPrice);
       }
+      if (filters.ethnicity) {
+        query = query.eq("ethnicity", filters.ethnicity);
+      }
+      if (filters.hairColor) {
+        query = query.eq("hair_color", filters.hairColor);
+      }
+      if (filters.bodyType) {
+        query = query.eq("body_type", filters.bodyType);
+      }
+      if (filters.style) {
+        query = query.eq("style", filters.style);
+      }
       
       // Age filter
       if (filters.minAge !== undefined || filters.maxAge !== undefined) {
