@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Sun, Moon } from 'lucide-react';
-import { MenuItem } from './Navigation';
+import { MenuItem } from './navigationUtils';
 import { Button } from '../ui/button';
 
 interface MobileMenuProps {

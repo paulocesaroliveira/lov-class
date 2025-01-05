@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MenuItem } from './Navigation';
+import { MenuItem } from './navigationUtils';
 
 interface DesktopMenuProps {
   menuItems: MenuItem[];

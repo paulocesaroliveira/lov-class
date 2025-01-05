@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { DesktopMenu } from './DesktopMenu';
 import { MobileMenu } from './MobileMenu';
-import { useNavigation } from './Navigation';
+import { useNavigation } from './navigationUtils';
 import { useTheme } from 'next-themes';
 import { Button } from '../ui/button';
 
