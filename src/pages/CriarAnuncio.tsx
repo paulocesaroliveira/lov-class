@@ -13,6 +13,7 @@ const CriarAnuncio = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showModerationAlert, setShowModerationAlert] = useState(false);
+  const [identityDocument, setIdentityDocument] = useState<File | null>(null);
   const { user } = useAuthCheck();
   
   const form = useForm<FormValues>({
@@ -45,7 +46,7 @@ const CriarAnuncio = () => {
   });
 
   const { validateStep } = useFormValidation(form);
-  const { handleSubmit } = useFormSubmission(user, setShowModerationAlert);
+  const { handleSubmit } = useFormSubmission(user, setShowModerationAlert, identityDocument);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -96,6 +97,7 @@ const CriarAnuncio = () => {
               onSubmit={onSubmit}
               onPrevious={handlePrevious}
               onNext={handleNext}
+              setIdentityDocument={setIdentityDocument}
             />
           </div>
         </div>

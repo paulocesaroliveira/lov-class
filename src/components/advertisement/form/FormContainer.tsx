@@ -12,6 +12,7 @@ interface FormContainerProps {
   onSubmit: (values: FormValues) => Promise<void>;
   onPrevious: () => void;
   onNext: () => void;
+  setIdentityDocument: (file: File | null) => void;
 }
 
 export const FormContainer = ({ 
@@ -20,13 +21,18 @@ export const FormContainer = ({
   isLoading, 
   onSubmit, 
   onPrevious, 
-  onNext 
+  onNext,
+  setIdentityDocument
 }: FormContainerProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormProgress currentStep={currentStep} totalSteps={4} />
-        <FormSteps currentStep={currentStep} form={form} />
+        <FormSteps 
+          currentStep={currentStep} 
+          form={form} 
+          setIdentityDocument={setIdentityDocument}
+        />
         <StepNavigation
           currentStep={currentStep}
           totalSteps={4}

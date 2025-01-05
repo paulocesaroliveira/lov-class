@@ -17,9 +17,10 @@ import { TermsAndConditions } from "../TermsAndConditions";
 interface FormStepsProps {
   currentStep: number;
   form: UseFormReturn<FormValues>;
+  setIdentityDocument: (file: File | null) => void;
 }
 
-export const FormSteps = ({ currentStep, form }: FormStepsProps) => {
+export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsProps) => {
   return (
     <>
       <FormStep isActive={currentStep === 1}>
@@ -45,7 +46,7 @@ export const FormSteps = ({ currentStep, form }: FormStepsProps) => {
         />
         <IdentityDocument 
           form={form} 
-          setIdentityDocument={form.setValue} 
+          setIdentityDocument={setIdentityDocument}
         />
       </FormStep>
 
