@@ -17,6 +17,7 @@ import { Description } from "./Description";
 import { MediaUpload } from "./MediaUpload";
 import { ServiceLocations } from "./ServiceLocations";
 import { IdentityDocument } from "./IdentityDocument";
+import { ContactOptions } from "./ContactOptions";
 import { formSchema } from "./advertisementSchema";
 import { FormValues } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
@@ -58,7 +59,9 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       hairColor: "morena",
       bodyType: "magra",
       silicone: "nao_uso",
-      whatsapp: "",
+      contact_phone: "",
+      contact_whatsapp: true,
+      contact_telegram: false,
       state: "",
       city: "",
       neighborhood: "",
@@ -203,6 +206,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           <FormStep isActive={currentStep === 1}>
             <BasicInformation form={form} />
             <Appearance form={form} />
+            <ContactOptions form={form} />
             <ContactLocation form={form} />
           </FormStep>
 

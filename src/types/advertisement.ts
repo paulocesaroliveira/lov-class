@@ -16,7 +16,9 @@ export interface Advertisement {
   height: number;
   weight: number;
   category: "mulher" | "trans" | "homem";
-  whatsapp: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
   state: string;
   city: string;
   neighborhood: string;

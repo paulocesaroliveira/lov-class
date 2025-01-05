@@ -339,6 +339,9 @@ export type Database = {
           body_type: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
+          contact_phone: string
+          contact_telegram: boolean
+          contact_whatsapp: boolean
           created_at: string
           custom_rate_description: string | null
           custom_rate_value: number | null
@@ -357,7 +360,6 @@ export type Database = {
           style: string
           updated_at: string
           weight: number
-          whatsapp: string
         }
         Insert: {
           birth_date: string
@@ -366,6 +368,9 @@ export type Database = {
           body_type?: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
+          contact_phone?: string
+          contact_telegram?: boolean
+          contact_whatsapp?: boolean
           created_at?: string
           custom_rate_description?: string | null
           custom_rate_value?: number | null
@@ -384,7 +389,6 @@ export type Database = {
           style: string
           updated_at?: string
           weight: number
-          whatsapp: string
         }
         Update: {
           birth_date?: string
@@ -393,6 +397,9 @@ export type Database = {
           body_type?: string
           category?: Database["public"]["Enums"]["ad_category"]
           city?: string
+          contact_phone?: string
+          contact_telegram?: boolean
+          contact_whatsapp?: boolean
           created_at?: string
           custom_rate_description?: string | null
           custom_rate_value?: number | null
@@ -411,7 +418,6 @@ export type Database = {
           style?: string
           updated_at?: string
           weight?: number
-          whatsapp?: string
         }
         Relationships: [
           {
