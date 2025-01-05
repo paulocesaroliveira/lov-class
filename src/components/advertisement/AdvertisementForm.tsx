@@ -119,6 +119,14 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         ];
         break;
       case 2:
+        fieldsToValidate = [
+          "hourlyRate",
+          "style",
+          "services",
+          "serviceLocations",
+        ];
+        break;
+      case 3:
         if (!profilePhoto && !advertisement?.profile_photo_url) {
           toast.error("Foto de perfil é obrigatória");
           return false;
@@ -132,14 +140,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           return false;
         }
         return true;
-      case 3:
-        fieldsToValidate = [
-          "hourlyRate",
-          "style",
-          "services",
-          "serviceLocations",
-        ];
-        break;
       case 4:
         fieldsToValidate = ["description"];
         break;
@@ -147,7 +147,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
     const result = await form.trigger(fieldsToValidate);
     if (!result) {
-      // Get the first error message
       const errors = form.formState.errors;
       const firstError = fieldsToValidate.find(field => errors[field]);
       if (firstError && errors[firstError]) {
@@ -273,6 +272,13 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           </FormStep>
 
           <FormStep isActive={currentStep === 2}>
+            <CustomRates form={form} />
+            <StyleSelection form={form} />
+            <ServicesSelection form={form} />
+            <ServiceLocations form={form} />
+          </FormStep>
+
+          <FormStep isActive={currentStep === 3}>
             <MediaUpload
               setProfilePhoto={setProfilePhoto}
               setPhotos={setPhotos}
@@ -282,13 +288,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
               form={form} 
               setIdentityDocument={setIdentityDocument} 
             />
-          </FormStep>
-
-          <FormStep isActive={currentStep === 3}>
-            <CustomRates form={form} />
-            <StyleSelection form={form} />
-            <ServicesSelection form={form} />
-            <ServiceLocations form={form} />
           </FormStep>
 
           <FormStep isActive={currentStep === 4}>
