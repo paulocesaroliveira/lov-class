@@ -7,10 +7,14 @@ import { ProfileStats } from "@/components/profile/ProfileStats";
 import { AdvertisementSection } from "@/components/profile/AdvertisementSection";
 import { PasswordChangeSection } from "@/components/profile/PasswordChangeSection";
 import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { LayoutDashboard } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const Perfil = () => {
   const navigate = useNavigate();
   const { session, loading: authLoading } = useAuth();
+  const { isAdmin } = useAuthContext();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
@@ -82,11 +86,24 @@ const Perfil = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Meu Perfil</h1>
-        <p className="text-muted-foreground mt-2">
-          Gerencie seus anúncios e informações pessoais
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Meu Perfil</h1>
+          <p className="text-muted-foreground mt-2">
+            Gerencie seus anúncios e informações pessoais
+          </p>
+        </div>
+        
+        {isAdmin && (
+          <Button
+            onClick={() => navigate("/admin")}
+            variant="outline"
+            className="gap-2"
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            Painel Administrativo
+          </Button>
+        )}
       </div>
 
       {hasAd && (
