@@ -11,16 +11,8 @@ export const useUserMetrics = (dateFilter?: DateFilter) => {
   return useQuery({
     queryKey: ["user-metrics", dateFilter],
     queryFn: async () => {
-      let query = supabase.from("user_metrics").select("*");
-
-      if (dateFilter) {
-        const { startDate, endDate } = dateFilter;
-        query = query
-          .gte('created_at', startDate)
-          .lte('created_at', endDate);
-      }
-
-      const { data, error } = await query;
+      const { data, error } = await supabase
+        .rpc('get_user_metrics');
 
       if (error) throw error;
 

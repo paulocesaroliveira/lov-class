@@ -911,6 +911,15 @@ export type Database = {
           sender_name: string
         }[]
       }
+      get_user_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          role: Database["public"]["Enums"]["user_role"]
+          total_users: number
+          new_users_30d: number
+          active_users_7d: number
+        }[]
+      }
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
