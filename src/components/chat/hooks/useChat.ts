@@ -3,6 +3,7 @@ import { useMessages } from './useMessages';
 import { ChatContentState } from '../types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Message } from '@/types/chat';
 
 export const useChat = (conversationId: string, userId: string) => {
   const [state, setState] = useState<ChatContentState>({
@@ -20,14 +21,13 @@ export const useChat = (conversationId: string, userId: string) => {
     fetchNextPage,
   } = useMessages(conversationId);
 
-  // Flatten the messages from all pages
+  // Flatten the messages from all pages and ensure proper typing
   const messages = data?.pages.flatMap(page => page.messages) ?? [];
 
   const handleSendMessage = useCallback(async (content: string): Promise<void> => {
     try {
       const trimmedContent = content.trim();
       
-      // Validação básica do lado do cliente
       if (trimmedContent.length === 0) {
         toast.error('A mensagem não pode estar vazia');
         return;
