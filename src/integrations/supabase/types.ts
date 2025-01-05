@@ -455,60 +455,6 @@ export type Database = {
           },
         ]
       }
-      conversation_participants: {
-        Row: {
-          advertisement_id: string | null
-          conversation_id: string
-          created_at: string
-          user_id: string
-        }
-        Insert: {
-          advertisement_id?: string | null
-          conversation_id: string
-          created_at?: string
-          user_id: string
-        }
-        Update: {
-          advertisement_id?: string | null
-          conversation_id?: string
-          created_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversation_participants_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversation_participants_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      conversations: {
-        Row: {
-          created_at: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       favorites: {
         Row: {
           advertisement_id: string
@@ -598,86 +544,6 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      message_rate_limits: {
-        Row: {
-          created_at: string | null
-          day_count: number | null
-          hour_count: number | null
-          id: string
-          last_message_time: string | null
-          last_reset_day: string | null
-          last_reset_hour: string | null
-          last_reset_minute: string | null
-          message_count: number | null
-          minute_count: number | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          day_count?: number | null
-          hour_count?: number | null
-          id?: string
-          last_message_time?: string | null
-          last_reset_day?: string | null
-          last_reset_hour?: string | null
-          last_reset_minute?: string | null
-          message_count?: number | null
-          minute_count?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          day_count?: number | null
-          hour_count?: number | null
-          id?: string
-          last_message_time?: string | null
-          last_reset_day?: string | null
-          last_reset_hour?: string | null
-          last_reset_minute?: string | null
-          message_count?: number | null
-          minute_count?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      messages: {
-        Row: {
-          content: string
-          conversation_id: string
-          created_at: string
-          id: string
-          read_at: string | null
-          sender_id: string
-        }
-        Insert: {
-          content: string
-          conversation_id: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id: string
-        }
-        Update: {
-          content?: string
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -801,35 +667,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      user_typing_status: {
-        Row: {
-          conversation_id: string
-          is_typing: boolean | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          conversation_id: string
-          is_typing?: boolean | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          conversation_id?: string
-          is_typing?: boolean | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_typing_status_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
