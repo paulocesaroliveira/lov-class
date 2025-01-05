@@ -1,14 +1,20 @@
 import React, { memo } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { DesktopMenu } from './layout/DesktopMenu';
 import { MobileMenu } from './layout/MobileMenu';
+import { useNavigation } from './layout/Navigation';
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
 const MemoizedDesktopMenu = memo(DesktopMenu);
 const MemoizedMobileMenu = memo(MobileMenu);
 
-export const Layout: React.FC = () => {
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { menuItems } = useNavigation();
 
   const toggleMenu = React.useCallback(() => {
     setIsMenuOpen(prev => !prev);
@@ -27,7 +33,7 @@ export const Layout: React.FC = () => {
               Lov Class
             </Link>
 
-            <MemoizedDesktopMenu />
+            <MemoizedDesktopMenu menuItems={menuItems} />
 
             <button
               className="md:hidden p-2"
@@ -39,11 +45,11 @@ export const Layout: React.FC = () => {
           </div>
         </div>
 
-        <MemoizedMobileMenu isOpen={isMenuOpen} onClose={closeMenu} />
+        <MemoizedMobileMenu menuItems={menuItems} isOpen={isMenuOpen} onClose={closeMenu} />
       </nav>
 
       <main className="container mx-auto px-4 py-8">
-        <Outlet />
+        {children}
       </main>
 
       <footer className="glass-card mt-auto py-6">

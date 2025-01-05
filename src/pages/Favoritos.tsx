@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/types/advertisement";
 import { AdvertisementCard } from "@/components/advertisement/AdvertisementCard";
 
-export const Favoritos = () => {
+const Favoritos = () => {
   const { session } = useAuth();
 
   const { data: favorites = [], isLoading } = useQuery({
@@ -110,3 +110,5 @@ export const Favoritos = () => {
     </div>
   );
 };
+
+export default Favoritos;

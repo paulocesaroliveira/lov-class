@@ -5,7 +5,7 @@ import { PostList } from "@/components/feed/PostList";
 import { useAuth } from "@/hooks/useAuth";
 import { FeedPost } from "@/components/feed/types";
 
-export const Feed = () => {
+const Feed = () => {
   const { session } = useAuth();
 
   const { data: posts = [], isLoading, refetch } = useQuery({
@@ -67,3 +67,5 @@ export const Feed = () => {
     </div>
   );
 };
+
+export default Feed;
