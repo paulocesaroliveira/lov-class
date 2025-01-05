@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAdminRateLimit } from "../../hooks/useAdminRateLimit";
 
 type ActionDialogState = {
   type: 'delete' | 'block' | null;
@@ -15,9 +16,13 @@ export const useAdvertisementActions = (refetch: () => void) => {
     adId: null,
     reason: "",
   });
+  const { checkRateLimit, isChecking } = useAdminRateLimit();
 
   const handleDelete = async (id: string, reason: string) => {
     try {
+      const canProceed = await checkRateLimit('delete_advertisement');
+      if (!canProceed) return;
+
       setDeleting(id);
 
       // Delete related records first
@@ -54,6 +59,9 @@ export const useAdvertisementActions = (refetch: () => void) => {
 
   const handleBlock = async (id: string, reason: string) => {
     try {
+      const canProceed = await checkRateLimit('block_advertisement');
+      if (!canProceed) return;
+
       // Atualizar o status do anúncio para bloqueado e adicionar a revisão
       const { error: blockError } = await supabase
         .from("advertisements")
@@ -92,7 +100,8 @@ export const useAdvertisementActions = (refetch: () => void) => {
     actionDialog,
     setActionDialog,
     handleDelete,
-    handleBlock
+    handleBlock,
+    isChecking
   };
 };
 

@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_action_rate_limits: {
+        Row: {
+          action_type: string
+          admin_id: string | null
+          count: number | null
+          created_at: string | null
+          id: string
+          last_action: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id?: string | null
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          last_action?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string | null
+          count?: number | null
+          created_at?: string | null
+          id?: string
+          last_action?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       admin_notes: {
         Row: {
           created_at: string
@@ -840,6 +870,15 @@ export type Database = {
       }
     }
     Functions: {
+      check_admin_rate_limit: {
+        Args: {
+          p_admin_id: string
+          p_action_type: string
+          p_max_actions?: number
+          p_time_window?: unknown
+        }
+        Returns: boolean
+      }
       check_users_roles: {
         Args: Record<PropertyKey, never>
         Returns: {
