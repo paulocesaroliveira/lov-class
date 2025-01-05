@@ -1,27 +1,31 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+interface CountResponse {
+  count: number | null;
+}
+
 export const useAdminMetrics = () => {
   // Métricas de usuários
   const { data: userMetrics } = useQuery({
     queryKey: ["admin-user-metrics"],
     queryFn: async () => {
-      const { data: totalUsers } = await supabase
+      const { count: totalUsers } = await supabase
         .from("profiles")
-        .select("id", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true });
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const { data: activeUsers } = await supabase
+      const { count: activeUsers } = await supabase
         .from("user_activity_logs")
-        .select("user_id", { count: "exact", head: true })
+        .select("*", { count: "exact", head: true })
         .gte("created_at", thirtyDaysAgo.toISOString());
 
       return {
-        totalUsers: totalUsers?.count || 0,
-        activeUsers: activeUsers?.count || 0,
-        inactiveUsers: (totalUsers?.count || 0) - (activeUsers?.count || 0),
+        totalUsers: totalUsers || 0,
+        activeUsers: activeUsers || 0,
+        inactiveUsers: (totalUsers || 0) - (activeUsers || 0),
       };
     },
   });
