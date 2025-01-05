@@ -12,21 +12,28 @@ export const useUserBlock = (userId: string) => {
 
   useEffect(() => {
     const checkBlockStatus = async () => {
-      const { data, error } = await supabase
-        .from('user_blocks')
-        .select('reason, description')
-        .eq('blocked_user_id', userId)
-        .is('expires_at', null)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('user_blocks')
+          .select('reason, description')
+          .eq('blocked_user_id', userId)
+          .is('expires_at', null)
+          .maybeSingle();
 
-      if (error) {
+        if (error) {
+          console.error('Error checking block status:', error);
+          return;
+        }
+
+        if (data) {
+          setIsBlocked(true);
+          setBlockReason(data.description || data.reason);
+        } else {
+          setIsBlocked(false);
+          setBlockReason(null);
+        }
+      } catch (error) {
         console.error('Error checking block status:', error);
-        return;
-      }
-
-      if (data) {
-        setIsBlocked(true);
-        setBlockReason(data.description || data.reason);
       }
     };
 
