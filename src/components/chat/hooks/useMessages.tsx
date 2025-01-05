@@ -52,7 +52,7 @@ export const useMessages = (conversationId: string | undefined) => {
       });
       
       // Transform the raw message data to match our Message type
-      const messages: Message[] = messagesData.map(msg => ({
+      const messages: Message[] = messagesData.map((msg: MessageWithSender) => ({
         id: msg.id,
         content: msg.content,
         sender_id: msg.sender_id,
