@@ -11,7 +11,8 @@ export interface DashboardMetrics {
 export interface UserMetrics {
   total_users: number;
   active_users_7d: number;
-  created_at: string;
+  new_users_30d: number;
+  role: "user" | "admin" | "advertiser";
 }
 
 export interface RoleChangeHistory {
