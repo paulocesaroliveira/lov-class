@@ -32,7 +32,7 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         .select('id')
         .eq('user_id', session.user.id)
         .eq('advertisement_id', advertisement.id)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
       
       return data;
     },
@@ -93,83 +93,83 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
 
   return (
     <Card 
-      className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden relative"
+      className="group hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden relative bg-background/95 backdrop-blur-sm border-border/50"
       onClick={onClick}
     >
       {session && (
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background"
+          className="absolute top-2 right-2 z-10 bg-background/80 hover:bg-background backdrop-blur-sm shadow-sm"
           onClick={toggleFavorite}
           disabled={isLoading}
         >
           <Heart
-            className={`h-5 w-5 ${favorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`}
+            className={`h-5 w-5 transition-colors ${favorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground group-hover:text-red-500'}`}
           />
         </Button>
       )}
 
-      <div className="aspect-[3/4] relative">
+      <div className="aspect-[3/4] relative overflow-hidden">
         {advertisement.profile_photo_url ? (
           <img
             src={`https://keqcfrpqctyfxpfoxrkp.supabase.co/storage/v1/object/public/profile_photos/${advertisement.profile_photo_url}`}
             alt={advertisement.name}
-            className="object-cover w-full h-full"
+            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
+          <div className="w-full h-full flex items-center justify-center bg-muted/50 backdrop-blur-sm">
             <span className="text-muted-foreground">Sem foto</span>
           </div>
         )}
       </div>
 
-      <div className="p-2 space-y-2">
-        <h3 className="text-base font-semibold line-clamp-1 text-center mb-1">{advertisement.name}</h3>
+      <div className="p-3 space-y-3">
+        <h3 className="text-base font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
 
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-          <div className="flex items-center justify-center">
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-center justify-center bg-muted/50 rounded-md py-1 px-2">
             <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
           </div>
-          <div className="flex items-center justify-center gap-0.5">
-            <MapPin size={14} className="text-muted-foreground" />
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
+            <MapPin size={14} className="text-primary" />
             <span className="truncate">{advertisement.city}</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Alt:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
+            <span className="text-primary">Alt:</span>
             <span>{advertisement.height}cm</span>
           </div>
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Peso:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
+            <span className="text-primary">Peso:</span>
             <span>{advertisement.weight}kg</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Estilo:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
+            <span className="text-primary">Estilo:</span>
             <span className="capitalize truncate">{advertisement.style}</span>
           </div>
-          <div className="flex items-center justify-center gap-1">
-            <span className="text-muted-foreground">Local:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
+            <span className="text-primary">Local:</span>
             <span>{hasLocalService ? "Sim" : "Não"}</span>
           </div>
         </div>
 
-        <div className="text-base font-bold text-center py-1">
+        <div className="text-lg font-bold text-center py-2 text-primary">
           R$ {advertisement.hourly_rate}
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-muted-foreground justify-center border-t pt-1">
-          <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground justify-center border-t border-border/50 pt-2">
+          <div className="flex items-center gap-1 hover:text-primary transition-colors">
             <Camera size={14} />
             <span>{advertisement.advertisement_photos?.length || 0}</span>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1 hover:text-primary transition-colors">
             <Video size={14} />
             <span>{advertisement.advertisement_videos?.length || 0}</span>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-1 hover:text-primary transition-colors">
             <MessageSquare size={14} />
             <span>{advertisement.advertisement_comments?.length || 0}</span>
           </div>
