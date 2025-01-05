@@ -4,14 +4,19 @@ import { CreatePost } from "@/components/feed/CreatePost";
 import { PostList } from "@/components/feed/PostList";
 import { useAuth } from "@/hooks/useAuth";
 import { FeedPost } from "@/components/feed/types";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { LogIn } from "lucide-react";
 
 const Feed = () => {
   const { session } = useAuth();
+  const navigate = useNavigate();
 
-  const { data: posts = [], isLoading, refetch } = useQuery({
+  const { data: posts = [], isLoading } = useQuery({
     queryKey: ["feed-posts"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from("feed_posts")
         .select(`
           id,
@@ -28,6 +33,13 @@ const Feed = () => {
           )
         `)
         .order("created_at", { ascending: false });
+
+      // Limit to 5 posts for non-authenticated users
+      if (!session) {
+        query.limit(5);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching posts:", error);
@@ -62,8 +74,29 @@ const Feed = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      {session && <CreatePost onPostCreated={refetch} />}
-      <PostList posts={posts} onPostDeleted={refetch} />
+      {session && <CreatePost onPostCreated={() => {}} />}
+      
+      {!session && (
+        <Alert>
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              Você está visualizando apenas as 5 postagens mais recentes. 
+              Faça login para ver todas as postagens.
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate("/login")}
+              className="ml-4"
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Entrar
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <PostList posts={posts} onPostDeleted={() => {}} />
     </div>
   );
 };
