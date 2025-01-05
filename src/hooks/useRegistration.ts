@@ -15,10 +15,20 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
+      // Basic validation
+      if (!data.email || !data.password || !data.name) {
+        toast.error("Por favor, preencha todos os campos");
+        return false;
+      }
+
+      if (data.password.length < 6) {
+        toast.error("A senha deve ter pelo menos 6 caracteres");
+        return false;
+      }
+
       console.log('Starting registration process with data:', { 
         email: data.email, 
         name: data.name,
-        // Don't log password for security
       });
 
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -35,14 +45,22 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Registration error:', signUpError);
         
-        if (signUpError.message.includes('User already registered')) {
-          toast.error("Este email já está cadastrado. Por favor, faça login.");
-        } else if (signUpError.message.includes('Password')) {
-          toast.error("A senha deve ter pelo menos 6 caracteres.");
-        } else if (signUpError.message.includes('Email')) {
-          toast.error("Por favor, insira um email válido.");
-        } else {
-          toast.error("Erro no cadastro. Por favor, tente novamente.");
+        // Handle specific error cases
+        switch (true) {
+          case signUpError.message.includes('User already registered'):
+            toast.error("Este email já está cadastrado. Por favor, faça login.");
+            break;
+          case signUpError.message.includes('Password'):
+            toast.error("A senha deve ter pelo menos 6 caracteres.");
+            break;
+          case signUpError.message.includes('Email'):
+            toast.error("Por favor, insira um email válido.");
+            break;
+          case signUpError.message.includes('422'):
+            toast.error("Dados inválidos. Verifique as informações fornecidas.");
+            break;
+          default:
+            toast.error("Erro no cadastro. Por favor, tente novamente.");
         }
         return false;
       }
