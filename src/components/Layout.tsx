@@ -1,9 +1,11 @@
 import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { DesktopMenu } from './layout/DesktopMenu';
 import { MobileMenu } from './layout/MobileMenu';
 import { useNavigation } from './layout/Navigation';
+import { useTheme } from 'next-themes';
+import { Button } from './ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +17,7 @@ const MemoizedMobileMenu = memo(MobileMenu);
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { menuItems } = useNavigation();
+  const { theme, setTheme } = useTheme();
 
   const toggleMenu = React.useCallback(() => {
     setIsMenuOpen(prev => !prev);
@@ -24,28 +27,50 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsMenuOpen(false);
   }, []);
 
+  const toggleTheme = React.useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
+
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="glass-card sticky top-0 z-50">
+    <div className="min-h-screen bg-background transition-colors duration-300">
+      <nav className="sticky top-0 z-50 glass-card">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="text-xl font-bold text-primary">
+            <Link to="/" className="text-xl font-bold text-primary animate-fade-in">
               Lov Class
             </Link>
 
-            <MemoizedDesktopMenu menuItems={menuItems} />
+            <div className="flex items-center gap-4">
+              <MemoizedDesktopMenu menuItems={menuItems} />
+              
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="hidden md:flex"
+                aria-label="Alternar tema"
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
 
-            <button
-              className="md:hidden p-2"
-              onClick={toggleMenu}
-              aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              <button
+                className="md:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
+                onClick={toggleMenu}
+                aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
 
-        <MemoizedMobileMenu menuItems={menuItems} isOpen={isMenuOpen} onClose={closeMenu} />
+        <MemoizedMobileMenu 
+          menuItems={menuItems} 
+          isOpen={isMenuOpen} 
+          onClose={closeMenu}
+          onThemeToggle={toggleTheme}
+          theme={theme}
+        />
       </nav>
 
       <main className="container mx-auto px-4 py-8">

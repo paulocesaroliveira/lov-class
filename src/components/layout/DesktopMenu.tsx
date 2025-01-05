@@ -7,13 +7,13 @@ interface DesktopMenuProps {
 
 export const DesktopMenu = ({ menuItems }: DesktopMenuProps) => {
   return (
-    <div className="hidden md:flex items-center gap-4">
-      <nav className="flex items-center gap-4">
+    <div className="hidden md:flex items-center gap-1">
+      <nav className="flex items-center gap-1">
         {menuItems.map((item) => (
           <Link
             key={item.href}
             to={item.href}
-            className="flex items-center gap-2 text-foreground/60 hover:text-foreground transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-foreground/60 hover:text-foreground hover:bg-primary/10 transition-colors"
           >
             <item.icon className="h-4 w-4" />
             {item.label}
