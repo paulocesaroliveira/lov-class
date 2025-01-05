@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner"; // Add this import
+import { toast } from "sonner";
 import { UserRole } from "./types";
 import { useUsers, useUserActions } from "./hooks/useUsers";
 import { UserFilters } from "./components/UserFilters";
@@ -11,6 +11,8 @@ import { useUserFilters } from "./hooks/useUserFilters";
 import { useUserSort } from "./hooks/useUserSort";
 import { useUserPagination } from "./hooks/useUserPagination";
 import { ExportActions } from "./components/ExportActions";
+import { UserMetricsDisplay } from "./components/UserMetricsDisplay";
+import { RoleHistory } from "./components/RoleHistory";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -91,34 +93,40 @@ export const UsersManagement = () => {
   const totalPages = Math.ceil((usersData?.totalCount || 0) / itemsPerPage);
 
   return (
-    <div className="space-y-4">
-      <UserFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        selectedRole={selectedRole}
-        setSelectedRole={setSelectedRole}
-        selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-        onExportData={() => <ExportActions />}
-      />
+    <div className="space-y-8">
+      <UserMetricsDisplay />
+      
+      <div className="space-y-4">
+        <UserFilters
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          selectedRole={selectedRole}
+          setSelectedRole={setSelectedRole}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          onExportData={() => <ExportActions />}
+        />
 
-      <UserTable
-        users={sortedUsers}
-        updating={updating}
-        onRoleUpdate={handleRoleUpdate}
-        onAddNote={handleAddNote}
-        getRoleLabel={getRoleLabel}
-        onSort={handleSort}
-        sortColumn={sortColumn}
-        sortDirection={sortDirection}
-        isLoading={isFetching}
-      />
+        <UserTable
+          users={sortedUsers}
+          updating={updating}
+          onRoleUpdate={handleRoleUpdate}
+          onAddNote={handleAddNote}
+          getRoleLabel={getRoleLabel}
+          onSort={handleSort}
+          sortColumn={sortColumn}
+          sortDirection={sortDirection}
+          isLoading={isFetching}
+        />
 
-      <UserPagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+        <UserPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      </div>
+
+      <RoleHistory />
 
       <RoleChangeDialog
         open={!!roleChangeConfirm}

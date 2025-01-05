@@ -23,7 +23,18 @@ export const ExportActions = () => {
     try {
       const { data: allUsers, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          *,
+          user_activity_logs (
+            action_type,
+            created_at
+          ),
+          role_change_history (
+            old_role,
+            new_role,
+            created_at
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -33,14 +44,31 @@ export const ExportActions = () => {
         return;
       }
 
-      const headers = ["Nome", "Papel", "Data de Criação"];
+      const headers = [
+        "Nome",
+        "Papel",
+        "Data de Criação",
+        "Última Atividade",
+        "Total de Atividades",
+        "Alterações de Papel"
+      ];
+
       const csvContent = [
         headers.join(","),
-        ...allUsers.map(user => [
-          user.name,
-          getRoleLabel(user.role as UserRole),
-          format(new Date(user.created_at), "dd/MM/yyyy HH:mm")
-        ].join(","))
+        ...allUsers.map(user => {
+          const lastActivity = user.user_activity_logs?.[0]?.created_at || "";
+          const totalActivities = user.user_activity_logs?.length || 0;
+          const roleChanges = user.role_change_history?.length || 0;
+
+          return [
+            user.name,
+            getRoleLabel(user.role as UserRole),
+            format(new Date(user.created_at), "dd/MM/yyyy HH:mm"),
+            lastActivity ? format(new Date(lastActivity), "dd/MM/yyyy HH:mm") : "-",
+            totalActivities,
+            roleChanges
+          ].join(",");
+        })
       ].join("\n");
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

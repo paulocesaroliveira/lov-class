@@ -676,6 +676,36 @@ export type Database = {
         }
         Relationships: []
       }
+      role_change_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_role: Database["public"]["Enums"]["user_role"] | null
+          old_role: Database["public"]["Enums"]["user_role"] | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"] | null
+          old_role?: Database["public"]["Enums"]["user_role"] | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"] | null
+          old_role?: Database["public"]["Enums"]["user_role"] | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_activity_logs: {
         Row: {
           action_type: string
@@ -796,6 +826,15 @@ export type Database = {
           click_count: number | null
           state: string | null
           view_count: number | null
+        }
+        Relationships: []
+      }
+      user_metrics: {
+        Row: {
+          active_users_7d: number | null
+          new_users_30d: number | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          total_users: number | null
         }
         Relationships: []
       }

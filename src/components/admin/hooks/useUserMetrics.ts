@@ -1,46 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { UserMetrics } from "../types/history";
 
-interface DateFilter {
-  startDate?: string;
-  endDate?: string;
-}
-
-export const useUserMetrics = (dateFilter?: DateFilter) => {
+export const useUserMetrics = () => {
   return useQuery({
-    queryKey: ["admin-user-metrics", dateFilter],
+    queryKey: ["user-metrics"],
     queryFn: async () => {
-      let query = supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true });
+      const { data, error } = await supabase
+        .from("user_metrics")
+        .select("*");
 
-      if (dateFilter?.startDate) {
-        query = query.gte('created_at', dateFilter.startDate);
-      }
-      if (dateFilter?.endDate) {
-        query = query.lte('created_at', dateFilter.endDate);
-      }
-      
-      const { count: totalUsers } = await query;
-
-      let activityQuery = supabase
-        .from("user_activity_logs")
-        .select("*", { count: "exact", head: true });
-
-      if (dateFilter?.startDate) {
-        activityQuery = activityQuery.gte('created_at', dateFilter.startDate);
-      }
-      if (dateFilter?.endDate) {
-        activityQuery = activityQuery.lte('created_at', dateFilter.endDate);
-      }
-
-      const { count: activeUsers } = await activityQuery;
-
-      return {
-        totalUsers: totalUsers || 0,
-        activeUsers: activeUsers || 0,
-        inactiveUsers: (totalUsers || 0) - (activeUsers || 0),
-      };
+      if (error) throw error;
+      return data as UserMetrics[];
     },
   });
 };
