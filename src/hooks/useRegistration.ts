@@ -28,13 +28,20 @@ export const useRegistration = () => {
         return false;
       }
 
-      // First, check if user exists
-      const { data: existingUser } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
+      // Check if user exists using a safer method
+      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
+        filters: {
+          email: data.email
+        }
       });
 
-      if (existingUser?.user) {
+      if (getUserError) {
+        console.error('Error checking existing user:', getUserError);
+        toast.error("Erro ao verificar usuário existente");
+        return false;
+      }
+
+      if (users && users.length > 0) {
         toast.error("Este email já está cadastrado");
         navigate('/login');
         return false;
