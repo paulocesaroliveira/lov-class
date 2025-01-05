@@ -64,7 +64,11 @@ export const ChatContent = ({
           title={conversationData?.advertisements?.name || "Usuário"} 
           className="animate-slide-in-right"
         />
-        <NotificationButton className="animate-fade-in" />
+        <NotificationButton 
+          className="animate-fade-in"
+          conversationId={conversationId}
+          userId={userId}
+        />
         <ChatMessages 
           messages={messages}
           isLoading={isLoading}

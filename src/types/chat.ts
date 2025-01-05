@@ -53,6 +53,8 @@ export interface TypingIndicatorProps {
 
 export interface NotificationButtonProps {
   className?: string;
+  conversationId: string;
+  userId: string;
 }
 
 export interface TypingUser {

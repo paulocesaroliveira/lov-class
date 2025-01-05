@@ -1,15 +1,20 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { NotificationButtonProps } from "@/types/chat";
+import { useNotifications } from "./hooks/useNotifications";
 
-export const NotificationButton = ({ className }: NotificationButtonProps) => {
-  const [notificationPermission, setNotificationPermission] = useState(
-    Notification.permission
+export const NotificationButton = ({ 
+  className,
+  conversationId,
+  userId 
+}: NotificationButtonProps) => {
+  const { notificationEnabled, requestNotificationPermission } = useNotifications(
+    conversationId,
+    userId
   );
 
-  if (notificationPermission !== "default") return null;
+  if (notificationEnabled) return null;
 
   return (
     <div className={cn("bg-primary/10 p-2 text-center", className)}>
@@ -19,18 +24,7 @@ export const NotificationButton = ({ className }: NotificationButtonProps) => {
       <Button
         variant="outline"
         size="sm"
-        onClick={async () => {
-          try {
-            const permission = await Notification.requestPermission();
-            setNotificationPermission(permission);
-            if (permission === "granted") {
-              toast.success("Notificações ativadas com sucesso!");
-            }
-          } catch (error) {
-            console.error("Erro ao solicitar permissão:", error);
-            toast.error("Erro ao ativar notificações");
-          }
-        }}
+        onClick={requestNotificationPermission}
         className="bg-primary/20 hover:bg-primary/30"
       >
         Ativar Notificações
