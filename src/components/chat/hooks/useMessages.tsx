@@ -2,14 +2,14 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/chat";
 
-interface MessageWithProfile {
+interface MessageWithSender {
   id: string;
   content: string;
   sender_id: string;
   created_at: string;
   conversation_id: string;
   read_at: string | null;
-  profiles: {
+  sender: {
     name: string;
   } | null;
 }
@@ -65,7 +65,7 @@ export const useMessages = (conversationId: string | undefined) => {
       });
       
       // Transform the raw message data to match our Message type
-      const messages: Message[] = messagesData.map(msg => ({
+      const messages: Message[] = (messagesData as MessageWithSender[]).map(msg => ({
         id: msg.id,
         content: msg.content,
         sender_id: msg.sender_id,
