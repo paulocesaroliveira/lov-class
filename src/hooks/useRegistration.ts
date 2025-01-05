@@ -33,6 +33,7 @@ export const useRegistration = () => {
         name: data.name,
       });
 
+      // Try to sign up the user
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -47,21 +48,35 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Registration error:', signUpError);
         
+        // Parse the error message if it's a JSON string
+        let errorMessage = signUpError.message;
+        try {
+          if (typeof signUpError.message === 'string' && signUpError.message.includes('{')) {
+            const parsedError = JSON.parse(signUpError.message);
+            errorMessage = parsedError.msg || parsedError.message || errorMessage;
+          }
+        } catch (e) {
+          console.error('Error parsing error message:', e);
+        }
+        
         // Handle specific error cases
-        if (signUpError.message.includes('User already registered')) {
-          toast.error("Este email já está cadastrado");
+        if (errorMessage.includes('User already registered') || 
+            errorMessage.includes('user_already_exists') ||
+            signUpError.message.includes('User already registered')) {
+          toast.error("Este email já está cadastrado. Por favor, faça login.");
           navigate('/login');
           return false;
         }
         
+        // Handle other specific error cases
         switch (true) {
-          case signUpError.message.includes('Password'):
+          case errorMessage.includes('Password'):
             toast.error("A senha deve ter pelo menos 6 caracteres");
             break;
-          case signUpError.message.includes('Email'):
+          case errorMessage.includes('Email'):
             toast.error("Por favor, insira um email válido");
             break;
-          case signUpError.message.includes('422'):
+          case errorMessage.includes('422'):
             toast.error("Dados inválidos. Verifique as informações fornecidas");
             break;
           default:
