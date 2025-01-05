@@ -1,14 +1,14 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ConversationItemProps {
   id: string;
   otherParticipant: {
+    user_id: string;
     profile_name: string;
   };
   lastMessage: string | null;
@@ -21,56 +21,40 @@ export const ConversationItem = ({
   otherParticipant,
   lastMessage,
   updatedAt,
-  onDelete
+  onDelete,
 }: ConversationItemProps) => {
-  const handleDelete = async () => {
-    try {
-      const { error } = await supabase
-        .from("conversations")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-        console.error("Error deleting conversation:", error);
-        toast.error("Erro ao deletar conversa");
-        return;
-      }
-
-      toast.success("Conversa deletada com sucesso");
-      onDelete();
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Erro ao deletar conversa");
-    }
-  };
-
   return (
-    <div className="flex items-center justify-between p-4 rounded-lg border hover:border-primary transition-colors bg-black/20 backdrop-blur-sm">
-      <Link to={`/mensagens/${id}`} className="flex-1">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="font-medium">
-              {otherParticipant?.profile_name || "Usuário"}
-            </h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">
-              {lastMessage || "Nenhuma mensagem"}
-            </p>
+    <Link to={`/mensagens/${id}`}>
+      <Card className={cn(
+        "p-4 hover:bg-black/5 transition-colors cursor-pointer",
+        "border border-white/10 bg-black/20 backdrop-blur-sm"
+      )}>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12 border-2 border-primary">
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${otherParticipant.user_id}`} />
+            <AvatarFallback>
+              {otherParticipant.profile_name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-semibold text-white truncate">
+                {otherParticipant.profile_name}
+              </h3>
+              <span className="text-xs text-white/60">
+                {format(new Date(updatedAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+              </span>
+            </div>
+            
+            {lastMessage && (
+              <p className="text-sm text-white/80 truncate mt-1">
+                {lastMessage}
+              </p>
+            )}
           </div>
-          <span className="text-xs text-muted-foreground">
-            {format(new Date(updatedAt), "dd/MM/yyyy HH:mm", {
-              locale: ptBR,
-            })}
-          </span>
         </div>
-      </Link>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="ml-2 text-destructive hover:text-destructive/90"
-        onClick={handleDelete}
-      >
-        <Trash2 className="h-5 w-5" />
-      </Button>
-    </div>
+      </Card>
+    </Link>
   );
 };
