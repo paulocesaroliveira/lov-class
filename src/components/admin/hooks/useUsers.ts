@@ -12,7 +12,7 @@ export const useUsers = () => {
         .from("profiles")
         .select(`
           *,
-          admin_notes (
+          admin_notes:admin_notes(
             id,
             note,
             created_at,
@@ -20,7 +20,7 @@ export const useUsers = () => {
             updated_at,
             user_id
           ),
-          user_activity_logs (
+          user_activity_logs:user_activity_logs(
             id,
             action_type,
             description,
@@ -37,7 +37,14 @@ export const useUsers = () => {
         throw error;
       }
 
-      return data as Profile[];
+      // Transform the data to match our Profile type
+      const transformedData = data?.map(user => ({
+        ...user,
+        admin_notes: user.admin_notes || [],
+        user_activity_logs: user.user_activity_logs || []
+      })) as Profile[];
+
+      return transformedData;
     },
   });
 };
