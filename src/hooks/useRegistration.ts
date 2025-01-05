@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export interface RegistrationData {
   name: string;
@@ -15,6 +15,12 @@ export const useRegistration = () => {
     setIsLoading(true);
     
     try {
+      console.log('Starting registration process with data:', { 
+        email: data.email, 
+        name: data.name,
+        // Don't log password for security
+      });
+
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -22,49 +28,38 @@ export const useRegistration = () => {
           data: {
             name: data.name,
           },
+          emailRedirectTo: `${window.location.origin}/login`,
         },
       });
 
       if (signUpError) {
+        console.error('Registration error:', signUpError);
+        
         if (signUpError.message.includes('User already registered')) {
-          toast({
-            title: "Email já cadastrado",
-            description: "Este email já está cadastrado. Por favor, faça login.",
-            variant: "destructive",
-          });
+          toast.error("Este email já está cadastrado. Por favor, faça login.");
+        } else if (signUpError.message.includes('Password')) {
+          toast.error("A senha deve ter pelo menos 6 caracteres.");
+        } else if (signUpError.message.includes('Email')) {
+          toast.error("Por favor, insira um email válido.");
         } else {
-          toast({
-            title: "Erro no cadastro",
-            description: "Ocorreu um erro ao criar sua conta. Por favor, tente novamente.",
-            variant: "destructive",
-          });
-          console.error('Registration error:', signUpError);
+          toast.error("Erro no cadastro. Por favor, tente novamente.");
         }
         return false;
       }
 
       if (!signUpData.user) {
-        toast({
-          title: "Erro no cadastro",
-          description: "Não foi possível criar sua conta. Por favor, tente novamente.",
-          variant: "destructive",
-        });
+        console.error('No user data returned after signup');
+        toast.error("Não foi possível criar sua conta. Por favor, tente novamente.");
         return false;
       }
 
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Verifique seu e-mail para confirmar o cadastro.",
-      });
+      console.log('Registration successful:', signUpData.user.id);
+      toast.success("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.");
       return true;
 
     } catch (error) {
-      console.error('Registration error:', error);
-      toast({
-        title: "Erro no cadastro",
-        description: "Ocorreu um erro inesperado. Por favor, tente novamente.",
-        variant: "destructive",
-      });
+      console.error('Unexpected registration error:', error);
+      toast.error("Ocorreu um erro inesperado. Por favor, tente novamente.");
       return false;
     } finally {
       setIsLoading(false);
