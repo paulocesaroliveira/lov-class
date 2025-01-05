@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download } from "lucide-react";
-import { format, subDays, startOfDay } from "date-fns";
+import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -15,7 +15,7 @@ interface DashboardFiltersProps {
   endDate: string;
   onStartDateChange: (date: string) => void;
   onEndDateChange: (date: string) => void;
-  onExport: () => void;
+  onExport: (format: "csv" | "excel") => void;
 }
 
 export const DashboardFilters = ({
@@ -26,10 +26,13 @@ export const DashboardFilters = ({
   onExport,
 }: DashboardFiltersProps) => {
   const handlePresetChange = (value: string) => {
-    const end = format(new Date(), "yyyy-MM-dd");
+    const end = format(endOfDay(new Date()), "yyyy-MM-dd");
     let start;
 
     switch (value) {
+      case "today":
+        start = format(startOfDay(new Date()), "yyyy-MM-dd");
+        break;
       case "7d":
         start = format(subDays(new Date(), 7), "yyyy-MM-dd");
         break;
@@ -54,6 +57,7 @@ export const DashboardFilters = ({
           <SelectValue placeholder="Selecionar período" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="today">Hoje</SelectItem>
           <SelectItem value="7d">Últimos 7 dias</SelectItem>
           <SelectItem value="30d">Últimos 30 dias</SelectItem>
           <SelectItem value="90d">Últimos 90 dias</SelectItem>
@@ -78,9 +82,13 @@ export const DashboardFilters = ({
       </div>
 
       <div className="flex gap-2 ml-auto">
-        <Button variant="outline" onClick={onExport}>
+        <Button variant="outline" onClick={() => onExport("csv")}>
           <Download className="w-4 h-4 mr-2" />
-          Exportar CSV
+          CSV
+        </Button>
+        <Button variant="outline" onClick={() => onExport("excel")}>
+          <Download className="w-4 h-4 mr-2" />
+          Excel
         </Button>
       </div>
     </div>

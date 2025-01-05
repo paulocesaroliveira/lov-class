@@ -14,7 +14,7 @@ export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsCha
           <CardTitle>Tendências de Engajamento</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px] flex items-center justify-center">
-          <p className="text-muted-foreground">Nenhum dado disponível</p>
+          <p className="text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
         </CardContent>
       </Card>
     );
@@ -50,17 +50,17 @@ export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsCha
               />
               <Line 
                 type="monotone" 
-                dataKey="whatsapp_clicks" 
-                stroke="#f59e0b" 
-                name="Cliques WhatsApp"
+                dataKey="total_views" 
+                stroke="#3b82f6" 
+                name="Visualizações Totais"
                 strokeWidth={2}
                 dot={false}
               />
               <Line 
                 type="monotone" 
-                dataKey="total_views" 
-                stroke="#3b82f6" 
-                name="Visualizações Totais"
+                dataKey="whatsapp_clicks" 
+                stroke="#f59e0b" 
+                name="Cliques WhatsApp"
                 strokeWidth={2}
                 dot={false}
               />

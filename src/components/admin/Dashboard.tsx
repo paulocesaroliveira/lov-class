@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import * as XLSX from 'xlsx';
 import { DashboardFilters } from "./components/DashboardFilters";
 import { MetricCards } from "./components/metrics/MetricCards";
 import { UserDistributionChart } from "./components/charts/UserDistributionChart";
@@ -22,18 +23,23 @@ export const Dashboard = () => {
   const { data: engagementMetrics } = useEngagementMetrics(dateFilter);
   const { data: regionalMetrics } = useRegionalMetrics();
 
-  const exportToCSV = () => {
+  const prepareExportData = () => {
     if (!userMetrics || !adMetrics || !engagementMetrics || !regionalMetrics) {
       toast.error("Não há dados para exportar");
-      return;
+      return null;
     }
 
-    const data = [
+    return [
       ["Período", `${startDate || 'Início'} até ${endDate || 'Hoje'}`],
       [],
       ["Métricas de Usuários"],
-      ["Total", "Ativos", "Inativos"],
-      [userMetrics.totalUsers, userMetrics.activeUsers, userMetrics.inactiveUsers],
+      ["Total", "Ativos", "Inativos", "Taxa de Atividade"],
+      [
+        userMetrics.totalUsers,
+        userMetrics.activeUsers,
+        userMetrics.inactiveUsers,
+        `${((userMetrics.activeUsers / userMetrics.totalUsers) * 100).toFixed(1)}%`
+      ],
       [],
       ["Métricas de Anúncios"],
       ["Total", "Pendentes", "Aprovados", "Rejeitados", "Taxa de Aprovação"],
@@ -46,10 +52,11 @@ export const Dashboard = () => {
       ],
       [],
       ["Métricas de Engajamento"],
-      ["Data", "Visualizações Únicas", "Cliques WhatsApp"],
+      ["Data", "Visualizações Únicas", "Visualizações Totais", "Cliques WhatsApp"],
       ...engagementMetrics.map(metric => [
         format(new Date(metric.date), 'dd/MM/yyyy'),
         metric.unique_views,
+        metric.total_views,
         metric.whatsapp_clicks
       ]),
       [],
@@ -63,6 +70,11 @@ export const Dashboard = () => {
         metric.active_ads
       ])
     ];
+  };
+
+  const exportToCSV = () => {
+    const data = prepareExportData();
+    if (!data) return;
 
     const csvContent = data
       .map(row => row.join(","))
@@ -77,7 +89,27 @@ export const Dashboard = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success("Dados exportados com sucesso");
+    toast.success("Dados exportados com sucesso em CSV");
+  };
+
+  const exportToExcel = () => {
+    const data = prepareExportData();
+    if (!data) return;
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Métricas");
+    
+    XLSX.writeFile(wb, `metricas_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    toast.success("Dados exportados com sucesso em Excel");
+  };
+
+  const handleExport = (format: "csv" | "excel") => {
+    if (format === "csv") {
+      exportToCSV();
+    } else {
+      exportToExcel();
+    }
   };
 
   return (
@@ -87,7 +119,7 @@ export const Dashboard = () => {
         endDate={endDate}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
-        onExport={exportToCSV}
+        onExport={handleExport}
       />
 
       <MetricCards 
