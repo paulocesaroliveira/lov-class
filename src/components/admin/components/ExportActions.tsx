@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UserRole } from "../types";
@@ -63,8 +63,8 @@ export const ExportActions = () => {
           return [
             user.name,
             getRoleLabel(user.role as UserRole),
-            format(new Date(user.created_at), "dd/MM/yyyy HH:mm"),
-            lastActivity ? format(new Date(lastActivity), "dd/MM/yyyy HH:mm") : "-",
+            format(parseISO(user.created_at), "dd/MM/yyyy HH:mm"),
+            lastActivity ? format(parseISO(lastActivity), "dd/MM/yyyy HH:mm") : "-",
             totalActivities,
             roleChanges
           ].join(",");

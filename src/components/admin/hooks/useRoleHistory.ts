@@ -21,7 +21,20 @@ export const useRoleHistory = (userId?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as RoleChangeHistory[];
+      
+      // Transform the data to match the RoleChangeHistory type
+      return (data as any[]).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        old_role: item.old_role,
+        new_role: item.new_role,
+        changed_by: item.changed_by,
+        reason: item.reason,
+        created_at: item.created_at,
+        changed_by_profile: item.changed_by_profile ? {
+          name: item.changed_by_profile.name
+        } : undefined
+      })) as RoleChangeHistory[];
     },
     enabled: true,
   });

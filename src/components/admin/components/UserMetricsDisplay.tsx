@@ -13,9 +13,7 @@ export const UserMetricsDisplay = () => {
     );
   }
 
-  const totalUsers = metrics?.reduce((acc, curr) => acc + curr.total_users, 0) || 0;
-  const newUsers = metrics?.reduce((acc, curr) => acc + curr.new_users_30d, 0) || 0;
-  const activeUsers = metrics?.reduce((acc, curr) => acc + curr.active_users_7d, 0) || 0;
+  if (!metrics) return null;
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -25,25 +23,25 @@ export const UserMetricsDisplay = () => {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalUsers}</div>
+          <div className="text-2xl font-bold">{metrics.totalUsers}</div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Novos Usuários (30d)</CardTitle>
+          <CardTitle className="text-sm font-medium">Usuários Ativos</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{newUsers}</div>
+          <div className="text-2xl font-bold">{metrics.activeUsers}</div>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Usuários Ativos (7d)</CardTitle>
+          <CardTitle className="text-sm font-medium">Usuários Inativos</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{activeUsers}</div>
+          <div className="text-2xl font-bold">{metrics.inactiveUsers}</div>
         </CardContent>
       </Card>
     </div>
