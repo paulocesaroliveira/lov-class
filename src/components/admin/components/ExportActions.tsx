@@ -56,12 +56,12 @@ export const ExportActions = () => {
       const csvContent = [
         headers.join(","),
         ...allUsers.map(user => {
-          const activityLogs = user.user_activity_logs as UserActivityLog[];
-          const lastActivityLog = activityLogs?.[0];
+          const activityLogs = (user.user_activity_logs as unknown) as UserActivityLog[] || [];
+          const lastActivityLog = activityLogs[0];
           const lastActivity = lastActivityLog?.created_at 
             ? format(parseISO(lastActivityLog.created_at), "dd/MM/yyyy HH:mm") 
             : "-";
-          const totalActivities = activityLogs?.length || 0;
+          const totalActivities = activityLogs.length || 0;
           const roleChanges = user.role_change_history?.length || 0;
 
           return [
