@@ -46,6 +46,11 @@ const Anuncios = () => {
           ),
           advertisement_comments (
             id
+          ),
+          advertisement_reviews (
+            status,
+            review_notes,
+            updated_at
           )
         `, { count: 'exact' })
         .eq('status', 'approved')
@@ -140,10 +145,20 @@ const Anuncios = () => {
         throw error;
       }
 
+      // Process the data to get only the latest review for each ad
+      const processedData = data?.map(ad => ({
+        ...ad,
+        advertisement_reviews: ad.advertisement_reviews?.length > 0 
+          ? [ad.advertisement_reviews.reduce((latest, current) => 
+              new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
+            )]
+          : []
+      }));
+
       return {
-        data,
+        data: processedData,
         count,
-        nextPage: data?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+        nextPage: processedData?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,

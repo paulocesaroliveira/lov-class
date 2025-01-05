@@ -23,7 +23,7 @@ export const useAdvertisements = () => {
 
       if (error) throw error;
 
-      // Processar os dados para pegar apenas a revisão mais recente de cada anúncio
+      // Process the data to get only the latest review for each ad
       return data?.map(ad => ({
         ...ad,
         advertisement_reviews: ad.advertisement_reviews?.length > 0 
