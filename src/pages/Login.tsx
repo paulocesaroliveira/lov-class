@@ -36,13 +36,14 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Previne múltiplos cliques
     setLoading(true);
 
     try {
-      // Clear any existing session first
+      // Limpa qualquer sessão existente
       await supabase.auth.signOut();
 
-      // Attempt login
+      // Tenta fazer login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -56,15 +57,17 @@ const Login = () => {
         } else {
           toast.error("Erro ao fazer login: " + authError.message);
         }
+        setLoading(false);
         return;
       }
 
       if (!authData.user) {
         toast.error("Erro ao recuperar dados do usuário");
+        setLoading(false);
         return;
       }
 
-      // Verify profile exists
+      // Verifica se o perfil existe
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -75,11 +78,12 @@ const Login = () => {
         console.error("Erro ao verificar perfil:", profileError);
         toast.error("Erro ao verificar perfil de usuário");
         await supabase.auth.signOut();
+        setLoading(false);
         return;
       }
 
       if (!profile) {
-        // Create profile if it doesn't exist
+        // Cria o perfil se não existir
         const { error: createProfileError } = await supabase
           .from("profiles")
           .insert([
@@ -94,6 +98,7 @@ const Login = () => {
           console.error("Erro ao criar perfil:", createProfileError);
           toast.error("Erro ao criar perfil de usuário");
           await supabase.auth.signOut();
+          setLoading(false);
           return;
         }
       }
@@ -127,6 +132,7 @@ const Login = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
           />
         </div>
         <div className="space-y-2">
@@ -137,6 +143,7 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
         </div>
         <Button className="w-full" type="submit" disabled={loading}>
