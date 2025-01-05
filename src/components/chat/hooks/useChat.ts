@@ -23,9 +23,9 @@ export const useChat = (conversationId: string, userId: string) => {
   // Flatten the messages from all pages
   const messages = data?.pages.flatMap(page => page.messages) ?? [];
 
-  const handleSendMessage = useCallback(async (content: string) => {
+  const handleSendMessage = useCallback(async (content: string): Promise<void> => {
     try {
-      const { data: messageData, error } = await supabase
+      await supabase
         .from('messages')
         .insert([
           {
@@ -36,9 +36,6 @@ export const useChat = (conversationId: string, userId: string) => {
         ])
         .select('*')
         .single();
-
-      if (error) throw error;
-      return messageData;
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Erro ao enviar mensagem');
