@@ -16,6 +16,8 @@ export const useTypingStatus = (
           user_id: userId,
           is_typing: isTyping,
           updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'conversation_id,user_id'
         });
 
       if (error) throw error;
