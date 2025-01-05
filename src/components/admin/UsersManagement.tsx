@@ -1,22 +1,5 @@
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,20 +10,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { format } from "date-fns";
-import { UserRole, Profile } from "./types";
+import { UserRole } from "./types";
 import { useUsers, useUserActions } from "./hooks/useUsers";
-import { UserNotes } from "./components/UserNotes";
-import { Loader2 } from "lucide-react";
+import { UserFilters } from "./components/UserFilters";
+import { UserTable } from "./components/UserTable";
+import { UserPagination } from "./components/UserPagination";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -113,119 +87,28 @@ export const UsersManagement = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-4 mb-4">
-        <Input
-          placeholder="Buscar por nome..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-xs"
-        />
-        <Select value={selectedRole} onValueChange={(value: UserRole | "all") => setSelectedRole(value)}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Filtrar role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="user">Cliente</SelectItem>
-            <SelectItem value="advertiser">Anunciante</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
-        <Input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="max-w-xs"
-        />
-      </div>
+      <UserFilters
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+      />
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nome</TableHead>
-              <TableHead>Papel</TableHead>
-              <TableHead>Data de Criação</TableHead>
-              <TableHead>Ações</TableHead>
-              <TableHead>Notas</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedUsers?.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.name}</TableCell>
-                <TableCell>{getRoleLabel(user.role)}</TableCell>
-                <TableCell>
-                  {format(new Date(user.created_at), "dd/MM/yyyy HH:mm")}
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={user.role}
-                    disabled={updating === user.id}
-                    onValueChange={(value: UserRole) => handleRoleUpdate(user.id, value)}
-                  >
-                    <SelectTrigger className="w-32">
-                      {updating === user.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <SelectValue />
-                      )}
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">Cliente</SelectItem>
-                      <SelectItem value="advertiser">Anunciante</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline">
-                        Ver Notas
-                      </Button>
-                    </DialogTrigger>
-                    <UserNotes
-                      userName={user.name}
-                      notes={user.admin_notes}
-                      onAddNote={(note) => handleNoteAdd(user.id, note)}
-                    />
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <UserTable
+        users={paginatedUsers || []}
+        updating={updating}
+        onRoleUpdate={handleRoleUpdate}
+        onAddNote={handleNoteAdd}
+        getRoleLabel={getRoleLabel}
+      />
 
-      {totalPages > 1 && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <PaginationItem key={pageNum}>
-                <PaginationLink
-                  onClick={() => setPage(pageNum)}
-                  isActive={page === pageNum}
-                >
-                  {pageNum}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <UserPagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
 
       <AlertDialog open={!!roleChangeConfirm} onOpenChange={() => setRoleChangeConfirm(null)}>
         <AlertDialogContent>
