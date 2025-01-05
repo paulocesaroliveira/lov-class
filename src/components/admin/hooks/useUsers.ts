@@ -46,6 +46,7 @@ export const useUsers = (params: UsersQueryParams) => {
       const { data: profiles, error: profilesError, count } = await query;
 
       if (profilesError) {
+        console.error("Erro ao carregar usuários:", profilesError);
         toast.error("Erro ao carregar usuários");
         throw profilesError;
       }
@@ -69,13 +70,20 @@ export const useUserActions = () => {
         .update({ role: newRole })
         .eq("id", userId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erro ao atualizar papel do usuário:", error);
+        throw error;
+      }
+
+      // Registrar a mudança de papel
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser?.user?.id) throw new Error("Usuário não autenticado");
 
       await supabase.from("user_activity_logs").insert({
         user_id: userId,
         action_type: "role_change",
         description: `Role changed to ${newRole}`,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
+        created_by: currentUser.user.id,
       });
     },
     onSuccess: () => {
@@ -90,10 +98,13 @@ export const useUserActions = () => {
 
   const addNoteMutation = useMutation({
     mutationFn: async ({ userId, note }: { userId: string; note: string }) => {
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser?.user?.id) throw new Error("Usuário não autenticado");
+
       const { error } = await supabase.from("admin_notes").insert({
         user_id: userId,
         note,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
+        created_by: currentUser.user.id,
       });
 
       if (error) throw error;
