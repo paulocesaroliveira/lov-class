@@ -11,10 +11,15 @@ interface UsersQueryParams {
   date?: string;
 }
 
+interface UsersResponse {
+  data: Profile[];
+  totalCount: number;
+}
+
 export const useUsers = (params: UsersQueryParams) => {
   const { page, pageSize, searchTerm, role, date } = params;
 
-  return useQuery({
+  return useQuery<UsersResponse>({
     queryKey: ["admin-users", params],
     queryFn: async () => {
       let query = supabase
@@ -46,11 +51,11 @@ export const useUsers = (params: UsersQueryParams) => {
       }
 
       return {
-        data: profiles as Profile[],
+        data: profiles as unknown as Profile[],
         totalCount: count || 0,
       };
     },
-    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
 

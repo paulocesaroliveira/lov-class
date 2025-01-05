@@ -1,18 +1,10 @@
 import { useState } from "react";
-import { UserRole, Profile } from "../types";
-import { format } from "date-fns";
+import { UserRole } from "../types";
 
-export const useUserFilters = (users: Profile[] | undefined) => {
+export const useUserFilters = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
   const [selectedDate, setSelectedDate] = useState<string>("");
-
-  const filteredUsers = users?.filter((user) => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "all" || user.role === selectedRole;
-    const matchesDate = !selectedDate || format(new Date(user.created_at), "yyyy-MM-dd") === selectedDate;
-    return matchesSearch && matchesRole && matchesDate;
-  });
 
   return {
     searchTerm,
@@ -21,6 +13,5 @@ export const useUserFilters = (users: Profile[] | undefined) => {
     setSelectedRole,
     selectedDate,
     setSelectedDate,
-    filteredUsers,
   };
 };

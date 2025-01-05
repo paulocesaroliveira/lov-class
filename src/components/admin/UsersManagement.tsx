@@ -11,6 +11,7 @@ import { useUserFilters } from "./hooks/useUserFilters";
 import { useUserSort } from "./hooks/useUserSort";
 import { useUserPagination } from "./hooks/useUserPagination";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -74,7 +75,6 @@ export const UsersManagement = () => {
     setUpdating(roleChangeConfirm.userId);
     const success = await handleRoleChange(roleChangeConfirm.userId, roleChangeConfirm.newRole);
     if (success) {
-      // No need to refetch manually, React Query will handle it
       toast.success("Papel atualizado com sucesso");
     }
     setUpdating(null);
