@@ -24,7 +24,7 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // Buscar diretamente os detalhes da conversa com todos os dados necessários
+      // Buscar os detalhes da conversa incluindo o anúncio e o outro participante
       const { data: conversationData, error: detailsError } = await supabase
         .from("conversation_participants")
         .select(`
@@ -35,15 +35,10 @@ export const useConversation = (conversationId: string | undefined) => {
             id,
             name,
             profile_id
-          ),
-          conversations!inner (
-            id,
-            created_at,
-            updated_at
           )
         `)
         .eq("conversation_id", conversationId)
-        .eq("user_id", session.user.id)
+        .neq("user_id", session.user.id)
         .maybeSingle();
 
       if (detailsError) {
@@ -51,14 +46,43 @@ export const useConversation = (conversationId: string | undefined) => {
         throw detailsError;
       }
 
+      // Se não encontrou dados do outro participante, tentar buscar os próprios dados
       if (!conversationData) {
-        console.error("useConversation: No conversation data found");
-        throw new Error("Conversation not found");
+        const { data: selfData, error: selfError } = await supabase
+          .from("conversation_participants")
+          .select(`
+            conversation_id,
+            user_id,
+            advertisement_id,
+            advertisements (
+              id,
+              name,
+              profile_id
+            )
+          `)
+          .eq("conversation_id", conversationId)
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (selfError) {
+          console.error("useConversation: Error fetching self conversation details:", selfError);
+          throw selfError;
+        }
+
+        if (!selfData) {
+          console.error("useConversation: No conversation data found");
+          throw new Error("Conversation not found");
+        }
+
+        console.log("useConversation: Found self conversation data:", selfData);
+        return {
+          user_id: selfData.user_id,
+          advertisement_id: selfData.advertisement_id,
+          advertisements: selfData.advertisements
+        };
       }
 
-      console.log("useConversation: Successfully fetched conversation data:", conversationData);
-
-      // Retornar os dados formatados conforme esperado
+      console.log("useConversation: Found other participant data:", conversationData);
       return {
         user_id: conversationData.user_id,
         advertisement_id: conversationData.advertisement_id,
