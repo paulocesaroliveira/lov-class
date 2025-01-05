@@ -27,6 +27,8 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
+      console.log("Iniciando registro do usuário...");
+      
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -51,8 +53,30 @@ export const useRegistration = () => {
       }
 
       if (!signUpData.user) {
+        console.error('Nenhum usuário retornado após o cadastro');
         toast.error("Erro no cadastro. Por favor, tente novamente");
         return false;
+      }
+
+      console.log("Usuário registrado com sucesso:", signUpData.user);
+
+      // Criar perfil do usuário
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: signUpData.user.id,
+          name: data.name,
+          role: 'user'
+        });
+
+      if (profileError) {
+        console.error('Erro ao criar perfil:', profileError);
+        if (profileError.code === '23505') { // Unique violation
+          console.log("Perfil já existe, ignorando erro de duplicação");
+        } else {
+          toast.error("Erro ao criar perfil de usuário");
+          return false;
+        }
       }
 
       toast.success("Conta criada com sucesso! Verifique seu email para confirmar o cadastro.");

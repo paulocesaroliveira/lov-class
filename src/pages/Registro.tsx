@@ -36,7 +36,7 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    // Now data will have all required fields as non-optional
+    console.log("Dados do formulário:", data);
     const registrationData: RegistrationData = {
       name: data.name,
       email: data.email,
