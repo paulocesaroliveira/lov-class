@@ -39,10 +39,11 @@ export const useAdminMetrics = () => {
   const { data: adMetrics } = useQuery({
     queryKey: ["admin-ad-metrics"],
     queryFn: async () => {
-      const { data: adStatusCount } = await supabase
+      const { data: adStatusCount, error } = await supabase
         .from("advertisement_review_counts")
-        .select("*")
-        .throwOnError();
+        .select("*");
+
+      if (error) throw error;
 
       const statusCount = {
         pending: 0,
