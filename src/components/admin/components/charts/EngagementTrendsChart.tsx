@@ -4,9 +4,10 @@ import { format } from "date-fns";
 
 interface EngagementTrendsChartProps {
   engagementMetrics?: any[];
+  isCompact: boolean;
 }
 
-export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsChartProps) => {
+export const EngagementTrendsChart = ({ engagementMetrics, isCompact }: EngagementTrendsChartProps) => {
   if (!engagementMetrics?.length) {
     return (
       <Card>

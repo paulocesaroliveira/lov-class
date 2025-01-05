@@ -8,9 +8,10 @@ interface UserMetrics {
 
 interface UserDistributionChartProps {
   userMetrics?: UserMetrics;
+  isCompact: boolean;
 }
 
-export const UserDistributionChart = ({ userMetrics }: UserDistributionChartProps) => {
+export const UserDistributionChart = ({ userMetrics, isCompact }: UserDistributionChartProps) => {
   const chartData = [
     {
       name: "Ativos",
@@ -52,5 +53,4 @@ export const UserDistributionChart = ({ userMetrics }: UserDistributionChartProp
         </div>
       </CardContent>
     </Card>
-  );
 };

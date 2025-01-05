@@ -3,9 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 interface RegionalActivityChartProps {
   regionalMetrics?: any[];
+  isCompact: boolean;
 }
 
-export const RegionalActivityChart = ({ regionalMetrics }: RegionalActivityChartProps) => {
+export const RegionalActivityChart = ({ regionalMetrics, isCompact }: RegionalActivityChartProps) => {
   return (
     <Card>
       <CardHeader>

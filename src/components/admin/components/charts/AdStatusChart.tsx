@@ -9,9 +9,10 @@ interface AdMetrics {
 
 interface AdStatusChartProps {
   adMetrics?: AdMetrics;
+  isCompact: boolean;
 }
 
-export const AdStatusChart = ({ adMetrics }: AdStatusChartProps) => {
+export const AdStatusChart = ({ adMetrics, isCompact }: AdStatusChartProps) => {
   const chartData = [
     {
       name: "Pendentes",
@@ -53,5 +54,4 @@ export const AdStatusChart = ({ adMetrics }: AdStatusChartProps) => {
         </div>
       </CardContent>
     </Card>
-  );
 };

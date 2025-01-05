@@ -16,6 +16,8 @@ interface DashboardFiltersProps {
   onStartDateChange: (date: string) => void;
   onEndDateChange: (date: string) => void;
   onExport: (format: "csv" | "excel") => void;
+  isCompact: boolean;
+  onToggleCompact: () => void;
 }
 
 export const DashboardFilters = ({
@@ -24,6 +26,8 @@ export const DashboardFilters = ({
   onStartDateChange,
   onEndDateChange,
   onExport,
+  isCompact,
+  onToggleCompact,
 }: DashboardFiltersProps) => {
   const handlePresetChange = (value: string) => {
     const end = format(endOfDay(new Date()), "yyyy-MM-dd");
