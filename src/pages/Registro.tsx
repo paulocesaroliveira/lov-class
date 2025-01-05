@@ -36,7 +36,6 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    console.log("Dados do formulário:", data);
     const registrationData: RegistrationData = {
       name: data.name,
       email: data.email,

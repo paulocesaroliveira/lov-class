@@ -27,10 +27,27 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      console.log("Iniciando registro do usuário...");
-      console.log("Dados do formulário:", data);
-      
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Primeiro, verificamos se o usuário já existe
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.email)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast.error("Este email já está cadastrado", {
+          duration: 4000,
+          action: {
+            label: "Ir para login",
+            onClick: () => navigate('/login')
+          }
+        });
+        setIsLoading(false);
+        return false;
+      }
+
+      // Se não existe, tentamos criar o usuário
+      const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -41,11 +58,8 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        console.error('Erro no cadastro:', signUpError);
-        
-        // Tratamento específico para usuário já cadastrado
         if (signUpError.message.includes('User already registered')) {
-          toast.error("Este email já está cadastrado. Por favor, faça login ou use outro email.", {
+          toast.error("Este email já está cadastrado", {
             duration: 4000,
             action: {
               label: "Ir para login",
@@ -59,42 +73,12 @@ export const useRegistration = () => {
         return false;
       }
 
-      if (!signUpData.user) {
-        console.error('Nenhum usuário retornado após o cadastro');
-        toast.error("Erro no cadastro. Por favor, tente novamente");
-        return false;
-      }
-
-      console.log("Usuário registrado com sucesso:", signUpData.user);
-
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: signUpData.user.id,
-          name: data.name,
-          role: 'user'
-        });
-
-      if (profileError) {
-        console.error('Erro ao criar perfil:', profileError);
-        if (profileError.code === '23505') { // Unique violation
-          console.log("Perfil já existe, ignorando erro de duplicação");
-        } else {
-          toast.error("Erro ao criar perfil de usuário");
-          return false;
-        }
-      }
-
-      // Show success message and redirect
-      toast.success("Conta criada com sucesso! Verifique seu email para confirmar o cadastro.", {
-        duration: 5000, // Show for 5 seconds
-        onDismiss: () => {
-          navigate('/login');
-        }
+      // Mostra mensagem de sucesso e redireciona
+      toast.success("Conta criada com sucesso! Redirecionando para o login...", {
+        duration: 2000,
       });
       
-      // Delay navigation slightly to ensure the toast is visible
+      // Delay para garantir que o usuário veja a mensagem
       setTimeout(() => {
         navigate('/login');
       }, 2000);
