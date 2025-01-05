@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
-import { FormValues } from "@/types/advertisement";
+import { Advertisement } from "@/types/advertisement";
 import { toast } from "sonner";
 import { z } from "zod";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
@@ -16,7 +16,7 @@ type StyleType = z.infer<typeof formSchema>["style"];
 const EditarAnuncio = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [advertisementData, setAdvertisementData] = useState<FormValues | null>(null);
+  const [advertisementData, setAdvertisementData] = useState<Advertisement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -41,9 +41,11 @@ const EditarAnuncio = () => {
               location
             ),
             advertisement_photos (
+              id,
               photo_url
             ),
             advertisement_videos (
+              id,
               video_url
             )
           `)
@@ -65,10 +67,11 @@ const EditarAnuncio = () => {
 
         console.log("Dados do anúncio recebidos:", advertisement);
 
-        const formattedData: FormValues = {
+        const formattedData: Advertisement = {
           id: advertisement.id,
+          profile_id: advertisement.profile_id,
           name: advertisement.name,
-          birthDate: advertisement.birth_date,
+          birth_date: advertisement.birth_date,
           height: advertisement.height,
           weight: advertisement.weight,
           category: advertisement.category,
@@ -82,14 +85,21 @@ const EditarAnuncio = () => {
           state: advertisement.state,
           city: advertisement.city,
           neighborhood: advertisement.neighborhood,
-          hourlyRate: advertisement.hourly_rate,
-          customRates: advertisement.custom_rate_description
-            ? JSON.parse(advertisement.custom_rate_description)
-            : [],
+          hourly_rate: advertisement.hourly_rate,
+          custom_rate_description: advertisement.custom_rate_description,
+          custom_rate_value: advertisement.custom_rate_value,
           style: advertisement.style as StyleType,
-          services: advertisement.advertisement_services?.map((s: any) => s.service) || [],
-          serviceLocations: advertisement.advertisement_service_locations?.map((l: any) => l.location) || [],
           description: advertisement.description,
+          profile_photo_url: advertisement.profile_photo_url,
+          created_at: advertisement.created_at,
+          updated_at: advertisement.updated_at,
+          blocked: advertisement.blocked,
+          block_reason: advertisement.block_reason,
+          advertisement_services: advertisement.advertisement_services?.map((s: any) => ({ service: s.service })) || [],
+          advertisement_service_locations: advertisement.advertisement_service_locations?.map((l: any) => ({ location: l.location })) || [],
+          advertisement_photos: advertisement.advertisement_photos?.map((p: any) => ({ id: p.id, photo_url: p.photo_url })) || [],
+          advertisement_videos: advertisement.advertisement_videos?.map((v: any) => ({ id: v.id, video_url: v.video_url })) || [],
+          advertisement_comments: []
         };
 
         console.log("Dados formatados para o formulário:", formattedData);
