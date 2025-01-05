@@ -81,54 +81,6 @@ export const useAuth = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
       console.log("Estado de autenticação alterado:", _event);
-      
-      if (currentSession?.user) {
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentSession.user.id)
-            .maybeSingle();
-
-          if (profileError) {
-            console.error("Erro ao verificar perfil:", profileError);
-            return;
-          }
-
-          if (!profile) {
-            try {
-              const { error: insertError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: currentSession.user.id,
-                  name: currentSession.user.email?.split('@')[0] || 'User',
-                  role: 'user'
-                });
-
-              if (insertError) {
-                if (insertError.code === '23505') { // Unique violation
-                  console.log("Perfil já existe, ignorando erro de duplicação");
-                } else {
-                  console.error("Erro ao criar perfil:", insertError);
-                  toast.error("Erro ao criar perfil de usuário");
-                }
-                return;
-              }
-              
-              console.log("Perfil criado com sucesso!");
-            } catch (error) {
-              console.error("Erro ao criar perfil:", error);
-              toast.error("Erro ao criar perfil de usuário");
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("Erro ao verificar/criar perfil:", error);
-          toast.error("Erro ao verificar/criar perfil de usuário");
-          return;
-        }
-      }
-      
       setSession(currentSession);
       setLoading(false);
     });

@@ -27,7 +27,24 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      // Tenta criar o usuário diretamente
+      // Primeiro, verificar se o usuário já existe
+      const { data: existingUser, error: checkError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (existingUser?.user) {
+        toast.error("Este email já está cadastrado", {
+          duration: 4000,
+          action: {
+            label: "Ir para login",
+            onClick: () => navigate('/login')
+          }
+        });
+        return false;
+      }
+
+      // Se não existe, tenta criar
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -39,9 +56,9 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        // Verifica especificamente o erro de usuário já existente
-        if (signUpError.message.includes('User already registered') || 
-            signUpError.message.includes('user_already_exists')) {
+        console.error('Erro detalhado no cadastro:', signUpError);
+        
+        if (signUpError.message.includes('user_already_exists')) {
           toast.error("Este email já está cadastrado", {
             duration: 4000,
             action: {
@@ -52,15 +69,12 @@ export const useRegistration = () => {
           return false;
         }
 
-        console.error('Erro detalhado no cadastro:', signUpError);
         toast.error("Erro no cadastro. Por favor, tente novamente");
         return false;
       }
 
-      // Mostra mensagem de sucesso e redireciona
       toast.success("Conta criada com sucesso! Redirecionando para o login...");
       
-      // Redireciona após um breve delay
       setTimeout(() => {
         navigate('/login');
       }, 2000);
