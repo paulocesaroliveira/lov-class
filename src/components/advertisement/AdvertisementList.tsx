@@ -54,9 +54,9 @@ export const AdvertisementList = ({
             )
           `);
 
-        // Only filter out blocked ads on the Anuncios page
+        // Only filter out non-approved ads on the Anuncios page
         if (location.pathname === "/anuncios") {
-          query = query.eq("blocked", false);
+          query = query.eq("status", "approved");
         }
 
         const { data, error } = await query;

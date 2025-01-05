@@ -8,6 +8,8 @@ export type FormValues = z.infer<typeof formSchema> & {
   identityDocument?: File;
 };
 
+export type AdvertisementStatus = 'pending' | 'approved' | 'blocked';
+
 export interface Advertisement {
   id: string;
   profile_id: string;
@@ -34,8 +36,8 @@ export interface Advertisement {
   hair_color: string;
   body_type: string;
   silicone: string;
-  blocked: boolean;
   block_reason: string | null;
+  status: AdvertisementStatus;
   advertisement_photos?: { id: string; photo_url: string }[];
   advertisement_videos?: { id: string; video_url: string }[];
   advertisement_services: { service: ServiceType }[];
