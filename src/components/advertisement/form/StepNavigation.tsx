@@ -19,12 +19,22 @@ export const StepNavigation = ({
   const isLastStep = currentStep === totalSteps;
   const isFirstStep = currentStep === 1;
 
+  const handleNext = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    onNext();
+  };
+
+  const handlePrevious = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    onPrevious();
+  };
+
   return (
     <div className="flex justify-between pt-6">
       <Button
         type="button"
         variant="outline"
-        onClick={onPrevious}
+        onClick={handlePrevious}
         disabled={isFirstStep}
         className="w-32"
       >
@@ -34,7 +44,7 @@ export const StepNavigation = ({
 
       <Button
         type={isLastStep ? "submit" : "button"}
-        onClick={!isLastStep ? onNext : undefined}
+        onClick={!isLastStep ? handleNext : undefined}
         disabled={isLoading}
         className="w-32"
       >
