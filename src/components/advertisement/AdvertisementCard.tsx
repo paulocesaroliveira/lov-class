@@ -125,52 +125,52 @@ export const AdvertisementCard = ({ advertisement, onClick, isFavorite = false }
         )}
       </div>
 
-      <div className="p-3 space-y-3">
-        <h3 className="text-base font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
+      <div className="p-2 sm:p-3 space-y-2 sm:space-y-3">
+        <h3 className="text-sm sm:text-base font-semibold line-clamp-1 text-center">{advertisement.name}</h3>
 
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex items-center justify-center bg-muted/50 rounded-md py-1 px-2">
-            <span>{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-xs sm:text-sm">
+          <div className="flex items-center justify-center bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <span className="truncate">{new Date().getFullYear() - new Date(advertisement.birth_date).getFullYear()} anos</span>
           </div>
-          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
-            <MapPin size={14} className="text-primary" />
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <MapPin size={12} className="text-primary shrink-0" />
             <span className="truncate">{advertisement.city}</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
-            <span className="text-primary">Alt:</span>
-            <span>{advertisement.height}cm</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <span className="text-primary shrink-0">Alt:</span>
+            <span className="truncate">{advertisement.height}cm</span>
           </div>
-          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
-            <span className="text-primary">Peso:</span>
-            <span>{advertisement.weight}kg</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <span className="text-primary shrink-0">Peso:</span>
+            <span className="truncate">{advertisement.weight}kg</span>
           </div>
 
-          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
-            <span className="text-primary">Estilo:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <span className="text-primary shrink-0">Estilo:</span>
             <span className="capitalize truncate">{advertisement.style}</span>
           </div>
-          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-2">
-            <span className="text-primary">Local:</span>
+          <div className="flex items-center justify-center gap-1 bg-muted/50 rounded-md py-1 px-1.5 sm:px-2">
+            <span className="text-primary shrink-0">Local:</span>
             <span>{hasLocalService ? "Sim" : "Não"}</span>
           </div>
         </div>
 
-        <div className="text-lg font-bold text-center py-2 text-primary">
+        <div className="text-base sm:text-lg font-bold text-center py-1 sm:py-2 text-primary">
           R$ {advertisement.hourly_rate}
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-muted-foreground justify-center border-t border-border/50 pt-2">
+        <div className="flex items-center gap-3 sm:gap-4 text-xs text-muted-foreground justify-center border-t border-border/50 pt-2">
           <div className="flex items-center gap-1 hover:text-primary transition-colors">
-            <Camera size={14} />
+            <Camera size={12} className="shrink-0" />
             <span>{advertisement.advertisement_photos?.length || 0}</span>
           </div>
           <div className="flex items-center gap-1 hover:text-primary transition-colors">
-            <Video size={14} />
+            <Video size={12} className="shrink-0" />
             <span>{advertisement.advertisement_videos?.length || 0}</span>
           </div>
           <div className="flex items-center gap-1 hover:text-primary transition-colors">
-            <MessageSquare size={14} />
+            <MessageSquare size={12} className="shrink-0" />
             <span>{advertisement.advertisement_comments?.length || 0}</span>
           </div>
         </div>
