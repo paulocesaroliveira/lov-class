@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Profile } from "../types";
+import { Profile, AdminNote, UserActivityLog } from "../types";
+import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+
+type UserRole = Database["public"]["Enums"]["user_role"];
 
 export const useUsers = () => {
   return useQuery({
@@ -32,7 +35,17 @@ export const useUsers = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Profile[];
+
+      // Type assertion to ensure the data matches our Profile type
+      return (data as any[]).map(user => ({
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+        admin_notes: user.admin_notes as AdminNote[],
+        user_activity_logs: user.user_activity_logs as UserActivityLog[]
+      })) as Profile[];
     },
   });
 };
