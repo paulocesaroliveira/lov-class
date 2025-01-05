@@ -36,11 +36,21 @@ export const useMessages = (conversationId: string | undefined) => {
       });
 
       const { data: messagesData, error } = await supabase
-        .rpc('get_messages_with_sender_names', {
-          p_conversation_id: conversationId
-        })
-        .range(from, to)
-        .order('created_at', { ascending: false });
+        .from('messages')
+        .select(`
+          id,
+          content,
+          sender_id,
+          created_at,
+          conversation_id,
+          read_at,
+          profiles:sender_id (
+            name
+          )
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+        .range(from, to);
 
       if (error) {
         console.error("useMessages: Error fetching messages:", error);
@@ -53,18 +63,19 @@ export const useMessages = (conversationId: string | undefined) => {
       }
       
       console.log("useMessages: Messages retrieved:", {
-        count: messagesData.length
+        count: messagesData.length,
+        messages: messagesData
       });
       
       // Transform the raw message data to match our Message type
-      const messages: Message[] = (messagesData as MessageResponse[]).map(msg => ({
+      const messages: Message[] = messagesData.map(msg => ({
         id: msg.id,
         content: msg.content,
         sender_id: msg.sender_id,
         created_at: msg.created_at,
         conversation_id: msg.conversation_id,
         read_at: msg.read_at,
-        sender: msg.sender_name ? { name: msg.sender_name } : null
+        sender: msg.profiles ? { name: msg.profiles.name } : null
       }));
 
       const nextCursor = messages.length === 20 ? pageParam + 1 : null;

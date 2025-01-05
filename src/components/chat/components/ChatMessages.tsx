@@ -16,7 +16,6 @@ interface ChatMessagesProps {
   className?: string;
 }
 
-// Componente de mensagem individual memoizado
 const MessageItem = memo(({ 
   message, 
   userId 
@@ -90,12 +89,10 @@ export const ChatMessages = ({
   }, [inView, hasMore, isLoadingMore, onLoadMore]);
 
   useEffect(() => {
-    // Limpar timeout anterior se existir
     if (scrollTimeout.current) {
       clearTimeout(scrollTimeout.current);
     }
 
-    // Definir novo timeout para scroll suave
     scrollTimeout.current = setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);

@@ -22,6 +22,7 @@ export const useChat = (conversationId: string, userId: string) => {
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+    refetch
   } = useMessages(conversationId);
 
   // Flatten the messages from all pages and ensure proper typing
@@ -80,11 +81,14 @@ export const useChat = (conversationId: string, userId: string) => {
         }
         throw error;
       }
+
+      // Atualiza a lista de mensagens após enviar uma nova
+      refetch();
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [conversationId, userId, isBlocked]);
+  }, [conversationId, userId, isBlocked, refetch]);
 
   return {
     messages,
