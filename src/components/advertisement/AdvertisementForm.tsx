@@ -48,6 +48,14 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
   const [showModerationAlert, setShowModerationAlert] = useState(false);
   const { user } = useAuthCheck();
+  const { 
+    saveAdvertisement, 
+    saveServices, 
+    saveServiceLocations, 
+    savePhotos, 
+    saveVideos,
+    deleteExistingMedia 
+  } = useAdvertisementOperations();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

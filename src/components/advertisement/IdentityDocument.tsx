@@ -28,7 +28,7 @@ export const IdentityDocument = ({ form, setIdentityDocument }: IdentityDocument
       <FormField
         control={form.control}
         name="identityDocument"
-        render={({ field: { onChange, ...field } }) => (
+        render={({ field: { onChange, value, ...field } }) => (
           <FormItem>
             <FormLabel>Documento de Identidade (RG ou CNH)</FormLabel>
             <FormControl>
@@ -39,7 +39,7 @@ export const IdentityDocument = ({ form, setIdentityDocument }: IdentityDocument
                   const file = e.target.files?.[0];
                   if (file) {
                     setIdentityDocument(file);
-                    onChange(e);
+                    onChange(file);
                   }
                 }}
                 {...field}
