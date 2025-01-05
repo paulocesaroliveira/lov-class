@@ -22,6 +22,12 @@ type Conversation = {
   last_message: string | null;
 };
 
+type ConversationResponse = {
+  conversations: Conversation[];
+  nextPage: number | null;
+  total: number;
+};
+
 export default function ConversationList() {
   const { session } = useAuth();
   const { ref, inView } = useInView();
@@ -33,14 +39,14 @@ export default function ConversationList() {
     hasNextPage,
     isFetchingNextPage,
     refetch
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<ConversationResponse>({
     queryKey: ["conversations", session?.user?.id],
-    queryFn: async ({ pageParam = 0 }) => {
-      if (!session?.user?.id) return { conversations: [], nextPage: null };
+    queryFn: async ({ pageParam }) => {
+      if (!session?.user?.id) return { conversations: [], nextPage: null, total: 0 };
 
       console.log("Fetching conversations page:", pageParam);
 
-      const from = pageParam * CONVERSATIONS_PER_PAGE;
+      const from = (pageParam as number) * CONVERSATIONS_PER_PAGE;
       const to = from + CONVERSATIONS_PER_PAGE - 1;
 
       const { data: userConversations, error, count } = await supabase
@@ -101,15 +107,16 @@ export default function ConversationList() {
       );
 
       const nextPage = count && from + CONVERSATIONS_PER_PAGE < count
-        ? pageParam + 1
+        ? (pageParam as number) + 1
         : null;
 
       return {
         conversations: formattedConversations,
         nextPage,
-        total: count
+        total: count || 0
       };
     },
+    initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!session?.user?.id,
   });
