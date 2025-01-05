@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useMessages } from './useMessages';
 import { ChatContentState } from '../types';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useChat = (conversationId: string, userId: string) => {
   const [state, setState] = useState<ChatContentState>({
