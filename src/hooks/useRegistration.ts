@@ -14,9 +14,9 @@ export const useRegistration = () => {
   const navigate = useNavigate();
 
   const register = async (data: RegistrationData) => {
-    setIsLoading(true);
-    
     try {
+      setIsLoading(true);
+      
       // Basic validation
       if (!data.email || !data.password || !data.name) {
         toast.error("Por favor, preencha todos os campos");
@@ -45,9 +45,7 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        console.error('Registration error:', signUpError);
-        
-        if (signUpError.message.includes('User already registered')) {
+        if (signUpError.message.includes('User already registered') || signUpError.message.includes('user already exists')) {
           toast.error("Este email já está cadastrado. Por favor, faça login.");
           navigate('/login');
           return false;
@@ -65,12 +63,13 @@ export const useRegistration = () => {
         return false;
       }
 
-      if (signUpData) {
+      if (signUpData?.user) {
         toast.success("Conta criada com sucesso! Você já pode fazer login.");
         navigate('/login');
         return true;
       }
 
+      toast.error("Erro inesperado no cadastro. Por favor, tente novamente.");
       return false;
 
     } catch (error) {
