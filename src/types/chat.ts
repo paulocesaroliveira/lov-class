@@ -25,6 +25,7 @@ export interface ChatHeaderProps {
 
 export interface MessageInputProps {
   onSendMessage: (content: string) => Promise<void>;
+  conversationId: string;
 }
 
 export interface MessageListProps {

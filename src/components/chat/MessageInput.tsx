@@ -5,12 +5,18 @@ import { Smile, Send } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MessageInputProps } from "@/types/chat";
+import { useTypingStatus } from "./hooks/useTypingStatus";
+import { useAuth } from "@/hooks/useAuth";
 
-export const MessageInput = ({ onSendMessage }: MessageInputProps) => {
+let typingTimeout: NodeJS.Timeout;
+
+export const MessageInput = ({ onSendMessage, conversationId }: MessageInputProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const isMobile = useIsMobile();
+  const { session } = useAuth();
+  const { setTypingStatus } = useTypingStatus(conversationId, session?.user?.id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +26,7 @@ export const MessageInput = ({ onSendMessage }: MessageInputProps) => {
       await onSendMessage(newMessage.trim());
       setNewMessage("");
       setIsTyping(false);
+      setTypingStatus(false);
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -39,7 +46,18 @@ export const MessageInput = ({ onSendMessage }: MessageInputProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
-    setIsTyping(e.target.value.length > 0);
+    
+    if (!isTyping) {
+      setIsTyping(true);
+      setTypingStatus(true);
+    }
+
+    // Reset typing timeout
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      setTypingStatus(false);
+    }, 2000);
   };
 
   // Fechar emoji picker quando clicar fora
@@ -52,7 +70,10 @@ export const MessageInput = ({ onSendMessage }: MessageInputProps) => {
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      clearTimeout(typingTimeout);
+    };
   }, []);
 
   return (
