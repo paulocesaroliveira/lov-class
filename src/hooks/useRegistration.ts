@@ -39,7 +39,9 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        if (signUpError.message.includes('User already registered')) {
+        // Verifica especificamente o erro de usuário já existente
+        if (signUpError.message.includes('User already registered') || 
+            signUpError.message.includes('user_already_exists')) {
           toast.error("Este email já está cadastrado", {
             duration: 4000,
             action: {
@@ -50,6 +52,7 @@ export const useRegistration = () => {
           return false;
         }
 
+        console.error('Erro detalhado no cadastro:', signUpError);
         toast.error("Erro no cadastro. Por favor, tente novamente");
         return false;
       }
