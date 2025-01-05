@@ -29,43 +29,54 @@ export const useFormSubmission = (
 
   const handleSubmit = async (values: FormValues) => {
     try {
+      console.log("Starting form submission with values:", values);
+
       if (!user) {
-        console.error("Usuário não está logado");
+        console.error("User not authenticated");
         toast.error("Você precisa estar logado para " + (advertisement ? "atualizar" : "criar") + " um anúncio");
         navigate("/login");
         return;
       }
 
       if (!identityDocument && !advertisement) {
+        console.error("Identity document missing");
         toast.error("Por favor, envie uma foto do seu documento de identidade");
         return;
       }
 
-      console.log("Usuário autenticado:", user.id);
+      console.log("User authenticated:", user.id);
 
+      // Upload profile photo first
       const profilePhotoUrl = await uploadProfilePhoto();
-      console.log("Foto de perfil enviada:", profilePhotoUrl);
+      console.log("Profile photo uploaded:", profilePhotoUrl);
       
+      // If editing, delete existing media first
       if (advertisement?.id) {
+        console.log("Deleting existing media for ad:", advertisement.id);
         await deleteExistingMedia(advertisement.id);
       }
 
-      const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
-      console.log("Salvando anúncio com valores:", formValues);
+      // Prepare form values
+      const formValues = advertisement?.id 
+        ? { ...values, id: advertisement.id } 
+        : values;
       
-      // First save the advertisement to get the ID
+      console.log("Saving advertisement with values:", formValues);
+      
+      // Save the main advertisement data
       const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
-      console.log("Anúncio salvo com sucesso:", ad);
+      console.log("Advertisement saved successfully:", ad);
 
-      // Then upload the identity document using the advertisement ID
+      // Upload identity document if provided
       if (identityDocument) {
+        console.log("Uploading identity document");
         const documentFileName = `${user.id}/${Date.now()}-${identityDocument.name}`;
         const { error: documentError } = await supabase.storage
           .from("identity_documents")
           .upload(documentFileName, identityDocument);
 
         if (documentError) {
-          console.error("Erro ao enviar documento:", documentError);
+          console.error("Error uploading document:", documentError);
           toast.error("Erro ao enviar documento de identidade");
           return;
         }
@@ -78,26 +89,33 @@ export const useFormSubmission = (
           });
 
         if (docRefError) {
-          console.error("Erro ao salvar referência do documento:", docRefError);
+          console.error("Error saving document reference:", docRefError);
           toast.error("Erro ao salvar referência do documento");
           return;
         }
       }
       
+      // Save services
+      console.log("Saving services:", values.services);
       await saveServices(ad.id, values.services);
-      console.log("Serviços salvos com sucesso");
       
+      // Save service locations
+      console.log("Saving service locations:", values.serviceLocations);
       await saveServiceLocations(ad.id, values.serviceLocations);
-      console.log("Locais de atendimento salvos com sucesso");
 
+      // Upload and save photos
       const photoUrls = await uploadPhotos(ad.id);
-      console.log("Fotos enviadas:", photoUrls);
+      console.log("Photos uploaded:", photoUrls);
       
+      // Upload and save videos
       const videoUrls = await uploadVideos(ad.id);
-      console.log("Vídeos enviados:", videoUrls);
+      console.log("Videos uploaded:", videoUrls);
 
+      // Save photo and video references
       await savePhotos(ad.id, photoUrls);
       await saveVideos(ad.id, videoUrls);
+
+      console.log("All data saved successfully");
 
       if (!advertisement) {
         setShowModerationAlert(true);
@@ -106,7 +124,7 @@ export const useFormSubmission = (
         navigate("/anuncios");
       }
     } catch (error: any) {
-      console.error("Erro detalhado ao " + (advertisement ? "atualizar" : "criar") + " anúncio:", error);
+      console.error("Detailed error in form submission:", error);
       toast.error(`Erro ao ${advertisement ? 'atualizar' : 'criar'} anúncio: ${error.message || 'Erro desconhecido'}`);
       throw error;
     }
