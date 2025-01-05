@@ -1,31 +1,44 @@
 import { useAuth } from "@/hooks/useAuth";
 import { DesktopMenu } from "./DesktopMenu";
 import { MobileMenu } from "./MobileMenu";
+import { Home, Newspaper, Heart, User, LogIn, UserPlus } from "lucide-react";
 
-export const Navigation = () => {
+export type MenuItem = {
+  label: string;
+  href: string;
+  icon: any;
+};
+
+export const useNavigation = () => {
   const { session } = useAuth();
 
-  const menuItems = [
-    { label: "Início", href: "/" },
-    { label: "Feed", href: "/feed" },
-    { label: "Anúncios", href: "/anuncios" },
+  const menuItems: MenuItem[] = [
+    { label: "Início", href: "/", icon: Home },
+    { label: "Feed", href: "/feed", icon: Newspaper },
+    { label: "Anúncios", href: "/anuncios", icon: Newspaper },
     ...(session?.user
       ? [
-          { label: "Favoritos", href: "/favoritos" },
-          { label: "Perfil", href: "/perfil" },
+          { label: "Favoritos", href: "/favoritos", icon: Heart },
+          { label: "Perfil", href: "/perfil", icon: User },
         ]
       : [
-          { label: "Login", href: "/login" },
-          { label: "Registro", href: "/registro" },
+          { label: "Login", href: "/login", icon: LogIn },
+          { label: "Registro", href: "/registro", icon: UserPlus },
         ]),
   ];
+
+  return { menuItems };
+};
+
+export const Navigation = () => {
+  const { menuItems } = useNavigation();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <DesktopMenu items={menuItems} />
-          <MobileMenu items={menuItems} />
+          <DesktopMenu menuItems={menuItems} />
+          <MobileMenu menuItems={menuItems} />
         </div>
       </div>
     </nav>
