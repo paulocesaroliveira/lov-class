@@ -13,7 +13,14 @@ import { useAuth } from "@/hooks/useAuth";
 export const ChatContainer = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { session } = useAuth();
-  
+
+  console.log("ChatContainer: Initial render with:", {
+    conversationId,
+    sessionUserId: session?.user?.id,
+    hasSession: !!session,
+    hasConversationId: !!conversationId
+  });
+
   const { 
     data: conversationData, 
     isLoading: isLoadingConversation, 
@@ -29,39 +36,21 @@ export const ChatContainer = () => {
 
   useMessageSubscription(conversationId, refetch);
 
-  console.log("ChatContainer: Initial render with:", {
-    conversationId,
-    sessionUserId: session?.user?.id,
-    hasSession: !!session,
-    hasConversationId: !!conversationId
-  });
-
-  // Verificar autenticação primeiro
-  if (!session?.user) {
-    console.log("ChatContainer: No session found");
+  // Verificar autenticação e ID da conversa
+  if (!session?.user || !conversationId) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
-      </div>
-    );
-  }
-
-  // Verificar ID da conversa
-  if (!conversationId) {
-    console.log("ChatContainer: No conversationId found");
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <p className="text-muted-foreground">Nenhuma conversa selecionada</p>
+        <p className="text-muted-foreground">
+          {!session?.user 
+            ? "Você precisa estar logado para acessar o chat"
+            : "Nenhuma conversa selecionada"}
+        </p>
       </div>
     );
   }
 
   // Verificar estado de carregamento
   if (isLoadingConversation || isLoadingMessages) {
-    console.log("ChatContainer: Loading state", {
-      isLoadingConversation,
-      isLoadingMessages
-    });
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Carregando conversa...</p>
