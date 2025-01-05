@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface RegistrationData {
+export interface RegistrationData {
   email: string;
   password: string;
   name: string;
