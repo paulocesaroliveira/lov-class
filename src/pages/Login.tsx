@@ -17,10 +17,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (session) {
-      const state = location.state as { returnTo?: string } | null;
-      navigate(state?.returnTo || "/");
-    }
+    const checkAndRedirect = async () => {
+      if (session) {
+        const state = location.state as { returnTo?: string } | null;
+        navigate(state?.returnTo || "/");
+      }
+    };
+
+    checkAndRedirect();
   }, [session, navigate, location.state]);
 
   useEffect(() => {
@@ -35,7 +39,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Primeiro, tentar fazer login
+      // Clear any existing session first
+      await supabase.auth.signOut();
+
+      // Attempt login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -57,7 +64,7 @@ const Login = () => {
         return;
       }
 
-      // Verificar se o perfil existe
+      // Verify profile exists
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -72,7 +79,7 @@ const Login = () => {
       }
 
       if (!profile) {
-        // Se não existir perfil, criar um novo
+        // Create profile if it doesn't exist
         const { error: createProfileError } = await supabase
           .from("profiles")
           .insert([
@@ -86,7 +93,6 @@ const Login = () => {
         if (createProfileError) {
           console.error("Erro ao criar perfil:", createProfileError);
           toast.error("Erro ao criar perfil de usuário");
-          // Fazer logout se não conseguir criar o perfil
           await supabase.auth.signOut();
           return;
         }
