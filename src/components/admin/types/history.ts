@@ -7,3 +7,22 @@ export interface DashboardMetrics {
     activeUsers: number;
   };
 }
+
+export interface UserMetrics {
+  total_users: number;
+  active_users_7d: number;
+  created_at: string;
+}
+
+export interface RoleChangeHistory {
+  id: string;
+  user_id: string;
+  old_role: string;
+  new_role: string;
+  changed_by: string;
+  reason?: string;
+  created_at: string;
+  changed_by_profile?: {
+    name: string;
+  };
+}
