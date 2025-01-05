@@ -1,6 +1,4 @@
-import { Database } from "@/integrations/supabase/types";
-
-export type UserRole = Database["public"]["Enums"]["user_role"];
+export type UserRole = 'user' | 'advertiser' | 'admin';
 
 export interface AdminNote {
   id: string;
@@ -14,10 +12,10 @@ export interface AdminNote {
 export interface UserActivityLog {
   id: string;
   action_type: string;
-  description: string;
+  description: string | null;
   created_at: string;
-  created_by: string;
-  metadata: any;
+  created_by: string | null;
+  metadata: Record<string, any>;
   user_id: string;
 }
 

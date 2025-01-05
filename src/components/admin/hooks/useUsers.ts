@@ -1,10 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Profile, AdminNote, UserActivityLog } from "../types";
+import { UserRole, Profile } from "../types";
 import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
-
-type UserRole = Database["public"]["Enums"]["user_role"];
 
 export const useUsers = () => {
   return useQuery({
@@ -34,68 +32,81 @@ export const useUsers = () => {
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Erro ao carregar usuários");
+        throw error;
+      }
 
-      // Type assertion to ensure the data matches our Profile type
-      return (data as any[]).map(user => ({
-        id: user.id,
-        name: user.name,
-        role: user.role,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-        admin_notes: user.admin_notes as AdminNote[],
-        user_activity_logs: user.user_activity_logs as UserActivityLog[]
-      })) as Profile[];
+      return data as Profile[];
     },
   });
 };
 
 export const useUserActions = () => {
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    try {
+  const queryClient = useQueryClient();
+
+  const roleChangeMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: UserRole }) => {
       const { error } = await supabase
         .from("profiles")
         .update({ role: newRole })
         .eq("id", userId);
 
       if (error) throw error;
-      
+
       await supabase.from("user_activity_logs").insert({
         user_id: userId,
         action_type: "role_change",
         description: `Role changed to ${newRole}`,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Papel do usuário atualizado com sucesso");
-      return true;
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Erro ao atualizar papel do usuário:", error);
       toast.error("Erro ao atualizar papel do usuário");
-      return false;
-    }
-  };
+    },
+  });
 
-  const handleAddNote = async (userId: string, noteContent: string) => {
-    try {
+  const addNoteMutation = useMutation({
+    mutationFn: async ({ userId, note }: { userId: string; note: string }) => {
       const { error } = await supabase.from("admin_notes").insert({
         user_id: userId,
-        note: noteContent,
+        note,
         created_by: (await supabase.auth.getUser()).data.user?.id,
       });
 
       if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Nota adicionada com sucesso");
-      return true;
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Erro ao adicionar nota:", error);
       toast.error("Erro ao adicionar nota");
-      return false;
-    }
-  };
+    },
+  });
 
   return {
-    handleRoleChange,
-    handleAddNote,
+    handleRoleChange: async (userId: string, newRole: UserRole) => {
+      try {
+        await roleChangeMutation.mutateAsync({ userId, newRole });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    handleAddNote: async (userId: string, note: string) => {
+      try {
+        await addNoteMutation.mutateAsync({ userId, note });
+        return true;
+      } catch {
+        return false;
+      }
+    },
   };
 };
