@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Loader2, IdCard } from "lucide-react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,6 +14,7 @@ import { UserRole, Profile } from "../types";
 import { UserNotes } from "./UserNotes";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 interface UserTableRowProps {
   user: Profile;
@@ -30,12 +31,16 @@ export const UserTableRow = ({
   onAddNote,
   getRoleLabel,
 }: UserTableRowProps) => {
-  const handleVerifyDocument = async () => {
+  const [documentUrl, setDocumentUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleViewDocument = async () => {
+    setIsLoading(true);
     try {
       // Get the document for this user's advertisement
       const { data: advertiserDocs, error: docsError } = await supabase
         .from('advertiser_documents')
-        .select('*')
+        .select('document_url')
         .eq('advertisement_id', user.id)
         .single();
 
@@ -49,21 +54,23 @@ export const UserTableRow = ({
         return;
       }
 
-      // Update the document as verified
-      const { error: updateError } = await supabase
-        .from('advertiser_documents')
-        .update({ verified: true })
-        .eq('id', advertiserDocs.id);
+      // Get the temporary URL for the document
+      const { data: { publicUrl }, error: urlError } = await supabase
+        .storage
+        .from('identity_documents')
+        .getPublicUrl(advertiserDocs.document_url);
 
-      if (updateError) {
-        toast.error("Erro ao verificar documento");
+      if (urlError) {
+        toast.error("Erro ao obter URL do documento");
         return;
       }
 
-      toast.success("Documento verificado com sucesso");
+      setDocumentUrl(publicUrl);
     } catch (error) {
-      console.error("Error verifying document:", error);
-      toast.error("Erro ao verificar documento");
+      console.error("Error fetching document:", error);
+      toast.error("Erro ao buscar documento");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -95,15 +102,32 @@ export const UserTableRow = ({
         </Select>
 
         {user.role === 'advertiser' && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleVerifyDocument}
-            className="ml-2"
-          >
-            <IdCard className="w-4 h-4 mr-2" />
-            Verificar Documento
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleViewDocument}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <IdCard className="w-4 h-4 mr-2" />
+                )}
+                Ver Documento
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh]">
+              {documentUrl && (
+                <img 
+                  src={documentUrl} 
+                  alt="Documento de identidade"
+                  className="w-full h-auto object-contain"
+                />
+              )}
+            </DialogContent>
+          </Dialog>
         )}
       </TableCell>
       <TableCell>
