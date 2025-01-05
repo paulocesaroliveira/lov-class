@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
@@ -43,8 +43,6 @@ const Login = () => {
         password,
       });
 
-      console.log("Resposta do login:", { authData, authError });
-
       if (authError) {
         console.error("Erro de autenticação:", authError);
         if (authError.message === "Invalid login credentials") {
@@ -63,45 +61,11 @@ const Login = () => {
         return;
       }
 
-      console.log("Verificando perfil do usuário...");
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", authData.user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Erro ao verificar perfil:", profileError);
-        toast.error("Erro ao verificar perfil de usuário");
-        await supabase.auth.signOut();
-        return;
-      }
-
-      if (!profile) {
-        console.log("Criando novo perfil...");
-        const { error: createProfileError } = await supabase
-          .from("profiles")
-          .insert([
-            {
-              id: authData.user.id,
-              name: email.split("@")[0],
-              role: "user",
-            },
-          ]);
-
-        if (createProfileError) {
-          console.error("Erro ao criar perfil:", createProfileError);
-          toast.error("Erro ao criar perfil de usuário");
-          await supabase.auth.signOut();
-          return;
-        }
-      }
-
       console.log("Login bem-sucedido, redirecionando...");
       const state = location.state as { returnTo?: string } | null;
       toast.success("Login realizado com sucesso!");
       navigate(state?.returnTo || "/");
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro inesperado no login:", error);
       toast.error("Erro ao fazer login. Tente novamente mais tarde.");
     } finally {
@@ -110,46 +74,77 @@ const Login = () => {
   };
 
   return (
-    <div className="mx-auto max-w-sm space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">Entrar</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Entre com seu email e senha
-        </p>
-      </div>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            placeholder="seu@email.com"
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-          />
+    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
+      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h2>
+          <p className="text-muted-foreground mt-2">
+            Entre com seu email e senha para acessar sua conta
+          </p>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Senha</Label>
-          <Input
-            id="password"
-            required
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+
+        <form onSubmit={handleLogin} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  required
+                  className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  required
+                  className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full"
             disabled={loading}
-          />
-        </div>
-        <Button className="w-full" type="submit" disabled={loading}>
-          {loading ? "Entrando..." : "Entrar"}
-        </Button>
-      </form>
-      <div className="text-center text-sm">
-        Não tem uma conta?{" "}
-        <Link to="/registro" className="underline">
-          Registre-se
-        </Link>
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Entrando...
+              </>
+            ) : (
+              "Entrar"
+            )}
+          </Button>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Não tem uma conta?{" "}
+            <Link 
+              to="/registro" 
+              className="text-primary hover:underline font-medium"
+            >
+              Criar conta
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
