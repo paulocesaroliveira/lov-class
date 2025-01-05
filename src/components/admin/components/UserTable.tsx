@@ -24,7 +24,7 @@ interface UserTableProps {
   users: Profile[];
   updating: string | null;
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
-  onAddNote: (userId: string, note: string) => Promise<void>;
+  onAddNote: (userId: string, note: string) => Promise<boolean>;
   getRoleLabel: (role: UserRole) => string;
   onSort: (column: keyof Profile) => void;
   sortColumn: keyof Profile | null;
