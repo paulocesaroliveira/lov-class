@@ -14,15 +14,17 @@ export const useUserMetrics = (dateFilter?: DateFilter) => {
       const { data, error } = await supabase
         .rpc('get_user_metrics');
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching user metrics:", error);
+        throw error;
+      }
 
-      const metrics = data as UserMetrics[];
-      
-      // Calculate dashboard metrics
+      // Transform the RPC response into the expected format
       const dashboardMetrics: DashboardMetrics = {
-        totalUsers: metrics.reduce((sum, m) => sum + m.total_users, 0),
-        activeUsers: metrics.reduce((sum, m) => sum + m.active_users_7d, 0),
-        inactiveUsers: metrics.reduce((sum, m) => sum + (m.total_users - m.active_users_7d), 0)
+        totalUsers: data.reduce((sum: number, m: any) => sum + Number(m.total_users), 0),
+        activeUsers: data.reduce((sum: number, m: any) => sum + Number(m.active_users_7d), 0),
+        inactiveUsers: data.reduce((sum: number, m: any) => 
+          sum + (Number(m.total_users) - Number(m.active_users_7d)), 0)
       };
 
       return dashboardMetrics;
