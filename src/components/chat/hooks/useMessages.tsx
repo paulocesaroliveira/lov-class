@@ -2,6 +2,16 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "@/types/chat";
 
+interface MessageResponse {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  conversation_id: string;
+  read_at: string | null;
+  sender_name: string | null;
+}
+
 interface MessagesResponse {
   messages: Message[];
   nextCursor: number | null;
@@ -46,7 +56,17 @@ export const useMessages = (conversationId: string | undefined) => {
         count: messagesData.length
       });
       
-      const messages = messagesData as Message[];
+      // Transform the raw message data to match our Message type
+      const messages: Message[] = (messagesData as MessageResponse[]).map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.sender_id,
+        created_at: msg.created_at,
+        conversation_id: msg.conversation_id,
+        read_at: msg.read_at,
+        sender: msg.sender_name ? { name: msg.sender_name } : null
+      }));
+
       const nextCursor = messages.length === 20 ? pageParam + 1 : null;
 
       return { messages, nextCursor };
