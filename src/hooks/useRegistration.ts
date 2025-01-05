@@ -28,26 +28,7 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Check if user exists using a safer method
-      const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
-        filters: {
-          email: data.email
-        }
-      });
-
-      if (getUserError) {
-        console.error('Error checking existing user:', getUserError);
-        toast.error("Erro ao verificar usuário existente");
-        return false;
-      }
-
-      if (users && users.length > 0) {
-        toast.error("Este email já está cadastrado");
-        navigate('/login');
-        return false;
-      }
-
-      // If user doesn't exist, proceed with signup
+      // Attempt to sign up the user
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -60,6 +41,12 @@ export const useRegistration = () => {
 
       if (signUpError) {
         // Handle specific error cases
+        if (signUpError.message.includes('User already registered')) {
+          toast.error("Este email já está cadastrado");
+          navigate('/login');
+          return false;
+        }
+        
         if (signUpError.message.includes('Password')) {
           toast.error("A senha deve ter pelo menos 6 caracteres");
         } else if (signUpError.message.includes('Email')) {
