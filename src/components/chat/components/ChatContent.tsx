@@ -7,6 +7,8 @@ import { TypingIndicator } from "./TypingIndicator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useMessages } from "../hooks/useMessages";
+import { InfiniteData } from "@tanstack/react-query";
+import { Message } from "@/types/chat";
 
 interface ChatContentProps {
   conversationData: {

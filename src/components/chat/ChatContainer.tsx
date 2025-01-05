@@ -73,10 +73,8 @@ export const ChatContainer = () => {
   return (
     <ChatContent 
       conversationData={conversationData}
-      messages={messages}
       userId={session.user.id}
       conversationId={conversationId}
-      onRefetch={refetch}
     />
   );
 };
