@@ -20,13 +20,11 @@ export const useRegistration = () => {
       // Basic validation
       if (!data.email || !data.password || !data.name) {
         toast.error("Por favor, preencha todos os campos");
-        setIsLoading(false);
         return false;
       }
 
       if (data.password.length < 6) {
         toast.error("A senha deve ter pelo menos 6 caracteres");
-        setIsLoading(false);
         return false;
       }
 
@@ -36,7 +34,7 @@ export const useRegistration = () => {
       });
 
       // Try to sign up the user
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -49,7 +47,6 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Registration error:', signUpError);
         
-        // Handle specific error cases
         if (signUpError.message.includes('User already registered')) {
           toast.error("Este email já está cadastrado. Por favor, faça login.");
           navigate('/login');
@@ -68,9 +65,13 @@ export const useRegistration = () => {
         return false;
       }
 
-      toast.success("Conta criada com sucesso! Você já pode fazer login.");
-      navigate('/login');
-      return true;
+      if (signUpData) {
+        toast.success("Conta criada com sucesso! Você já pode fazer login.");
+        navigate('/login');
+        return true;
+      }
+
+      return false;
 
     } catch (error) {
       console.error('Unexpected registration error:', error);
