@@ -32,35 +32,60 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      // Create conversation and get participants in one go
-      const { data: conversationData, error: conversationError } = await supabase
-        .rpc('find_or_create_conversation', {
-          current_user_id: session.user.id,
-          other_user_id: advertisement.profile_id
-        });
-
-      if (conversationError) {
-        console.error('Error creating/finding conversation:', conversationError);
-        throw conversationError;
-      }
-
-      if (!conversationData || conversationData.length === 0) {
-        throw new Error('No conversation data returned');
-      }
-
-      const conversationId = conversationData[0].conversation_id;
-      console.log("Conversation created/found:", conversationId);
-      
-      // Add advertisement reference if it doesn't exist
-      const { error: participantError } = await supabase
+      // Primeiro, procurar uma conversa existente
+      const { data: existingConversations, error: searchError } = await supabase
         .from('conversation_participants')
-        .update({ advertisement_id: advertisement.id })
-        .eq('conversation_id', conversationId)
-        .eq('user_id', session.user.id);
+        .select(`
+          conversation_id,
+          conversations!inner(*)
+        `)
+        .eq('user_id', session.user.id)
+        .eq('advertisement_id', advertisement.id);
 
-      if (participantError) {
-        console.error('Error updating participant:', participantError);
-        // Don't throw here, just log the error as it's not critical
+      if (searchError) {
+        console.error('Error searching for existing conversation:', searchError);
+        throw searchError;
+      }
+
+      console.log("Existing conversations found:", existingConversations);
+
+      let conversationId;
+
+      if (existingConversations && existingConversations.length > 0) {
+        // Use a conversa existente
+        conversationId = existingConversations[0].conversation_id;
+        console.log("Using existing conversation:", conversationId);
+      } else {
+        // Criar nova conversa usando a função RPC
+        const { data: newConversation, error: createError } = await supabase
+          .rpc('find_or_create_conversation', {
+            current_user_id: session.user.id,
+            other_user_id: advertisement.profile_id
+          });
+
+        if (createError) {
+          console.error('Error creating new conversation:', createError);
+          throw createError;
+        }
+
+        if (!newConversation || newConversation.length === 0) {
+          throw new Error('Failed to create conversation');
+        }
+
+        conversationId = newConversation[0].conversation_id;
+        console.log("Created new conversation:", conversationId);
+
+        // Adicionar referência do anúncio
+        const { error: updateError } = await supabase
+          .from('conversation_participants')
+          .update({ advertisement_id: advertisement.id })
+          .eq('conversation_id', conversationId)
+          .eq('user_id', session.user.id);
+
+        if (updateError) {
+          console.error('Error updating conversation with advertisement:', updateError);
+          // Log error but continue, as this is not critical
+        }
       }
 
       navigate(`/mensagens/${conversationId}`);
