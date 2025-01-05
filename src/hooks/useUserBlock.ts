@@ -2,17 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { BlockReasonType } from '@/integrations/supabase/types/enums';
+import type { UserBlocksTable } from '@/integrations/supabase/types/tables/userBlocks';
 
-interface UserBlock {
-  id: string;
-  blocked_user_id: string;
-  blocked_by_id: string;
-  reason: BlockReasonType;
-  description: string | null;
-  expires_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+type UserBlock = UserBlocksTable['Row'];
 
 export const useUserBlock = (userId: string) => {
   const [isBlocked, setIsBlocked] = useState(false);
