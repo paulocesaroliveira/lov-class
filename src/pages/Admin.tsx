@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UsersManagement } from "@/components/admin/UsersManagement";
 import { AdsManagement } from "@/components/admin/AdsManagement";
+import { Dashboard } from "@/components/admin/Dashboard";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -45,11 +46,15 @@ const Admin = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="ads">
+      <Tabs defaultValue="dashboard">
         <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="ads">Anúncios</TabsTrigger>
         </TabsList>
+        <TabsContent value="dashboard" className="mt-6">
+          <Dashboard />
+        </TabsContent>
         <TabsContent value="users" className="mt-6">
           <UsersManagement />
         </TabsContent>
