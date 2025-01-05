@@ -14,6 +14,11 @@ export const ChatContainer = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { session } = useAuth();
   
+  console.log("ChatContainer: Initial render with:", {
+    conversationId,
+    sessionUserId: session?.user?.id
+  });
+
   const { 
     data: conversationData, 
     isLoading: isLoadingConversation, 
@@ -28,17 +33,6 @@ export const ChatContainer = () => {
   } = useMessages(conversationId);
 
   useMessageSubscription(conversationId, refetch);
-
-  console.log("ChatContainer: Full state:", {
-    conversationId,
-    userId: session?.user?.id,
-    conversationData,
-    isLoadingConversation,
-    conversationError,
-    messages,
-    isLoadingMessages,
-    messagesError
-  });
 
   if (!session?.user) {
     console.log("ChatContainer: No session found");
@@ -99,19 +93,13 @@ export const ChatContainer = () => {
     }
 
     try {
-      if (!conversationId || !conversationData) {
-        console.error("ChatContainer: Missing conversation data for sending message");
-        throw new Error("Dados da conversa não disponíveis");
-      }
-      
       console.log("ChatContainer: Sending message:", {
         conversationId,
         senderId: session.user.id,
-        content,
-        conversationData
+        content
       });
 
-      const { data, error } = await supabase.from("messages").insert({
+      const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         content,
         sender_id: session.user.id,
@@ -122,7 +110,6 @@ export const ChatContainer = () => {
         throw error;
       }
 
-      console.log("ChatContainer: Message sent successfully:", data);
       await refetch();
     } catch (error) {
       console.error("ChatContainer: Error in handleSendMessage:", error);
