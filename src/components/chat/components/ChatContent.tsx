@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { MessageList } from "../MessageList";
 import { MessageInput } from "../MessageInput";
 import { NotificationButton } from "../NotificationButton";
@@ -24,6 +25,33 @@ export const ChatContent = ({
   conversationId,
   onRefetch 
 }: ChatContentProps) => {
+  useEffect(() => {
+    const markMessagesAsRead = async () => {
+      try {
+        const unreadMessages = messages.filter(
+          msg => msg.sender_id !== userId && !msg.read_at
+        );
+
+        if (unreadMessages.length > 0) {
+          const { error } = await supabase
+            .from('messages')
+            .update({ read_at: new Date().toISOString() })
+            .in('id', unreadMessages.map(msg => msg.id));
+
+          if (error) {
+            console.error("Error marking messages as read:", error);
+          } else {
+            onRefetch();
+          }
+        }
+      } catch (error) {
+        console.error("Error in markMessagesAsRead:", error);
+      }
+    };
+
+    markMessagesAsRead();
+  }, [messages, userId, onRefetch]);
+
   const handleSendMessage = async (content: string) => {
     try {
       console.log("ChatContent: Sending message:", {

@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MessageListProps } from "@/types/chat";
+import { Check, CheckCheck } from "lucide-react";
 
 export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
   return (
@@ -26,6 +27,15 @@ export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
               <span className="text-xs sm:text-sm opacity-70">
                 {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
               </span>
+              {message.sender_id === currentUserId && (
+                <span className="ml-1 opacity-70">
+                  {message.read_at ? (
+                    <CheckCheck size={16} className="text-blue-400" />
+                  ) : (
+                    <Check size={16} />
+                  )}
+                </span>
+              )}
             </div>
             <p className="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">
               {message.content}
