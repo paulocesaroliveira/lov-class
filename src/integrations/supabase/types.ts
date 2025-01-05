@@ -761,10 +761,29 @@ export type Database = {
       }
     }
     Views: {
+      advertisement_engagement_metrics: {
+        Row: {
+          date: string | null
+          total_views: number | null
+          unique_views: number | null
+          whatsapp_clicks: number | null
+        }
+        Relationships: []
+      }
       advertisement_review_counts: {
         Row: {
           count: number | null
           status: string | null
+        }
+        Relationships: []
+      }
+      regional_activity_metrics: {
+        Row: {
+          active_ads: number | null
+          city: string | null
+          click_count: number | null
+          state: string | null
+          view_count: number | null
         }
         Relationships: []
       }

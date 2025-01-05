@@ -8,7 +8,6 @@ interface DateFilter {
 }
 
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
-  // Métricas de usuários
   const { data: userMetrics } = useQuery({
     queryKey: ["admin-user-metrics", dateFilter],
     queryFn: async () => {
@@ -46,7 +45,6 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
     },
   });
 
-  // Métricas de anúncios
   const { data: adMetrics } = useQuery({
     queryKey: ["admin-ad-metrics", dateFilter],
     queryFn: async () => {
@@ -90,8 +88,45 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
     },
   });
 
+  // Métricas de engajamento ao longo do tempo
+  const { data: engagementMetrics } = useQuery({
+    queryKey: ["admin-engagement-metrics", dateFilter],
+    queryFn: async () => {
+      let query = supabase
+        .from("advertisement_engagement_metrics")
+        .select("*")
+        .order("date", { ascending: true });
+
+      if (dateFilter?.startDate) {
+        query = query.gte('date', dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        query = query.lte('date', dateFilter.endDate);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Métricas regionais
+  const { data: regionalMetrics } = useQuery({
+    queryKey: ["admin-regional-metrics"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("regional_activity_metrics")
+        .select("*");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return {
     userMetrics,
     adMetrics,
+    engagementMetrics,
+    regionalMetrics,
   };
 };
