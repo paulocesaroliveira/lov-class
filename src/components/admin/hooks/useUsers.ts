@@ -8,40 +8,42 @@ export const useUsers = () => {
   return useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First, get all profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
-        .select(`
-          *,
-          admin_notes:admin_notes(
-            id,
-            note,
-            created_at,
-            created_by,
-            updated_at,
-            user_id
-          ),
-          user_activity_logs:user_activity_logs(
-            id,
-            action_type,
-            description,
-            created_at,
-            created_by,
-            metadata,
-            user_id
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) {
+      if (profilesError) {
         toast.error("Erro ao carregar usuários");
-        throw error;
+        throw profilesError;
+      }
+
+      // Then, get admin notes for all users
+      const { data: adminNotes, error: adminNotesError } = await supabase
+        .from("admin_notes")
+        .select("*");
+
+      if (adminNotesError) {
+        toast.error("Erro ao carregar notas administrativas");
+        throw adminNotesError;
+      }
+
+      // Get activity logs for all users
+      const { data: activityLogs, error: logsError } = await supabase
+        .from("user_activity_logs")
+        .select("*");
+
+      if (logsError) {
+        toast.error("Erro ao carregar logs de atividade");
+        throw logsError;
       }
 
       // Transform the data to match our Profile type
-      const transformedData = data?.map(user => ({
-        ...user,
-        admin_notes: user.admin_notes || [],
-        user_activity_logs: user.user_activity_logs || []
+      const transformedData = profiles.map(profile => ({
+        ...profile,
+        admin_notes: adminNotes?.filter(note => note.user_id === profile.id) || [],
+        user_activity_logs: activityLogs?.filter(log => log.user_id === profile.id) || []
       })) as Profile[];
 
       return transformedData;
