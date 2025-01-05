@@ -25,20 +25,55 @@ export const useChat = (conversationId: string, userId: string) => {
 
   const handleSendMessage = useCallback(async (content: string): Promise<void> => {
     try {
-      await supabase
+      const trimmedContent = content.trim();
+      
+      // Validação básica do lado do cliente
+      if (trimmedContent.length === 0) {
+        toast.error('A mensagem não pode estar vazia');
+        return;
+      }
+
+      if (trimmedContent.length > 1000) {
+        toast.error('A mensagem é muito longa (máximo 1000 caracteres)');
+        return;
+      }
+
+      const { error } = await supabase
         .from('messages')
         .insert([
           {
             conversation_id: conversationId,
             sender_id: userId,
-            content
+            content: trimmedContent
           }
         ])
         .select('*')
         .single();
+
+      if (error) {
+        console.error('Error details:', error);
+        
+        if (error.message?.includes('Rate limit exceeded')) {
+          if (error.message.includes('per minute')) {
+            toast.error('Você está enviando mensagens muito rápido. Aguarde um minuto.');
+          } else if (error.message.includes('per hour')) {
+            toast.error('Você atingiu o limite de mensagens por hora. Tente novamente mais tarde.');
+          } else if (error.message.includes('per day')) {
+            toast.error('Você atingiu o limite diário de mensagens. Tente novamente amanhã.');
+          }
+        } else if (error.message?.includes('inappropriate content')) {
+          toast.error('Sua mensagem contém conteúdo inapropriado.');
+        } else if (error.message?.includes('spam patterns')) {
+          toast.error('Sua mensagem foi identificada como spam.');
+        } else if (error.message?.includes('length must be between')) {
+          toast.error('O tamanho da mensagem deve estar entre 1 e 1000 caracteres.');
+        } else {
+          toast.error('Erro ao enviar mensagem. Tente novamente.');
+        }
+        throw error;
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Erro ao enviar mensagem');
       throw error;
     }
   }, [conversationId, userId]);
