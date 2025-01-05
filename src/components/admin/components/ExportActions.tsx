@@ -56,7 +56,8 @@ export const ExportActions = () => {
       const csvContent = [
         headers.join(","),
         ...allUsers.map(user => {
-          const lastActivity = user.user_activity_logs?.[0]?.created_at || "";
+          const lastActivityLog = user.user_activity_logs?.[0];
+          const lastActivity = lastActivityLog ? format(parseISO(lastActivityLog.created_at), "dd/MM/yyyy HH:mm") : "-";
           const totalActivities = user.user_activity_logs?.length || 0;
           const roleChanges = user.role_change_history?.length || 0;
 
@@ -64,7 +65,7 @@ export const ExportActions = () => {
             user.name,
             getRoleLabel(user.role as UserRole),
             format(parseISO(user.created_at), "dd/MM/yyyy HH:mm"),
-            lastActivity ? format(parseISO(lastActivity), "dd/MM/yyyy HH:mm") : "-",
+            lastActivity,
             totalActivities,
             roleChanges
           ].join(",");
