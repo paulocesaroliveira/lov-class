@@ -34,15 +34,24 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         ];
         break;
       case 3:
-        if (!form.getValues("profilePhoto") && !form.getValues("advertisement")?.profile_photo_url) {
+        // Get the current form values
+        const values = form.getValues();
+        const isEditing = Boolean(values.id); // Check if we're editing by looking for an id
+
+        // Check profile photo
+        if (!values.profilePhoto && !isEditing) {
           toast.error("Foto de perfil é obrigatória");
           return false;
         }
-        if (!form.getValues("photos")?.length && !form.getValues("advertisement")?.advertisement_photos?.length) {
+
+        // Check photos
+        if (!values.photos?.length && !isEditing) {
           toast.error("Pelo menos uma foto é obrigatória");
           return false;
         }
-        if (!form.getValues("identityDocument") && !form.getValues("advertisement")) {
+
+        // Check identity document
+        if (!values.identityDocument && !isEditing) {
           toast.error("Documento de identidade é obrigatório");
           return false;
         }
