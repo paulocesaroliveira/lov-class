@@ -10,7 +10,6 @@ export const useAuth = () => {
   useEffect(() => {
     console.log("Inicializando useAuth...");
     
-    // Get initial session
     const initializeAuth = async () => {
       try {
         console.log("Obtendo sessão inicial...");
@@ -20,7 +19,7 @@ export const useAuth = () => {
           console.error("Erro ao obter sessão:", error);
           if (error.message.includes('refresh_token_not_found')) {
             console.log("Token de atualização não encontrado, limpando sessão...");
-            await supabase.auth.signOut();
+            setSession(null);
           }
           return;
         }
@@ -29,6 +28,7 @@ export const useAuth = () => {
         setSession(initialSession);
       } catch (error) {
         console.error("Erro na inicialização da autenticação:", error);
+        setSession(null);
       } finally {
         setLoading(false);
       }
@@ -36,20 +36,10 @@ export const useAuth = () => {
 
     initializeAuth();
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
       console.log("Estado de autenticação alterado:", _event);
       setSession(currentSession);
       setLoading(false);
-
-      if (_event === 'SIGNED_OUT') {
-        console.log("Usuário desconectado, limpando tokens...");
-        await supabase.auth.signOut();
-      } else if (_event === 'TOKEN_REFRESHED') {
-        console.log("Token atualizado com sucesso");
-      }
     });
 
     return () => {

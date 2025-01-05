@@ -38,11 +38,6 @@ const Login = () => {
     console.log("Iniciando processo de login...");
 
     try {
-      // Limpa qualquer sessão existente
-      await supabase.auth.signOut();
-      console.log("Sessão anterior limpa");
-
-      // Tenta fazer login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -59,14 +54,12 @@ const Login = () => {
         } else {
           toast.error("Erro ao fazer login: " + authError.message);
         }
-        setLoading(false);
         return;
       }
 
       if (!authData.user) {
         console.error("Sem dados do usuário após login");
         toast.error("Erro ao recuperar dados do usuário");
-        setLoading(false);
         return;
       }
 
@@ -81,7 +74,6 @@ const Login = () => {
         console.error("Erro ao verificar perfil:", profileError);
         toast.error("Erro ao verificar perfil de usuário");
         await supabase.auth.signOut();
-        setLoading(false);
         return;
       }
 
@@ -101,7 +93,6 @@ const Login = () => {
           console.error("Erro ao criar perfil:", createProfileError);
           toast.error("Erro ao criar perfil de usuário");
           await supabase.auth.signOut();
-          setLoading(false);
           return;
         }
       }
