@@ -28,6 +28,7 @@ export const useRegistration = () => {
 
     try {
       console.log("Iniciando registro do usuário...");
+      console.log("Dados do formulário:", data);
       
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
@@ -80,8 +81,19 @@ export const useRegistration = () => {
         }
       }
 
-      toast.success("Conta criada com sucesso! Verifique seu email para confirmar o cadastro.");
-      navigate('/login');
+      // Show success message and redirect
+      toast.success("Conta criada com sucesso! Verifique seu email para confirmar o cadastro.", {
+        duration: 5000, // Show for 5 seconds
+        onDismiss: () => {
+          navigate('/login');
+        }
+      });
+      
+      // Delay navigation slightly to ensure the toast is visible
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
       return true;
 
     } catch (error) {
