@@ -6,8 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { UserRole } from "../types";
 
 interface UserFiltersProps {
@@ -55,14 +53,9 @@ export const UserFilters = ({
           onChange={(e) => setSelectedDate(e.target.value)}
           className="max-w-xs"
         />
-        <Button 
-          variant="outline" 
-          className="ml-auto"
-          onClick={onExportData}
-        >
-          <Download className="w-4 h-4 mr-2" />
-          Exportar Dados
-        </Button>
+        <div className="ml-auto">
+          <ExportActions />
+        </div>
       </div>
     </div>
   );

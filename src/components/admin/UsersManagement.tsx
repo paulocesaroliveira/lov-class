@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner"; // Add this import
 import { UserRole } from "./types";
 import { useUsers, useUserActions } from "./hooks/useUsers";
 import { UserFilters } from "./components/UserFilters";
@@ -98,7 +99,7 @@ export const UsersManagement = () => {
         setSelectedRole={setSelectedRole}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
-        onExportData={<ExportActions />}
+        onExportData={() => <ExportActions />}
       />
 
       <UserTable
