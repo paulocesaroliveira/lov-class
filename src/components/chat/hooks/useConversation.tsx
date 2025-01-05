@@ -19,39 +19,17 @@ export const useConversation = (conversationId: string | undefined) => {
         throw new Error("No user session found");
       }
 
-      console.log("useConversation: Starting fetch for conversation:", {
+      console.log("useConversation: Starting fetch with new approach for:", {
         conversationId,
         userId: session.user.id
       });
 
-      // Buscar participante com dados do anúncio em uma única query
-      const { data: participantData, error } = await supabase
-        .from("conversation_participants")
+      // Buscar a conversa com todos os participantes e anúncios em uma única query
+      const { data, error } = await supabase
+        .from("conversations")
         .select(`
-          user_id,
-          advertisement_id,
-          advertisements (
-            id,
-            name,
-            profile_id
-          )
-        `)
-        .eq("conversation_id", conversationId)
-        .neq("user_id", session.user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("useConversation: Error fetching participant:", error);
-        throw error;
-      }
-
-      // Se não encontrou o outro participante, buscar os dados do usuário atual
-      if (!participantData) {
-        console.log("useConversation: No other participant found, fetching current user data");
-        
-        const { data: selfData, error: selfError } = await supabase
-          .from("conversation_participants")
-          .select(`
+          id,
+          conversation_participants!inner (
             user_id,
             advertisement_id,
             advertisements (
@@ -59,27 +37,36 @@ export const useConversation = (conversationId: string | undefined) => {
               name,
               profile_id
             )
-          `)
-          .eq("conversation_id", conversationId)
-          .eq("user_id", session.user.id)
-          .maybeSingle();
+          )
+        `)
+        .eq("id", conversationId)
+        .maybeSingle();
 
-        if (selfError) {
-          console.error("useConversation: Error fetching self data:", selfError);
-          throw selfError;
-        }
-
-        if (!selfData) {
-          console.error("useConversation: No conversation data found at all");
-          throw new Error("No conversation data found");
-        }
-
-        console.log("useConversation: Using self data:", selfData);
-        return selfData;
+      if (error) {
+        console.error("useConversation: Error fetching conversation:", error);
+        throw error;
       }
 
-      console.log("useConversation: Using other participant data:", participantData);
-      return participantData;
+      if (!data) {
+        console.error("useConversation: No conversation found");
+        throw new Error("No conversation found");
+      }
+
+      console.log("useConversation: Raw conversation data:", data);
+
+      // Encontrar o participante relevante
+      const participants = data.conversation_participants;
+      const relevantParticipant = participants.find(p => 
+        p.advertisement_id !== null || p.user_id !== session.user.id
+      ) || participants[0];
+
+      if (!relevantParticipant) {
+        console.error("useConversation: No relevant participant found");
+        throw new Error("No relevant participant found");
+      }
+
+      console.log("useConversation: Using participant data:", relevantParticipant);
+      return relevantParticipant;
     },
     enabled: !!conversationId && !!session?.user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutos
