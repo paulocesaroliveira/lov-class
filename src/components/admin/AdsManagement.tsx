@@ -107,7 +107,8 @@ export const AdsManagement = () => {
 
       <AdvertisementDialog 
         advertisement={selectedAd} 
-        onOpenChange={() => setSelectedAd(null)} 
+        onOpenChange={() => setSelectedAd(null)}
+        isAdminView={true} // Set to true for admin panel views
       />
 
       <ActionDialog
