@@ -32,15 +32,15 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      // First check if a conversation already exists
+      // First check if a conversation already exists using maybeSingle()
       const { data: existingConversation, error: searchError } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
         .eq('user_id', session.user.id)
         .eq('advertisement_id', advertisement.id)
-        .single();
+        .maybeSingle();
 
-      if (searchError && searchError.code !== 'PGRST116') { // PGRST116 means no rows returned
+      if (searchError) {
         console.error('Error searching for existing conversation:', searchError);
         throw searchError;
       }
@@ -51,7 +51,7 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         return;
       }
 
-      // If no conversation exists, create a new one without SELECT
+      // If no conversation exists, create a new one
       const { data: newConversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({})
