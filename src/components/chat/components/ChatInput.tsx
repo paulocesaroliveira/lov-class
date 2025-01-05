@@ -16,7 +16,7 @@ export const ChatInput = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || isSending) return;
+    if (!message.trim() || isSending || isBlocked) return;
 
     try {
       setIsSending(true);
@@ -26,6 +26,14 @@ export const ChatInput = ({
       setIsSending(false);
     }
   };
+
+  if (isBlocked) {
+    return (
+      <div className="p-4 bg-red-500/10 text-red-500 text-center">
+        Você foi bloqueado e não pode enviar mensagens.
+      </div>
+    );
+  }
 
   return (
     <form 

@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MessageInputProps } from "@/types/chat";
 import { useTypingStatus } from "./hooks/useTypingStatus";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserBlock } from "@/hooks/useUserBlock";
 import { toast } from "sonner";
 
 let typingTimeout: NodeJS.Timeout;
@@ -15,10 +16,10 @@ export const MessageInput = ({ onSendMessage, conversationId }: MessageInputProp
   const [newMessage, setNewMessage] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [isBlocked, setIsBlocked] = useState(false);
   const isMobile = useIsMobile();
   const { session } = useAuth();
   const { setTypingStatus } = useTypingStatus(conversationId, session?.user?.id);
+  const { isBlocked, blockReason } = useUserBlock(session?.user?.id || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +36,6 @@ export const MessageInput = ({ onSendMessage, conversationId }: MessageInputProp
       if (error.message?.includes('Rate limit exceeded')) {
         toast.error("Você está enviando mensagens muito rápido. Por favor, aguarde um momento.");
       } else if (error.message?.includes('blocked')) {
-        setIsBlocked(true);
         toast.error("Você foi bloqueado e não pode enviar mensagens.");
       } else {
         toast.error("Erro ao enviar mensagem. Tente novamente.");
@@ -88,7 +88,7 @@ export const MessageInput = ({ onSendMessage, conversationId }: MessageInputProp
   if (isBlocked) {
     return (
       <div className="p-4 bg-red-500/10 text-red-500 text-center">
-        Você foi bloqueado e não pode enviar mensagens.
+        {blockReason || 'Você foi bloqueado e não pode enviar mensagens.'}
       </div>
     );
   }

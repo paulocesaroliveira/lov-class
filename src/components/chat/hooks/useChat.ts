@@ -4,6 +4,7 @@ import { ChatContentState } from '../types';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Message } from '@/types/chat';
+import { useUserBlock } from '@/hooks/useUserBlock';
 
 export const useChat = (conversationId: string, userId: string) => {
   const [state, setState] = useState<ChatContentState>({
@@ -11,6 +12,8 @@ export const useChat = (conversationId: string, userId: string) => {
     error: null,
     messages: []
   });
+
+  const { isBlocked } = useUserBlock(userId);
 
   const {
     data,
@@ -26,6 +29,11 @@ export const useChat = (conversationId: string, userId: string) => {
 
   const handleSendMessage = useCallback(async (content: string): Promise<void> => {
     try {
+      if (isBlocked) {
+        toast.error('Você foi bloqueado e não pode enviar mensagens.');
+        return;
+      }
+
       const trimmedContent = content.trim();
       
       if (trimmedContent.length === 0) {
@@ -76,7 +84,7 @@ export const useChat = (conversationId: string, userId: string) => {
       console.error('Error sending message:', error);
       throw error;
     }
-  }, [conversationId, userId]);
+  }, [conversationId, userId, isBlocked]);
 
   return {
     messages,
@@ -85,6 +93,7 @@ export const useChat = (conversationId: string, userId: string) => {
     hasMore: hasNextPage,
     isLoadingMore: isFetchingNextPage,
     loadMore: fetchNextPage,
-    handleSendMessage
+    handleSendMessage,
+    isBlocked
   };
 };
