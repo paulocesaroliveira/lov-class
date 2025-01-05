@@ -43,7 +43,26 @@ export const UsersManagement = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*, user_activity_logs(*), admin_notes(*)")
+        .select(`
+          *,
+          admin_notes (
+            id,
+            note,
+            created_at,
+            created_by,
+            updated_at,
+            user_id
+          ),
+          user_activity_logs (
+            id,
+            action_type,
+            description,
+            created_at,
+            created_by,
+            metadata,
+            user_id
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
