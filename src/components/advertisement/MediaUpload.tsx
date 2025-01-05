@@ -1,6 +1,9 @@
 import { FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useImageCompression } from "./hooks/useImageCompression";
+import { UploadProgress } from "./components/UploadProgress";
+import { useUploadProgress } from "./hooks/useUploadProgress";
 
 type MediaUploadProps = {
   setProfilePhoto: (file: File | null) => void;
@@ -13,6 +16,27 @@ export const MediaUpload = ({
   setPhotos,
   setVideos,
 }: MediaUploadProps) => {
+  const { compressImage, compressImages } = useImageCompression();
+  const { uploadProgress } = useUploadProgress();
+
+  const handleProfilePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const compressedFile = await compressImage(file);
+      setProfilePhoto(compressedFile);
+    }
+  };
+
+  const handlePhotosChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 15) {
+      toast.error("Máximo de 15 fotos permitido");
+      return;
+    }
+    const compressedFiles = await compressImages(files);
+    setPhotos(compressedFiles);
+  };
+
   return (
     <div className="glass-card p-6 space-y-6">
       <h2 className="text-xl font-semibold">Fotos e Vídeos</h2>
@@ -24,8 +48,14 @@ export const MediaUpload = ({
             <Input
               type="file"
               accept="image/*"
-              onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+              onChange={handleProfilePhotoChange}
             />
+            {uploadProgress['profile'] && (
+              <UploadProgress
+                progress={uploadProgress['profile']}
+                fileName="Foto de perfil"
+              />
+            )}
           </div>
         </div>
 
@@ -36,15 +66,17 @@ export const MediaUpload = ({
               type="file"
               accept="image/*"
               multiple
-              onChange={(e) => {
-                const files = Array.from(e.target.files || []);
-                if (files.length > 15) {
-                  toast.error("Máximo de 15 fotos permitido");
-                  return;
-                }
-                setPhotos(files);
-              }}
+              onChange={handlePhotosChange}
             />
+            {Object.entries(uploadProgress).map(([fileName, progress]) => (
+              fileName !== 'profile' && (
+                <UploadProgress
+                  key={fileName}
+                  progress={progress}
+                  fileName={fileName}
+                />
+              )
+            ))}
           </div>
         </div>
 
