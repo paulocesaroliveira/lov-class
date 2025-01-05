@@ -32,6 +32,9 @@ const EditarAnuncio = () => {
             advertisement_videos (
               id,
               video_url
+            ),
+            advertisement_comments (
+              id
             )
           `
           )
@@ -83,6 +86,7 @@ const EditarAnuncio = () => {
           advertisement_service_locations: data.advertisement_service_locations,
           advertisement_photos: data.advertisement_photos,
           advertisement_videos: data.advertisement_videos,
+          advertisement_comments: data.advertisement_comments
         };
 
         setAdvertisement(transformedData);
@@ -111,7 +115,7 @@ const EditarAnuncio = () => {
     return null;
   }
 
-  return <AdvertisementForm initialData={advertisement} />;
+  return <AdvertisementForm advertisement={advertisement} />;
 };
 
 export default EditarAnuncio;
