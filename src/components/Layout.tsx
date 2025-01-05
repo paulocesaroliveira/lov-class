@@ -19,17 +19,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { menuItems } = useNavigation();
   const { theme, setTheme } = useTheme();
 
-  const toggleMenu = React.useCallback(() => {
-    setIsMenuOpen(prev => !prev);
-  }, []);
-
-  const closeMenu = React.useCallback(() => {
-    setIsMenuOpen(false);
-  }, []);
-
-  const toggleTheme = React.useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  }, [theme, setTheme]);
+  // Move all hooks to the top level and combine them into a single useCallback
+  const handlers = React.useMemo(() => ({
+    toggleMenu: () => setIsMenuOpen(prev => !prev),
+    closeMenu: () => setIsMenuOpen(false),
+    toggleTheme: () => setTheme(theme === 'dark' ? 'light' : 'dark')
+  }), [theme, setTheme]);
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
@@ -46,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={toggleTheme}
+                onClick={handlers.toggleTheme}
                 className="hidden md:flex"
                 aria-label="Alternar tema"
               >
@@ -55,7 +50,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               <button
                 className="md:hidden p-2 hover:bg-primary/10 rounded-lg transition-colors"
-                onClick={toggleMenu}
+                onClick={handlers.toggleMenu}
                 aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
               >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -67,8 +62,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <MemoizedMobileMenu 
           menuItems={menuItems} 
           isOpen={isMenuOpen} 
-          onClose={closeMenu}
-          onThemeToggle={toggleTheme}
+          onClose={handlers.closeMenu}
+          onThemeToggle={handlers.toggleTheme}
           theme={theme}
         />
       </nav>
