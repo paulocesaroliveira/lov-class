@@ -11,16 +11,14 @@ import { useMessageSubscription } from "./hooks/useMessageSubscription";
 import { useAuth } from "@/hooks/useAuth";
 
 export const ChatContainer = () => {
-  const params = useParams<{ conversationId: string }>();
-  const conversationId = params.conversationId;
+  const { id: conversationId } = useParams<{ id: string }>();
   const { session } = useAuth();
 
   console.log("ChatContainer: Initial render with:", {
     conversationId,
     sessionUserId: session?.user?.id,
     hasSession: !!session,
-    hasConversationId: !!conversationId,
-    params
+    hasConversationId: !!conversationId
   });
 
   const { 
