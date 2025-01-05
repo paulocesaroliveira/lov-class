@@ -28,7 +28,19 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Try to sign up the user
+      // First, check if user exists
+      const { data: existingUser } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (existingUser?.user) {
+        toast.error("Este email já está cadastrado");
+        navigate('/login');
+        return false;
+      }
+
+      // If user doesn't exist, proceed with signup
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -40,15 +52,7 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        // Check specifically for user already exists error
-        if (signUpError.message.includes('User already registered') || 
-            signUpError.message.includes('user already exists')) {
-          toast.error("Este email já está cadastrado");
-          navigate('/login');
-          return false;
-        }
-
-        // Handle other specific error cases
+        // Handle specific error cases
         if (signUpError.message.includes('Password')) {
           toast.error("A senha deve ter pelo menos 6 caracteres");
         } else if (signUpError.message.includes('Email')) {
