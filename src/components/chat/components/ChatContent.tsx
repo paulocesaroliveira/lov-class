@@ -58,10 +58,13 @@ export const ChatContent = ({
   }, [messages, userId]);
 
   return (
-    <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
-      <div className="glass-card h-full flex flex-col">
-        <ChatHeader title={conversationData?.advertisements?.name || "Usuário"} />
-        <NotificationButton />
+    <div className="container mx-auto max-w-4xl p-2 sm:p-4 min-h-[calc(100vh-4rem)] animate-fade-in">
+      <div className="glass-card h-full flex flex-col rounded-xl overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg">
+        <ChatHeader 
+          title={conversationData?.advertisements?.name || "Usuário"} 
+          className="animate-slide-in-right"
+        />
+        <NotificationButton className="animate-fade-in" />
         <ChatMessages 
           messages={messages}
           isLoading={isLoading}
@@ -70,15 +73,18 @@ export const ChatContent = ({
           onLoadMore={loadMore}
           hasMore={hasMore}
           isLoadingMore={isLoadingMore}
+          className="flex-1 animate-fade-in"
         />
         <TypingIndicator 
           conversationId={conversationId} 
-          currentUserId={userId} 
+          currentUserId={userId}
+          className="animate-fade-in" 
         />
         <ChatInput 
           onSendMessage={handleSendMessage}
           isBlocked={false}
           conversationId={conversationId}
+          className="animate-slide-in-right"
         />
       </div>
     </div>

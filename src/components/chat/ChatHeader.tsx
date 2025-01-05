@@ -1,11 +1,18 @@
-import { ChatHeaderProps } from "@/types/chat";
+import { cn } from "@/lib/utils";
 
-export const ChatHeader = ({ title }: ChatHeaderProps) => {
+interface ChatHeaderProps {
+  title: string;
+  className?: string;
+}
+
+export const ChatHeader = ({ title, className }: ChatHeaderProps) => {
   return (
-    <div className="p-4 border-b">
-      <h1 className="text-xl font-semibold">
-        Chat com {title}
-      </h1>
+    <div className={cn(
+      "p-4 border-b border-white/10 bg-black/20 backdrop-blur-sm",
+      "transition-all duration-300 hover:bg-black/30",
+      className
+    )}>
+      <h2 className="text-lg font-semibold text-white">{title}</h2>
     </div>
   );
 };
