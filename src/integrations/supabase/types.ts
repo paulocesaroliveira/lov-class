@@ -14,7 +14,10 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
+          metadata: Json | null
           note: string
+          note_type: string | null
+          severity: string | null
           updated_at: string
           user_id: string
         }
@@ -22,7 +25,10 @@ export type Database = {
           created_at?: string
           created_by: string
           id?: string
+          metadata?: Json | null
           note: string
+          note_type?: string | null
+          severity?: string | null
           updated_at?: string
           user_id: string
         }
@@ -30,7 +36,10 @@ export type Database = {
           created_at?: string
           created_by?: string
           id?: string
+          metadata?: Json | null
           note?: string
+          note_type?: string | null
+          severity?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -675,6 +684,7 @@ export type Database = {
           description: string | null
           id: string
           metadata: Json | null
+          severity: string | null
           user_id: string
         }
         Insert: {
@@ -684,6 +694,7 @@ export type Database = {
           description?: string | null
           id?: string
           metadata?: Json | null
+          severity?: string | null
           user_id: string
         }
         Update: {
@@ -693,6 +704,7 @@ export type Database = {
           description?: string | null
           id?: string
           metadata?: Json | null
+          severity?: string | null
           user_id?: string
         }
         Relationships: []
