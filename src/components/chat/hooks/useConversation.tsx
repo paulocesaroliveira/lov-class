@@ -24,8 +24,26 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // First, get all participants in the conversation
-      const { data: participants, error: participantsError } = await supabase
+      // Primeiro, verificar se o usuário é participante da conversa
+      const { data: participant, error: participantError } = await supabase
+        .from("conversation_participants")
+        .select("user_id")
+        .eq("conversation_id", conversationId)
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (participantError) {
+        console.error("useConversation: Error checking participant:", participantError);
+        throw participantError;
+      }
+
+      if (!participant) {
+        console.error("useConversation: User is not a participant in this conversation");
+        throw new Error("User is not a participant in this conversation");
+      }
+
+      // Agora buscar os detalhes da conversa
+      const { data: conversationData, error: conversationError } = await supabase
         .from("conversation_participants")
         .select(`
           user_id,
@@ -36,34 +54,48 @@ export const useConversation = (conversationId: string | undefined) => {
             profile_id
           )
         `)
-        .eq("conversation_id", conversationId);
+        .eq("conversation_id", conversationId)
+        .neq("user_id", session.user.id)
+        .maybeSingle();
 
-      if (participantsError) {
-        console.error("useConversation: Error fetching participants:", participantsError);
-        throw participantsError;
+      if (conversationError) {
+        console.error("useConversation: Error fetching conversation:", conversationError);
+        throw conversationError;
       }
 
-      console.log("useConversation: Found participants:", participants);
-
-      // Find the other participant's data (not the current user)
-      const otherParticipant = participants?.find(p => p.user_id !== session.user.id);
-      const currentUserParticipant = participants?.find(p => p.user_id === session.user.id);
-
-      // Use the other participant's data if available, otherwise use current user's data
-      const conversationData = otherParticipant || currentUserParticipant;
-
+      // Se não encontrou dados do outro participante, buscar os próprios dados
       if (!conversationData) {
-        console.error("useConversation: No participant data found");
-        throw new Error("No participant data found");
+        const { data: selfData, error: selfError } = await supabase
+          .from("conversation_participants")
+          .select(`
+            user_id,
+            advertisement_id,
+            advertisements (
+              id,
+              name,
+              profile_id
+            )
+          `)
+          .eq("conversation_id", conversationId)
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (selfError) {
+          console.error("useConversation: Error fetching self data:", selfError);
+          throw selfError;
+        }
+
+        if (!selfData) {
+          console.error("useConversation: No conversation data found");
+          throw new Error("No conversation data found");
+        }
+
+        console.log("useConversation: Using self data:", selfData);
+        return selfData;
       }
 
-      console.log("useConversation: Using conversation data:", conversationData);
-
-      return {
-        user_id: conversationData.user_id,
-        advertisement_id: conversationData.advertisement_id,
-        advertisements: conversationData.advertisements
-      };
+      console.log("useConversation: Using other participant data:", conversationData);
+      return conversationData;
     },
     enabled: !!conversationId && !!session?.user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutos
