@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
 import { UserRole } from "./types";
 import { useUsers, useUserActions } from "./hooks/useUsers";
 import { UserFilters } from "./components/UserFilters";
@@ -10,8 +9,7 @@ import { RoleChangeDialog } from "./components/RoleChangeDialog";
 import { useUserFilters } from "./hooks/useUserFilters";
 import { useUserSort } from "./hooks/useUserSort";
 import { useUserPagination } from "./hooks/useUserPagination";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { ExportActions } from "./components/ExportActions";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -81,45 +79,6 @@ export const UsersManagement = () => {
     setRoleChangeConfirm(null);
   };
 
-  const handleExportData = async () => {
-    if (!usersData?.data?.length) {
-      toast.error("Não há dados para exportar");
-      return;
-    }
-
-    try {
-      const { data: allUsers, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      const headers = ["Nome", "Papel", "Data de Criação"];
-      const csvContent = [
-        headers.join(","),
-        ...allUsers.map(user => [
-          user.name,
-          getRoleLabel(user.role as UserRole),
-          format(new Date(user.created_at), "dd/MM/yyyy HH:mm")
-        ].join(","))
-      ].join("\n");
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `usuarios_${format(new Date(), "yyyy-MM-dd")}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success("Dados exportados com sucesso");
-    } catch (error) {
-      console.error("Erro ao exportar dados:", error);
-      toast.error("Erro ao exportar dados");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -139,7 +98,7 @@ export const UsersManagement = () => {
         setSelectedRole={setSelectedRole}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
-        onExportData={handleExportData}
+        onExportData={<ExportActions />}
       />
 
       <UserTable
