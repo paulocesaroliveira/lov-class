@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { UserRole, Profile } from "../types";
+import { UserRole, Profile } from "@/components/admin/types";
 import { toast } from "sonner";
 import { useDebounce } from "./useDebounce";
 
