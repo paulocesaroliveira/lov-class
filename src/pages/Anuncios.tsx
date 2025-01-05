@@ -161,8 +161,7 @@ const Anuncios = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Anúncios</h1>
+      <div className="flex justify-end">
         <AdvancedFilter onFilterChange={handleFilterChange} />
       </div>
       

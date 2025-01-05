@@ -83,10 +83,13 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
         <Button
           variant="default"
           size="lg"
-          className="gap-2 shadow-lg hover:shadow-xl transition-all duration-200 bg-primary font-semibold"
+          className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 ease-out group px-6 py-3 rounded-full"
         >
-          <SlidersHorizontal className="h-5 w-5" />
-          Filtros Avançados
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/50 to-violet-800/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative flex items-center gap-3">
+            <SlidersHorizontal className="h-5 w-5 transition-transform group-hover:scale-110" />
+            <span className="font-medium text-base">Filtrar Anúncios</span>
+          </div>
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
