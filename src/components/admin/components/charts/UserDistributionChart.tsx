@@ -53,4 +53,5 @@ export const UserDistributionChart = ({ userMetrics, isCompact }: UserDistributi
         </div>
       </CardContent>
     </Card>
+  );
 };

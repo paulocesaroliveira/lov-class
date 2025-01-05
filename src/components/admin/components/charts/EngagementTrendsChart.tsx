@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { format } from "date-fns";
 
 interface EngagementTrendsChartProps {
   engagementMetrics?: any[];
@@ -14,8 +13,10 @@ export const EngagementTrendsChart = ({ engagementMetrics, isCompact }: Engageme
         <CardHeader>
           <CardTitle>Tendências de Engajamento</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center">
-          <p className="text-muted-foreground">Nenhum dado disponível para o período selecionado</p>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            <p className="text-muted-foreground">Sem dados disponíveis</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -31,39 +32,27 @@ export const EngagementTrendsChart = ({ engagementMetrics, isCompact }: Engageme
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={engagementMetrics}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tickFormatter={(date) => format(new Date(date), 'dd/MM')}
-              />
+              <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip 
-                labelFormatter={(date) => format(new Date(date), 'dd/MM/yyyy')}
-                formatter={(value: number) => [value.toLocaleString('pt-BR'), '']}
-              />
+              <Tooltip />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="unique_views" 
-                stroke="#22c55e" 
+              <Line
+                type="monotone"
+                dataKey="unique_views"
+                stroke="#2563eb"
                 name="Visualizações Únicas"
-                strokeWidth={2}
-                dot={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="total_views" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="total_views"
+                stroke="#16a34a"
                 name="Visualizações Totais"
-                strokeWidth={2}
-                dot={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="whatsapp_clicks" 
-                stroke="#f59e0b" 
+              <Line
+                type="monotone"
+                dataKey="whatsapp_clicks"
+                stroke="#ea580c"
                 name="Cliques WhatsApp"
-                strokeWidth={2}
-                dot={false}
               />
             </LineChart>
           </ResponsiveContainer>

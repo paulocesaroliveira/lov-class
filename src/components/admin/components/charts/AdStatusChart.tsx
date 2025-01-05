@@ -54,4 +54,5 @@ export const AdStatusChart = ({ adMetrics, isCompact }: AdStatusChartProps) => {
         </div>
       </CardContent>
     </Card>
+  );
 };
