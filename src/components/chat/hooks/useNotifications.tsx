@@ -34,7 +34,7 @@ export const useNotifications = (conversationId: string, userId: string) => {
           body: message.content,
           icon: '/favicon.ico',
           tag: conversationId, // Agrupa notificações da mesma conversa
-          renotify: true
+          requireInteraction: true // Mantém a notificação até o usuário interagir
         });
 
         notification.onclick = () => {
