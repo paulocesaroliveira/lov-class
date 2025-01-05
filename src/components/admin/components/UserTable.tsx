@@ -24,7 +24,7 @@ interface UserTableProps {
   users: Profile[];
   updating: string | null;
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
-  onAddNote: (userId: string, note: string) => void;
+  onAddNote: (userId: string, note: string) => Promise<void>;
   getRoleLabel: (role: UserRole) => string;
 }
 
