@@ -55,17 +55,12 @@ export const UserTableRow = ({
       }
 
       // Get the temporary URL for the document
-      const { data: { publicUrl }, error: urlError } = await supabase
+      const { data } = await supabase
         .storage
         .from('identity_documents')
         .getPublicUrl(advertiserDocs.document_url);
 
-      if (urlError) {
-        toast.error("Erro ao obter URL do documento");
-        return;
-      }
-
-      setDocumentUrl(publicUrl);
+      setDocumentUrl(data.publicUrl);
     } catch (error) {
       console.error("Error fetching document:", error);
       toast.error("Erro ao buscar documento");
