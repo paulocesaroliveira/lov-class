@@ -22,6 +22,8 @@ import { FormValues } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
 import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 import { useAuthCheck } from "./hooks/useAuthCheck";
+import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
