@@ -72,7 +72,7 @@ export default function ConversationList() {
         <h1 className="text-2xl font-bold">Minhas Conversas</h1>
         <div className="grid gap-4">
           {conversations.map((conversation) => {
-            const otherParticipant = conversation.participants[0];
+            const otherParticipant = conversation.participants?.[0];
 
             return (
               <ConversationItem

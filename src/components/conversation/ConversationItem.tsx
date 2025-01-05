@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 interface ConversationItemProps {
   id: string;
-  otherParticipant: {
+  otherParticipant?: {
     user_id: string;
     profile_name: string;
   };
@@ -23,6 +23,32 @@ export const ConversationItem = ({
   updatedAt,
   onDelete,
 }: ConversationItemProps) => {
+  // If there's no other participant, show a fallback
+  if (!otherParticipant) {
+    return (
+      <Card className={cn(
+        "p-4 hover:bg-black/5 transition-colors cursor-pointer",
+        "border border-white/10 bg-black/20 backdrop-blur-sm"
+      )}>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12 border-2 border-primary">
+            <AvatarFallback>??</AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-semibold text-white truncate">
+                Usuário não encontrado
+              </h3>
+              <span className="text-xs text-white/60">
+                {format(new Date(updatedAt), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Link to={`/mensagens/${id}`}>
       <Card className={cn(
@@ -31,7 +57,10 @@ export const ConversationItem = ({
       )}>
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12 border-2 border-primary">
-            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${otherParticipant.user_id}`} />
+            <AvatarImage 
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${otherParticipant.user_id}`} 
+              alt={otherParticipant.profile_name}
+            />
             <AvatarFallback>
               {otherParticipant.profile_name.substring(0, 2).toUpperCase()}
             </AvatarFallback>
