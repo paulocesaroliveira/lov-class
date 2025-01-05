@@ -24,11 +24,10 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // Buscar diretamente os dados da conversa com o anúncio
-      const { data: conversationData, error } = await supabase
+      // First, get all participants in the conversation
+      const { data: participants, error: participantsError } = await supabase
         .from("conversation_participants")
         .select(`
-          conversation_id,
           user_id,
           advertisement_id,
           advertisements (
@@ -37,21 +36,29 @@ export const useConversation = (conversationId: string | undefined) => {
             profile_id
           )
         `)
-        .eq("conversation_id", conversationId)
-        .eq("user_id", session.user.id)
-        .single();
+        .eq("conversation_id", conversationId);
 
-      if (error) {
-        console.error("useConversation: Error fetching conversation:", error);
-        throw error;
+      if (participantsError) {
+        console.error("useConversation: Error fetching participants:", participantsError);
+        throw participantsError;
       }
+
+      console.log("useConversation: Found participants:", participants);
+
+      // Find the other participant's data (not the current user)
+      const otherParticipant = participants?.find(p => p.user_id !== session.user.id);
+      const currentUserParticipant = participants?.find(p => p.user_id === session.user.id);
+
+      // Use the other participant's data if available, otherwise use current user's data
+      const conversationData = otherParticipant || currentUserParticipant;
 
       if (!conversationData) {
-        console.error("useConversation: No conversation data found");
-        throw new Error("Conversation not found");
+        console.error("useConversation: No participant data found");
+        throw new Error("No participant data found");
       }
 
-      console.log("useConversation: Successfully fetched conversation data:", conversationData);
+      console.log("useConversation: Using conversation data:", conversationData);
+
       return {
         user_id: conversationData.user_id,
         advertisement_id: conversationData.advertisement_id,
