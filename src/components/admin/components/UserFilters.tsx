@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserRole } from "../types";
+import { ExportActions } from "./ExportActions";
 
 interface UserFiltersProps {
   searchTerm: string;
