@@ -1,66 +1,56 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Send, Smile } from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { ChatInputProps } from '../types';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Send } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChatInputProps } from "@/types/chat";
 
-export const ChatInput = ({ onSendMessage, isBlocked, conversationId }: ChatInputProps) => {
-  const [message, setMessage] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const isMobile = useIsMobile();
+export const ChatInput = ({ 
+  onSendMessage, 
+  isBlocked,
+  conversationId,
+  className 
+}: ChatInputProps) => {
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || isBlocked) return;
+    if (!message.trim() || isSending) return;
 
-    await onSendMessage(message.trim());
-    setMessage('');
+    try {
+      setIsSending(true);
+      await onSendMessage(message);
+      setMessage("");
+    } finally {
+      setIsSending(false);
+    }
   };
-
-  const onEmojiClick = (emojiObject: any) => {
-    setMessage(prev => prev + emojiObject.emoji);
-    setShowEmojiPicker(false);
-  };
-
-  if (isBlocked) {
-    return (
-      <div className="p-4 bg-red-500/10 text-red-500 text-center">
-        Você foi bloqueado e não pode enviar mensagens.
-      </div>
-    );
-  }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 border-t bg-background">
-      <div className="flex gap-2 relative">
-        <div className="relative flex-1">
-          <Input
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            className="pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Smile className="h-5 w-5" />
-          </button>
-          {showEmojiPicker && (
-            <div className={`absolute ${isMobile ? 'bottom-full left-0' : 'bottom-full right-0'} mb-2`}>
-              <EmojiPicker
-                onEmojiClick={onEmojiClick}
-                width={isMobile ? window.innerWidth - 32 : 320}
-                height={400}
-              />
-            </div>
-          )}
-        </div>
-        <Button type="submit" disabled={!message.trim()}>
-          <Send className="h-5 w-5" />
+    <form 
+      onSubmit={handleSubmit} 
+      className={cn(
+        "border-t border-white/10 p-4 bg-black/20",
+        "transition-all duration-300 hover:bg-black/30",
+        className
+      )}
+    >
+      <div className="flex gap-2">
+        <Textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Digite sua mensagem..."
+          className="min-h-[2.5rem] max-h-32 bg-black/20"
+          disabled={isBlocked}
+        />
+        <Button 
+          type="submit" 
+          size="icon"
+          disabled={!message.trim() || isSending || isBlocked}
+          className="shrink-0"
+        >
+          <Send className="h-4 w-4" />
         </Button>
       </div>
     </form>

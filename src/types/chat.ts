@@ -22,11 +22,14 @@ export interface ConversationParticipant {
 
 export interface ChatHeaderProps {
   title: string;
+  className?: string;
 }
 
-export interface MessageInputProps {
+export interface ChatInputProps {
   onSendMessage: (content: string) => Promise<void>;
+  isBlocked: boolean;
   conversationId: string;
+  className?: string;
 }
 
 export interface MessageListProps {
@@ -35,4 +38,14 @@ export interface MessageListProps {
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
   fetchNextPage?: () => Promise<any>;
+}
+
+export interface TypingIndicatorProps {
+  conversationId: string;
+  currentUserId: string;
+  className?: string;
+}
+
+export interface NotificationButtonProps {
+  className?: string;
 }

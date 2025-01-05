@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { NotificationButtonProps } from "@/types/chat";
 
-export const NotificationButton = () => {
+export const NotificationButton = ({ className }: NotificationButtonProps) => {
   const [notificationPermission, setNotificationPermission] = useState(
     Notification.permission
   );
@@ -10,7 +12,7 @@ export const NotificationButton = () => {
   if (notificationPermission !== "default") return null;
 
   return (
-    <div className="bg-primary/10 p-2 text-center">
+    <div className={cn("bg-primary/10 p-2 text-center", className)}>
       <p className="text-sm mb-2">
         Ative as notificações para receber alertas de novas mensagens
       </p>
