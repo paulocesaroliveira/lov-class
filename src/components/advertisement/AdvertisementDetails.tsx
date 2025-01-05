@@ -32,13 +32,10 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      // Primeiro, procurar uma conversa existente
-      const { data: existingConversations, error: searchError } = await supabase
+      // Primeiro, procurar uma conversa existente sem usar JOIN
+      const { data: participants, error: searchError } = await supabase
         .from('conversation_participants')
-        .select(`
-          conversation_id,
-          conversations!inner(*)
-        `)
+        .select('conversation_id')
         .eq('user_id', session.user.id)
         .eq('advertisement_id', advertisement.id);
 
@@ -47,13 +44,13 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         throw searchError;
       }
 
-      console.log("Existing conversations found:", existingConversations);
+      console.log("Found participants:", participants);
 
       let conversationId;
 
-      if (existingConversations && existingConversations.length > 0) {
+      if (participants && participants.length > 0) {
         // Use a conversa existente
-        conversationId = existingConversations[0].conversation_id;
+        conversationId = participants[0].conversation_id;
         console.log("Using existing conversation:", conversationId);
       } else {
         // Criar nova conversa usando a função RPC
