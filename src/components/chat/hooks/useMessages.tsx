@@ -9,9 +9,7 @@ interface MessageWithSender {
   created_at: string;
   conversation_id: string;
   read_at: string | null;
-  sender: {
-    name: string;
-  } | null;
+  sender_name: string;
 }
 
 export const useMessages = (conversationId: string | undefined) => {
@@ -33,20 +31,9 @@ export const useMessages = (conversationId: string | undefined) => {
       });
 
       const { data: messagesData, error } = await supabase
-        .from('messages')
-        .select(`
-          id,
-          content,
-          sender_id,
-          created_at,
-          conversation_id,
-          read_at,
-          sender:profiles!sender_id (
-            name
-          )
-        `)
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true })
+        .rpc('get_messages_with_sender_names', {
+          p_conversation_id: conversationId
+        })
         .range(from, to);
 
       if (error) {
@@ -72,7 +59,7 @@ export const useMessages = (conversationId: string | undefined) => {
         created_at: msg.created_at,
         conversation_id: msg.conversation_id,
         read_at: msg.read_at,
-        sender: msg.sender
+        sender: msg.sender_name ? { name: msg.sender_name } : null
       }));
 
       const nextCursor = messages.length === 20 ? pageParam + 1 : null;
