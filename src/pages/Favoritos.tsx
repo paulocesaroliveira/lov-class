@@ -96,6 +96,18 @@ const Favoritos = () => {
     );
   }
 
+  if (!favorites || favorites.length === 0) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold">Você ainda não tem anúncios favoritos</h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
