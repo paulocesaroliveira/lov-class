@@ -24,13 +24,13 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // First check if the user is a participant in this conversation
+      // Primeiro, verificar se o usuário é participante da conversa
       const { data: participantData, error: participantError } = await supabase
         .from("conversation_participants")
         .select("*")
         .eq("conversation_id", conversationId)
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (participantError) {
         console.error("useConversation: Error checking participant:", participantError);
@@ -44,8 +44,8 @@ export const useConversation = (conversationId: string | undefined) => {
 
       console.log("useConversation: Participant data found:", participantData);
 
-      // Then get the conversation details including the advertisement
-      const { data, error } = await supabase
+      // Buscar os detalhes da conversa incluindo o anúncio
+      const { data: conversationData, error: conversationError } = await supabase
         .from("conversation_participants")
         .select(`
           user_id,
@@ -57,16 +57,22 @@ export const useConversation = (conversationId: string | undefined) => {
         `)
         .eq("conversation_id", conversationId)
         .neq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        console.error("useConversation: Error fetching conversation:", error);
-        throw error;
+      if (conversationError) {
+        console.error("useConversation: Error fetching conversation:", conversationError);
+        throw conversationError;
       }
 
-      console.log("useConversation: Conversation data retrieved:", data);
-      return data;
+      if (!conversationData) {
+        console.error("useConversation: No conversation data found");
+        throw new Error("Conversation not found");
+      }
+
+      console.log("useConversation: Conversation data retrieved:", conversationData);
+      return conversationData;
     },
     enabled: !!conversationId && !!session?.user?.id,
+    retry: false
   });
 };
