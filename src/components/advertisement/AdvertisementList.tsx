@@ -79,8 +79,8 @@ export const AdvertisementList = ({
 
   if (loading || propIsLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
           <Skeleton key={i} className="h-[400px] rounded-lg" />
         ))}
       </div>
@@ -96,7 +96,7 @@ export const AdvertisementList = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {localAdvertisements.map((advertisement) => (
         <AdvertisementCard 
           key={advertisement.id} 
