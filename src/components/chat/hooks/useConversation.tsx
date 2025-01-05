@@ -24,26 +24,8 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // Primeiro, verificar se o usuário é participante da conversa
-      const { data: participantCheck, error: participantError } = await supabase
-        .from("conversation_participants")
-        .select("conversation_id")
-        .eq("conversation_id", conversationId)
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      if (participantError) {
-        console.error("useConversation: Error checking participant:", participantError);
-        throw participantError;
-      }
-
-      if (!participantCheck) {
-        console.error("useConversation: User is not a participant in this conversation");
-        throw new Error("User is not a participant in this conversation");
-      }
-
-      // Buscar os detalhes da conversa e do anúncio
-      const { data: conversationData, error: detailsError } = await supabase
+      // Buscar diretamente os dados da conversa com o anúncio
+      const { data: conversationData, error } = await supabase
         .from("conversation_participants")
         .select(`
           conversation_id,
@@ -56,40 +38,17 @@ export const useConversation = (conversationId: string | undefined) => {
           )
         `)
         .eq("conversation_id", conversationId)
-        .neq("user_id", session.user.id)
-        .maybeSingle();
+        .eq("user_id", session.user.id)
+        .single();
 
-      // Se não encontrou os dados do outro participante, buscar os próprios dados
-      if (!conversationData || detailsError) {
-        console.log("useConversation: Fetching self data as other participant not found");
-        
-        const { data: selfData, error: selfError } = await supabase
-          .from("conversation_participants")
-          .select(`
-            conversation_id,
-            user_id,
-            advertisement_id,
-            advertisements (
-              id,
-              name,
-              profile_id
-            )
-          `)
-          .eq("conversation_id", conversationId)
-          .eq("user_id", session.user.id)
-          .single();
+      if (error) {
+        console.error("useConversation: Error fetching conversation:", error);
+        throw error;
+      }
 
-        if (selfError || !selfData) {
-          console.error("useConversation: Error fetching conversation details:", selfError);
-          throw new Error("Failed to fetch conversation details");
-        }
-
-        console.log("useConversation: Successfully fetched self data:", selfData);
-        return {
-          user_id: selfData.user_id,
-          advertisement_id: selfData.advertisement_id,
-          advertisements: selfData.advertisements
-        };
+      if (!conversationData) {
+        console.error("useConversation: No conversation data found");
+        throw new Error("Conversation not found");
       }
 
       console.log("useConversation: Successfully fetched conversation data:", conversationData);
