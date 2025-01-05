@@ -20,11 +20,13 @@ export const useRegistration = () => {
       // Basic validation
       if (!data.email || !data.password || !data.name) {
         toast.error("Por favor, preencha todos os campos");
+        setIsLoading(false);
         return false;
       }
 
       if (data.password.length < 6) {
         toast.error("A senha deve ter pelo menos 6 caracteres");
+        setIsLoading(false);
         return false;
       }
 
@@ -32,18 +34,6 @@ export const useRegistration = () => {
         email: data.email, 
         name: data.name,
       });
-
-      // First check if user exists
-      const { data: existingUser } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (existingUser?.user) {
-        toast.error("Este email já está cadastrado. Por favor, faça login.");
-        navigate('/login');
-        return false;
-      }
 
       // Try to sign up the user
       const { error: signUpError } = await supabase.auth.signUp({
