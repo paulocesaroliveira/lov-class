@@ -57,7 +57,9 @@ export const ExportActions = () => {
         headers.join(","),
         ...allUsers.map(user => {
           const lastActivityLog = user.user_activity_logs?.[0];
-          const lastActivity = lastActivityLog ? format(parseISO(lastActivityLog.created_at), "dd/MM/yyyy HH:mm") : "-";
+          const lastActivity = lastActivityLog?.created_at 
+            ? format(parseISO(lastActivityLog.created_at), "dd/MM/yyyy HH:mm") 
+            : "-";
           const totalActivities = user.user_activity_logs?.length || 0;
           const roleChanges = user.role_change_history?.length || 0;
 
