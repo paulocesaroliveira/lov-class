@@ -43,10 +43,15 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Erro no cadastro:', signUpError);
         
-        // Handle specific error cases
+        // Tratamento específico para usuário já cadastrado
         if (signUpError.message.includes('User already registered')) {
-          toast.error("Este email já está cadastrado. Por favor, faça login ou use outro email.");
-          navigate('/login');
+          toast.error("Este email já está cadastrado. Por favor, faça login ou use outro email.", {
+            duration: 4000,
+            action: {
+              label: "Ir para login",
+              onClick: () => navigate('/login')
+            }
+          });
           return false;
         }
 
