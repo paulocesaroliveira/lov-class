@@ -29,3 +29,5 @@ export type ServiceLocationType =
 export type AdCategory = "mulher" | "trans" | "homem";
 
 export type UserRole = "user" | "admin" | "advertiser";
+
+export type BlockReasonType = "spam" | "inappropriate_content" | "harassment" | "other";

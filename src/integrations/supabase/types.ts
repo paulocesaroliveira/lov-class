@@ -536,6 +536,33 @@ export type Database = {
           },
         ]
       }
+      message_rate_limits: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_message_time: string | null
+          message_count: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_message_time?: string | null
+          message_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_message_time?: string | null
+          message_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -592,6 +619,39 @@ export type Database = {
           name?: string
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_by_id: string | null
+          blocked_user_id: string | null
+          created_at: string | null
+          description: string | null
+          expires_at: string | null
+          id: string
+          reason: Database["public"]["Enums"]["block_reason_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          reason: Database["public"]["Enums"]["block_reason_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          reason?: Database["public"]["Enums"]["block_reason_type"]
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -664,6 +724,11 @@ export type Database = {
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
+      block_reason_type:
+        | "spam"
+        | "inappropriate_content"
+        | "harassment"
+        | "other"
       service_location_type:
         | "com_local"
         | "motel"

@@ -1,6 +1,18 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { BlockReasonType } from '@/integrations/supabase/types/enums';
+
+interface UserBlock {
+  id: string;
+  blocked_user_id: string;
+  blocked_by_id: string;
+  reason: BlockReasonType;
+  description: string | null;
+  expires_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export const useUserBlock = (userId: string) => {
   const [isBlocked, setIsBlocked] = useState(false);
@@ -28,7 +40,7 @@ export const useUserBlock = (userId: string) => {
 
     checkBlockStatus();
 
-    // Inscrever para atualizações em tempo real
+    // Subscribe to real-time updates
     const channel = supabase
       .channel('user_blocks_changes')
       .on(
@@ -58,7 +70,7 @@ export const useUserBlock = (userId: string) => {
     };
   }, [userId]);
 
-  const blockUser = async (targetUserId: string, reason: string, description?: string) => {
+  const blockUser = async (targetUserId: string, reason: BlockReasonType, description?: string) => {
     const { error } = await supabase
       .from('user_blocks')
       .insert({
