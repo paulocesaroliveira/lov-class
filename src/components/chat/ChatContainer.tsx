@@ -14,6 +14,21 @@ export const ChatContainer = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const { session } = useAuth();
   
+  const { 
+    data: conversationData, 
+    isLoading: isLoadingConversation, 
+    error: conversationError 
+  } = useConversation(conversationId);
+
+  const { 
+    data: messages = [], 
+    isLoading: isLoadingMessages, 
+    error: messagesError,
+    refetch 
+  } = useMessages(conversationId);
+
+  useMessageSubscription(conversationId, refetch);
+
   console.log("ChatContainer: Initial render with:", {
     conversationId,
     sessionUserId: session?.user?.id,
@@ -40,21 +55,6 @@ export const ChatContainer = () => {
       </div>
     );
   }
-
-  const { 
-    data: conversationData, 
-    isLoading: isLoadingConversation, 
-    error: conversationError 
-  } = useConversation(conversationId);
-
-  const { 
-    data: messages = [], 
-    isLoading: isLoadingMessages, 
-    error: messagesError,
-    refetch 
-  } = useMessages(conversationId);
-
-  useMessageSubscription(conversationId, refetch);
 
   // Verificar estado de carregamento
   if (isLoadingConversation || isLoadingMessages) {
