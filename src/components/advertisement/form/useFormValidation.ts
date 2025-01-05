@@ -38,7 +38,7 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
           toast.error("Foto de perfil é obrigatória");
           return false;
         }
-        if (form.getValues("photos")?.length === 0 && !form.getValues("advertisement")?.advertisement_photos?.length) {
+        if (!form.getValues("photos")?.length && !form.getValues("advertisement")?.advertisement_photos?.length) {
           toast.error("Pelo menos uma foto é obrigatória");
           return false;
         }

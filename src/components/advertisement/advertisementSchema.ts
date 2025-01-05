@@ -62,4 +62,7 @@ export const formSchema = z.object({
     message: "Você precisa aceitar os termos e condições para continuar",
   }),
   identityDocument: z.any().optional(),
+  profilePhoto: z.any().optional(),
+  photos: z.array(z.any()).optional(),
+  videos: z.array(z.any()).optional(),
 });

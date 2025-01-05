@@ -4,11 +4,13 @@ import { toast } from "sonner";
 import { useImageCompression } from "./hooks/useImageCompression";
 import { UploadProgress } from "./components/UploadProgress";
 import { useUploadProgress } from "./hooks/useUploadProgress";
+import { UseFormSetValue, Path, FieldValues } from "react-hook-form";
+import { FormValues } from "@/types/advertisement";
 
 type MediaUploadProps = {
-  setProfilePhoto: (file: File | null) => void;
-  setPhotos: (files: File[]) => void;
-  setVideos: (files: File[]) => void;
+  setProfilePhoto: UseFormSetValue<FormValues>;
+  setPhotos: UseFormSetValue<FormValues>;
+  setVideos: UseFormSetValue<FormValues>;
 };
 
 export const MediaUpload = ({
@@ -23,7 +25,7 @@ export const MediaUpload = ({
     const file = e.target.files?.[0];
     if (file) {
       const compressedFile = await compressImage(file);
-      setProfilePhoto(compressedFile);
+      setProfilePhoto("profilePhoto", compressedFile);
     }
   };
 
@@ -34,7 +36,16 @@ export const MediaUpload = ({
       return;
     }
     const compressedFiles = await compressImages(files);
-    setPhotos(compressedFiles);
+    setPhotos("photos", compressedFiles);
+  };
+
+  const handleVideosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 8) {
+      toast.error("Máximo de 8 vídeos permitido");
+      return;
+    }
+    setVideos("videos", files);
   };
 
   return (
@@ -87,14 +98,7 @@ export const MediaUpload = ({
               type="file"
               accept="video/*"
               multiple
-              onChange={(e) => {
-                const files = Array.from(e.target.files || []);
-                if (files.length > 8) {
-                  toast.error("Máximo de 8 vídeos permitido");
-                  return;
-                }
-                setVideos(files);
-              }}
+              onChange={handleVideosChange}
             />
           </div>
         </div>
