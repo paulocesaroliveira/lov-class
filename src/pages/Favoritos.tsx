@@ -1,49 +1,44 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/types/advertisement";
-import { AdvertisementCard } from "@/components/advertisement/AdvertisementCard";
+import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
+import { toast } from "sonner";
 
 const Favoritos = () => {
   const { session } = useAuth();
+  const [favorites, setFavorites] = useState<Advertisement[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const { data: favorites = [], isLoading } = useQuery({
-    queryKey: ["favorites"],
-    queryFn: async () => {
-      if (!session?.user?.id) return [];
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!session?.user?.id) return;
 
-      const { data: favoritesData, error } = await supabase
-        .from("favorites")
-        .select(`
-          advertisement_id,
-          advertisements (
-            id,
-            profile_id,
-            name,
-            birth_date,
-            height,
-            weight,
-            category,
-            contact_phone,
-            contact_whatsapp,
-            contact_telegram,
-            state,
-            city,
-            neighborhood,
-            hourly_rate,
-            custom_rate_description,
-            custom_rate_value,
-            description,
-            profile_photo_url,
-            created_at,
-            updated_at,
-            style,
-            ethnicity,
-            hair_color,
-            body_type,
-            silicone,
-            blocked,
-            block_reason,
+      try {
+        const { data: favoritesData, error: favoritesError } = await supabase
+          .from("favorites")
+          .select("advertisement_id")
+          .eq("user_id", session.user.id);
+
+        if (favoritesError) {
+          console.error("Error fetching favorites:", favoritesError);
+          toast.error("Erro ao carregar favoritos");
+          return;
+        }
+
+        if (favoritesData.length === 0) {
+          setFavorites([]);
+          setLoading(false);
+          return;
+        }
+
+        const advertisementIds = favoritesData.map((f) => f.advertisement_id);
+
+        const { data: advertisementsData, error: advertisementsError } = await supabase
+          .from("advertisements")
+          .select(
+            `
+            *,
             advertisement_services (
               service
             ),
@@ -61,66 +56,36 @@ const Favoritos = () => {
             advertisement_comments (
               id
             )
+          `
           )
-        `)
-        .eq("user_id", session.user.id);
+          .in("id", advertisementIds)
+          .eq("status", "approved");
 
-      if (error) {
-        console.error("Error fetching favorites:", error);
-        throw error;
+        if (advertisementsError) {
+          console.error("Error fetching advertisements:", advertisementsError);
+          toast.error("Erro ao carregar anúncios");
+          return;
+        }
+
+        setFavorites(advertisementsData as Advertisement[]);
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("Erro ao carregar favoritos");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      return favoritesData.map(favorite => favorite.advertisements as Advertisement);
-    },
-    enabled: !!session?.user?.id
-  });
-
-  if (!session) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold">Faça login para ver seus favoritos</h2>
-          <p className="text-muted-foreground">Você precisa estar logado para acessar seus favoritos</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-96 bg-black/20 animate-pulse rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!favorites || favorites.length === 0) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="flex items-center justify-center h-[calc(100vh-16rem)]">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold">Você ainda não tem anúncios favoritos</h2>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    fetchFavorites();
+  }, [session?.user?.id]);
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {favorites.map((advertisement) => (
-          <AdvertisementCard 
-            key={advertisement.id} 
-            advertisement={advertisement}
-            onClick={() => {}} // Add empty click handler to satisfy type
-          />
-        ))}
-      </div>
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold">Meus Favoritos</h1>
+      <AdvertisementList
+        advertisements={favorites}
+        isLoading={loading}
+      />
     </div>
   );
 };
