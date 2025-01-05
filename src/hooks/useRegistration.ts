@@ -33,16 +33,15 @@ export const useRegistration = () => {
         name: data.name,
       });
 
-      // Try to sign up the user
+      // Try to sign up the user without email confirmation redirect
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             name: data.name,
-          },
-          emailRedirectTo: `${window.location.origin}/login`,
-        },
+          }
+        }
       });
 
       if (signUpError) {
@@ -68,7 +67,7 @@ export const useRegistration = () => {
         return false;
       }
 
-      toast.success("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro");
+      toast.success("Conta criada com sucesso! Você já pode fazer login.");
       navigate('/login');
       return true;
 
