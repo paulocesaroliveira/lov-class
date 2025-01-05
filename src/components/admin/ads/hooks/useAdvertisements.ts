@@ -21,7 +21,10 @@ export const useAdvertisements = () => {
         `)
         .order("updated_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching advertisements:", error);
+        throw error;
+      }
 
       // Process the data to get only the latest review for each ad
       return data?.map(ad => ({
