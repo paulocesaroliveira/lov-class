@@ -1,31 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
-interface CountResponse {
-  count: number | null;
+interface DateFilter {
+  startDate?: string;
+  endDate?: string;
 }
 
-interface AdStatusCount {
-  status: string;
-  count: number;
-}
-
-export const useAdminMetrics = () => {
+export const useAdminMetrics = (dateFilter?: DateFilter) => {
   // Métricas de usuários
   const { data: userMetrics } = useQuery({
-    queryKey: ["admin-user-metrics"],
+    queryKey: ["admin-user-metrics", dateFilter],
     queryFn: async () => {
-      const { count: totalUsers } = (await supabase
+      let query = supabase
         .from("profiles")
-        .select("*", { count: "exact", head: true })) as { count: number };
+        .select("*", { count: "exact", head: true });
 
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      if (dateFilter?.startDate) {
+        query = query.gte('created_at', dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        query = query.lte('created_at', dateFilter.endDate);
+      }
+      
+      const { count: totalUsers } = await query;
 
-      const { count: activeUsers } = (await supabase
+      let activityQuery = supabase
         .from("user_activity_logs")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", thirtyDaysAgo.toISOString())) as { count: number };
+        .select("*", { count: "exact", head: true });
+
+      if (dateFilter?.startDate) {
+        activityQuery = activityQuery.gte('created_at', dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        activityQuery = activityQuery.lte('created_at', dateFilter.endDate);
+      }
+
+      const { count: activeUsers } = await activityQuery;
 
       return {
         totalUsers: totalUsers || 0,
@@ -37,11 +48,20 @@ export const useAdminMetrics = () => {
 
   // Métricas de anúncios
   const { data: adMetrics } = useQuery({
-    queryKey: ["admin-ad-metrics"],
+    queryKey: ["admin-ad-metrics", dateFilter],
     queryFn: async () => {
-      const { data: adStatusCount, error } = await supabase
+      let query = supabase
         .from("advertisement_review_counts")
         .select("*");
+
+      if (dateFilter?.startDate) {
+        query = query.gte('created_at', dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        query = query.lte('created_at', dateFilter.endDate);
+      }
+
+      const { data: adStatusCount, error } = await query;
 
       if (error) throw error;
 
@@ -51,7 +71,7 @@ export const useAdminMetrics = () => {
         rejected: 0,
       };
 
-      adStatusCount?.forEach((item: AdStatusCount) => {
+      adStatusCount?.forEach((item: any) => {
         if (item.status in statusCount) {
           statusCount[item.status as keyof typeof statusCount] = item.count;
         }

@@ -1,5 +1,9 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdminMetrics } from "./hooks/useAdminMetrics";
+import { DashboardFilters } from "./components/DashboardFilters";
+import { format } from "date-fns";
+import { toast } from "sonner";
 import {
   BarChart,
   Bar,
@@ -14,7 +18,12 @@ import {
 } from "recharts";
 
 export const Dashboard = () => {
-  const { userMetrics, adMetrics } = useAdminMetrics();
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const { userMetrics, adMetrics } = useAdminMetrics(
+    startDate || endDate ? { startDate, endDate } : undefined
+  );
 
   const userChartData = [
     {
@@ -47,8 +56,50 @@ export const Dashboard = () => {
     },
   ];
 
+  const handleExport = () => {
+    if (!userMetrics || !adMetrics) {
+      toast.error("Não há dados para exportar");
+      return;
+    }
+
+    const data = {
+      período: `${startDate || 'Início'} até ${endDate || 'Hoje'}`,
+      métricas_usuários: {
+        total: userMetrics.totalUsers,
+        ativos: userMetrics.activeUsers,
+        inativos: userMetrics.inactiveUsers,
+      },
+      métricas_anúncios: {
+        total: adMetrics.total,
+        pendentes: adMetrics.pending,
+        aprovados: adMetrics.approved,
+        rejeitados: adMetrics.rejected,
+        taxa_aprovação: `${adMetrics.approvalRate.toFixed(1)}%`,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `metricas_${format(new Date(), 'yyyy-MM-dd')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success("Dados exportados com sucesso");
+  };
+
   return (
     <div className="space-y-6">
+      <DashboardFilters
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+        onExport={handleExport}
+      />
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
