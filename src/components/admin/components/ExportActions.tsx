@@ -3,7 +3,7 @@ import { Download } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { UserRole } from "../types";
+import { UserRole, UserActivityLog } from "../types";
 
 export const ExportActions = () => {
   const getRoleLabel = (role: UserRole) => {
@@ -56,7 +56,7 @@ export const ExportActions = () => {
       const csvContent = [
         headers.join(","),
         ...allUsers.map(user => {
-          const lastActivityLog = user.user_activity_logs?.[0];
+          const lastActivityLog = user.user_activity_logs?.[0] as UserActivityLog | undefined;
           const lastActivity = lastActivityLog?.created_at 
             ? format(parseISO(lastActivityLog.created_at), "dd/MM/yyyy HH:mm") 
             : "-";
