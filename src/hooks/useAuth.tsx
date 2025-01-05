@@ -21,8 +21,13 @@ export const useAuth = () => {
             console.log("Token de atualização não encontrado, limpando sessão...");
             setSession(null);
           }
+          setLoading(false);
           return;
         }
+
+        console.log("Sessão inicial:", initialSession);
+        setSession(initialSession);
+        setLoading(false);
 
         // If we have a session, ensure the user has a profile
         if (initialSession?.user) {
@@ -37,7 +42,6 @@ export const useAuth = () => {
             return;
           }
 
-          // If no profile exists, create one
           if (!profile) {
             try {
               const { error: insertError } = await supabase
@@ -49,12 +53,16 @@ export const useAuth = () => {
                 });
 
               if (insertError) {
-                console.error("Erro ao criar perfil:", insertError);
-                toast.error("Erro ao criar perfil de usuário");
+                if (insertError.code === '23505') { // Unique violation
+                  console.log("Perfil já existe, ignorando erro de duplicação");
+                } else {
+                  console.error("Erro ao criar perfil:", insertError);
+                  toast.error("Erro ao criar perfil de usuário");
+                }
                 return;
               }
               
-              toast.success("Perfil criado com sucesso!");
+              console.log("Perfil criado com sucesso!");
             } catch (error) {
               console.error("Erro ao criar perfil:", error);
               toast.error("Erro ao criar perfil de usuário");
@@ -62,13 +70,9 @@ export const useAuth = () => {
             }
           }
         }
-
-        console.log("Sessão inicial:", initialSession);
-        setSession(initialSession);
       } catch (error) {
         console.error("Erro na inicialização da autenticação:", error);
         setSession(null);
-      } finally {
         setLoading(false);
       }
     };
@@ -80,7 +84,6 @@ export const useAuth = () => {
       
       if (currentSession?.user) {
         try {
-          // Check/create profile when auth state changes
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -93,21 +96,31 @@ export const useAuth = () => {
           }
 
           if (!profile) {
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: currentSession.user.id,
-                name: currentSession.user.email?.split('@')[0] || 'User',
-                role: 'user'
-              });
+            try {
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: currentSession.user.id,
+                  name: currentSession.user.email?.split('@')[0] || 'User',
+                  role: 'user'
+                });
 
-            if (insertError) {
-              console.error("Erro ao criar perfil:", insertError);
+              if (insertError) {
+                if (insertError.code === '23505') { // Unique violation
+                  console.log("Perfil já existe, ignorando erro de duplicação");
+                } else {
+                  console.error("Erro ao criar perfil:", insertError);
+                  toast.error("Erro ao criar perfil de usuário");
+                }
+                return;
+              }
+              
+              console.log("Perfil criado com sucesso!");
+            } catch (error) {
+              console.error("Erro ao criar perfil:", error);
               toast.error("Erro ao criar perfil de usuário");
               return;
             }
-            
-            toast.success("Perfil criado com sucesso!");
           }
         } catch (error) {
           console.error("Erro ao verificar/criar perfil:", error);

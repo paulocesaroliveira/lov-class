@@ -35,28 +35,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('No session found');
           setIsAdmin(false);
           setUserId(null);
+          setIsLoading(false);
           return;
         }
 
         console.log('User ID:', session.user.id);
         setUserId(session.user.id);
 
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle();
 
-        if (profileError) {
-          console.error('Profile error:', profileError);
-          throw profileError;
+          if (profileError) {
+            console.error('Profile error:', profileError);
+            throw profileError;
+          }
+
+          if (!profile) {
+            const { error: createError } = await supabase
+              .from('profiles')
+              .insert({
+                id: session.user.id,
+                name: session.user.email?.split('@')[0] || 'User',
+                role: 'user'
+              });
+
+            if (createError) {
+              if (createError.code === '23505') { // Unique violation
+                console.log("Perfil já existe, ignorando erro de duplicação");
+              } else {
+                console.error("Erro ao criar perfil:", createError);
+                toast.error("Erro ao criar perfil de usuário");
+              }
+            }
+            setIsAdmin(false);
+          } else {
+            console.log('User role data:', profile);
+            const userIsAdmin = profile.role === 'admin';
+            console.log('User Role:', profile.role);
+            console.log('Is admin:', userIsAdmin);
+            setIsAdmin(userIsAdmin);
+          }
+        } catch (error) {
+          console.error('Error checking/creating profile:', error);
+          toast.error('Erro ao verificar/criar perfil');
         }
-
-        console.log('User role data:', profile);
-        const userIsAdmin = profile?.role === 'admin';
-        console.log('User Role:', profile?.role);
-        console.log('Is admin:', userIsAdmin);
-        setIsAdmin(userIsAdmin);
       } catch (error) {
         console.error('Auth check error:', error);
         toast.error('Erro ao verificar autenticação');
