@@ -48,7 +48,7 @@ const Anuncios = () => {
             id
           )
         `, { count: 'exact' })
-        .eq('blocked', false)
+        .eq('status', 'approved')  // Changed from blocked=false to status=approved
         .order("created_at", { ascending: false })
         .range(from, to);
 

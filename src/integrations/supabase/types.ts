@@ -343,7 +343,6 @@ export type Database = {
         Row: {
           birth_date: string
           block_reason: string | null
-          blocked: boolean | null
           body_type: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -365,6 +364,7 @@ export type Database = {
           profile_photo_url: string | null
           silicone: string
           state: string
+          status: Database["public"]["Enums"]["advertisement_status"]
           style: string
           updated_at: string
           weight: number
@@ -372,7 +372,6 @@ export type Database = {
         Insert: {
           birth_date: string
           block_reason?: string | null
-          blocked?: boolean | null
           body_type?: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -394,6 +393,7 @@ export type Database = {
           profile_photo_url?: string | null
           silicone?: string
           state: string
+          status?: Database["public"]["Enums"]["advertisement_status"]
           style: string
           updated_at?: string
           weight: number
@@ -401,7 +401,6 @@ export type Database = {
         Update: {
           birth_date?: string
           block_reason?: string | null
-          blocked?: boolean | null
           body_type?: string
           category?: Database["public"]["Enums"]["ad_category"]
           city?: string
@@ -423,6 +422,7 @@ export type Database = {
           profile_photo_url?: string | null
           silicone?: string
           state?: string
+          status?: Database["public"]["Enums"]["advertisement_status"]
           style?: string
           updated_at?: string
           weight?: number
@@ -790,6 +790,7 @@ export type Database = {
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
+      advertisement_status: "pending" | "approved" | "blocked"
       block_reason_type:
         | "spam"
         | "inappropriate_content"
