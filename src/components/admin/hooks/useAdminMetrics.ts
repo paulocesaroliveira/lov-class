@@ -5,22 +5,27 @@ interface CountResponse {
   count: number | null;
 }
 
+interface AdStatusCount {
+  status: string;
+  count: number;
+}
+
 export const useAdminMetrics = () => {
   // Métricas de usuários
   const { data: userMetrics } = useQuery({
     queryKey: ["admin-user-metrics"],
     queryFn: async () => {
-      const { count: totalUsers } = await supabase
+      const { count: totalUsers } = (await supabase
         .from("profiles")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })) as { count: number };
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const { count: activeUsers } = await supabase
+      const { count: activeUsers } = (await supabase
         .from("user_activity_logs")
         .select("*", { count: "exact", head: true })
-        .gte("created_at", thirtyDaysAgo.toISOString());
+        .gte("created_at", thirtyDaysAgo.toISOString())) as { count: number };
 
       return {
         totalUsers: totalUsers || 0,
@@ -35,12 +40,8 @@ export const useAdminMetrics = () => {
     queryKey: ["admin-ad-metrics"],
     queryFn: async () => {
       const { data: adStatusCount } = await supabase
-        .from("advertisement_reviews")
-        .select(`
-          status,
-          count
-        `)
-        .in("status", ["pending", "approved", "rejected"])
+        .from("advertisement_review_counts")
+        .select("*")
         .throwOnError();
 
       const statusCount = {
@@ -49,8 +50,10 @@ export const useAdminMetrics = () => {
         rejected: 0,
       };
 
-      adStatusCount?.forEach((item: any) => {
-        statusCount[item.status as keyof typeof statusCount] = item.count;
+      adStatusCount?.forEach((item: AdStatusCount) => {
+        if (item.status in statusCount) {
+          statusCount[item.status as keyof typeof statusCount] = item.count;
+        }
       });
 
       const total = Object.values(statusCount).reduce((a, b) => a + b, 0);

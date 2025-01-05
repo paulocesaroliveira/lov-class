@@ -761,7 +761,13 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      advertisement_review_counts: {
+        Row: {
+          count: number | null
+          status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_users_roles: {
