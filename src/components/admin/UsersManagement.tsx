@@ -25,6 +25,10 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
+  admin_notes: Database["public"]["Tables"]["admin_notes"]["Row"][];
+  user_activity_logs: Database["public"]["Tables"]["user_activity_logs"]["Row"][];
+};
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -43,7 +47,7 @@ export const UsersManagement = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Profile[];
     },
   });
 
@@ -192,7 +196,7 @@ export const UsersManagement = () => {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          {user.admin_notes?.map((note: any) => (
+                          {user.admin_notes?.map((note) => (
                             <div key={note.id} className="p-2 border rounded">
                               <p className="text-sm">{note.note}</p>
                               <p className="text-xs text-gray-500">
