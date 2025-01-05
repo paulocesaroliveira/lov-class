@@ -539,25 +539,43 @@ export type Database = {
       message_rate_limits: {
         Row: {
           created_at: string | null
+          day_count: number | null
+          hour_count: number | null
           id: string
           last_message_time: string | null
+          last_reset_day: string | null
+          last_reset_hour: string | null
+          last_reset_minute: string | null
           message_count: number | null
+          minute_count: number | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          day_count?: number | null
+          hour_count?: number | null
           id?: string
           last_message_time?: string | null
+          last_reset_day?: string | null
+          last_reset_hour?: string | null
+          last_reset_minute?: string | null
           message_count?: number | null
+          minute_count?: number | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          day_count?: number | null
+          hour_count?: number | null
           id?: string
           last_message_time?: string | null
+          last_reset_day?: string | null
+          last_reset_hour?: string | null
+          last_reset_minute?: string | null
           message_count?: number | null
+          minute_count?: number | null
           updated_at?: string | null
           user_id?: string | null
         }
