@@ -10,17 +10,24 @@ export const useUploadProgress = () => {
     file: File
   ) => {
     try {
+      // Update progress at the start
+      setUploadProgress(prev => ({
+        ...prev,
+        [file.name]: 0
+      }));
+
       const { data, error } = await supabase.storage
         .from(bucket)
         .upload(path, file, {
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(prev => ({
-              ...prev,
-              [file.name]: percent
-            }));
-          },
+          cacheControl: '3600',
+          upsert: false
         });
+
+      // Set progress to 100% when complete
+      setUploadProgress(prev => ({
+        ...prev,
+        [file.name]: 100
+      }));
 
       if (error) throw error;
       return data;
