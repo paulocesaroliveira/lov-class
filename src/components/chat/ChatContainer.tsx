@@ -16,8 +16,30 @@ export const ChatContainer = () => {
   
   console.log("ChatContainer: Initial render with:", {
     conversationId,
-    sessionUserId: session?.user?.id
+    sessionUserId: session?.user?.id,
+    hasSession: !!session,
+    hasConversationId: !!conversationId
   });
+
+  // Verificar autenticação primeiro
+  if (!session?.user) {
+    console.log("ChatContainer: No session found");
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
+      </div>
+    );
+  }
+
+  // Verificar ID da conversa
+  if (!conversationId) {
+    console.log("ChatContainer: No conversationId found");
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <p className="text-muted-foreground">Nenhuma conversa selecionada</p>
+      </div>
+    );
+  }
 
   const { 
     data: conversationData, 
@@ -34,24 +56,7 @@ export const ChatContainer = () => {
 
   useMessageSubscription(conversationId, refetch);
 
-  if (!session?.user) {
-    console.log("ChatContainer: No session found");
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <p className="text-muted-foreground">Você precisa estar logado para acessar o chat</p>
-      </div>
-    );
-  }
-
-  if (!conversationId) {
-    console.log("ChatContainer: No conversationId found");
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <p className="text-muted-foreground">Nenhuma conversa selecionada</p>
-      </div>
-    );
-  }
-
+  // Verificar estado de carregamento
   if (isLoadingConversation || isLoadingMessages) {
     console.log("ChatContainer: Loading state", {
       isLoadingConversation,
@@ -64,6 +69,7 @@ export const ChatContainer = () => {
     );
   }
 
+  // Verificar erros
   if (conversationError || messagesError) {
     console.error("ChatContainer: Errors found:", {
       conversationError,
@@ -76,6 +82,7 @@ export const ChatContainer = () => {
     );
   }
 
+  // Verificar se os dados da conversa existem
   if (!conversationData) {
     console.log("ChatContainer: No conversation data found");
     return (
