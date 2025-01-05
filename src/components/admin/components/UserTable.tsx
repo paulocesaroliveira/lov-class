@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowUpDown } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +26,9 @@ interface UserTableProps {
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
   onAddNote: (userId: string, note: string) => Promise<void>;
   getRoleLabel: (role: UserRole) => string;
+  onSort: (column: keyof Profile) => void;
+  sortColumn: keyof Profile | null;
+  sortDirection: 'asc' | 'desc';
 }
 
 export const UserTable = ({
@@ -34,15 +37,50 @@ export const UserTable = ({
   onRoleUpdate,
   onAddNote,
   getRoleLabel,
+  onSort,
+  sortColumn,
+  sortDirection,
 }: UserTableProps) => {
+  const getSortIcon = (column: keyof Profile) => {
+    if (sortColumn !== column) return <ArrowUpDown className="w-4 h-4 ml-1" />;
+    return <ArrowUpDown className={`w-4 h-4 ml-1 ${sortDirection === 'asc' ? 'rotate-180' : ''}`} />;
+  };
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Papel</TableHead>
-            <TableHead>Data de Criação</TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => onSort('name')}
+                className="flex items-center hover:bg-transparent"
+              >
+                Nome
+                {getSortIcon('name')}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => onSort('role')}
+                className="flex items-center hover:bg-transparent"
+              >
+                Papel
+                {getSortIcon('role')}
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button 
+                variant="ghost" 
+                onClick={() => onSort('created_at')}
+                className="flex items-center hover:bg-transparent"
+              >
+                Data de Criação
+                {getSortIcon('created_at')}
+              </Button>
+            </TableHead>
             <TableHead>Ações</TableHead>
             <TableHead>Notas</TableHead>
           </TableRow>

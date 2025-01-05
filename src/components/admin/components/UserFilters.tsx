@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { UserRole } from "../types";
 
 interface UserFiltersProps {
@@ -15,6 +17,7 @@ interface UserFiltersProps {
   setSelectedRole: (value: UserRole | "all") => void;
   selectedDate: string;
   setSelectedDate: (value: string) => void;
+  onExportData: () => void;
 }
 
 export const UserFilters = ({
@@ -24,32 +27,43 @@ export const UserFilters = ({
   setSelectedRole,
   selectedDate,
   setSelectedDate,
+  onExportData,
 }: UserFiltersProps) => {
   return (
-    <div className="flex flex-wrap gap-4 mb-4">
-      <Input
-        placeholder="Buscar por nome..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="max-w-xs"
-      />
-      <Select value={selectedRole} onValueChange={(value: UserRole | "all") => setSelectedRole(value)}>
-        <SelectTrigger className="w-32">
-          <SelectValue placeholder="Filtrar role" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          <SelectItem value="user">Cliente</SelectItem>
-          <SelectItem value="advertiser">Anunciante</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-        </SelectContent>
-      </Select>
-      <Input
-        type="date"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-        className="max-w-xs"
-      />
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-4 mb-4">
+        <Input
+          placeholder="Buscar por nome..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-xs"
+        />
+        <Select value={selectedRole} onValueChange={(value: UserRole | "all") => setSelectedRole(value)}>
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Filtrar role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="user">Cliente</SelectItem>
+            <SelectItem value="advertiser">Anunciante</SelectItem>
+            <SelectItem value="admin">Admin</SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="max-w-xs"
+        />
+        <Button 
+          variant="outline" 
+          className="ml-auto"
+          onClick={onExportData}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Exportar Dados
+        </Button>
+      </div>
     </div>
   );
 };

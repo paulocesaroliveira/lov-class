@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { format } from "date-fns"; // Add this import
+import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,11 +11,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { UserRole } from "./types";
+import { UserRole, Profile } from "./types";
 import { useUsers, useUserActions } from "./hooks/useUsers";
 import { UserFilters } from "./components/UserFilters";
 import { UserTable } from "./components/UserTable";
 import { UserPagination } from "./components/UserPagination";
+import { toast } from "sonner";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -23,6 +24,8 @@ export const UsersManagement = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState<keyof Profile | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [roleChangeConfirm, setRoleChangeConfirm] = useState<{
     userId: string;
     newRole: UserRole;
@@ -64,6 +67,42 @@ export const UsersManagement = () => {
     if (success) refetch();
   };
 
+  const handleSort = (column: keyof Profile) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const handleExportData = () => {
+    if (!filteredUsers?.length) {
+      toast.error("Não há dados para exportar");
+      return;
+    }
+
+    const headers = ["Nome", "Papel", "Data de Criação"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredUsers.map(user => [
+        user.name,
+        getRoleLabel(user.role),
+        format(new Date(user.created_at), "dd/MM/yyyy HH:mm")
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `usuarios_${format(new Date(), "yyyy-MM-dd")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Dados exportados com sucesso");
+  };
+
   const filteredUsers = users?.filter((user) => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === "all" || user.role === selectedRole;
@@ -71,12 +110,27 @@ export const UsersManagement = () => {
     return matchesSearch && matchesRole && matchesDate;
   });
 
-  const paginatedUsers = filteredUsers?.slice(
+  const sortedUsers = filteredUsers?.sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+    
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc' 
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+    
+    return 0;
+  });
+
+  const paginatedUsers = sortedUsers?.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
   );
 
-  const totalPages = filteredUsers ? Math.ceil(filteredUsers.length / itemsPerPage) : 0;
+  const totalPages = sortedUsers ? Math.ceil(sortedUsers.length / itemsPerPage) : 0;
 
   if (isLoading) {
     return (
@@ -95,6 +149,7 @@ export const UsersManagement = () => {
         setSelectedRole={setSelectedRole}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
+        onExportData={handleExportData}
       />
 
       <UserTable
@@ -103,6 +158,9 @@ export const UsersManagement = () => {
         onRoleUpdate={handleRoleUpdate}
         onAddNote={handleNoteAdd}
         getRoleLabel={getRoleLabel}
+        onSort={handleSort}
+        sortColumn={sortColumn}
+        sortDirection={sortDirection}
       />
 
       <UserPagination
