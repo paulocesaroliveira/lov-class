@@ -11,14 +11,16 @@ import { useMessageSubscription } from "./hooks/useMessageSubscription";
 import { useAuth } from "@/hooks/useAuth";
 
 export const ChatContainer = () => {
-  const { conversationId } = useParams<{ conversationId: string }>();
+  const params = useParams<{ conversationId: string }>();
+  const conversationId = params.conversationId;
   const { session } = useAuth();
 
   console.log("ChatContainer: Initial render with:", {
     conversationId,
     sessionUserId: session?.user?.id,
     hasSession: !!session,
-    hasConversationId: !!conversationId
+    hasConversationId: !!conversationId,
+    params
   });
 
   const { 
@@ -38,6 +40,10 @@ export const ChatContainer = () => {
 
   // Verificar autenticação e ID da conversa
   if (!session?.user || !conversationId) {
+    console.log("ChatContainer: Missing session or conversationId", {
+      hasSession: !!session?.user,
+      conversationId
+    });
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">
@@ -51,6 +57,10 @@ export const ChatContainer = () => {
 
   // Verificar estado de carregamento
   if (isLoadingConversation || isLoadingMessages) {
+    console.log("ChatContainer: Loading state", {
+      isLoadingConversation,
+      isLoadingMessages
+    });
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Carregando conversa...</p>
