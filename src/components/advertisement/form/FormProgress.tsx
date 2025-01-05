@@ -6,6 +6,13 @@ type FormProgressProps = {
 };
 
 export const FormProgress = ({ currentStep, totalSteps }: FormProgressProps) => {
+  const stepLabels = [
+    "Informações Básicas",
+    "Serviços e Valores",
+    "Mídia",
+    "Descrição"
+  ];
+
   return (
     <div className="w-full mb-8">
       <div className="relative">
@@ -43,10 +50,9 @@ export const FormProgress = ({ currentStep, totalSteps }: FormProgressProps) => 
       
       {/* Step labels */}
       <div className="mt-4 flex justify-between text-sm text-muted-foreground">
-        <span>Informações Básicas</span>
-        <span>Mídia</span>
-        <span>Serviços</span>
-        <span>Finalizar</span>
+        {stepLabels.map((label, index) => (
+          <span key={index} className="text-center">{label}</span>
+        ))}
       </div>
     </div>
   );
