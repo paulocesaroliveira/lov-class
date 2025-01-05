@@ -19,59 +19,31 @@ export const useConversation = (conversationId: string | undefined) => {
         throw new Error("No user session found");
       }
 
-      console.log("useConversation: Fetching conversation:", {
+      console.log("useConversation: Starting fetch for conversation:", {
         conversationId,
         userId: session.user.id
       });
 
-      // Primeiro, verificar se a conversa existe
-      const { data: conversationExists, error: conversationError } = await supabase
-        .from("conversations")
-        .select("id")
-        .eq("id", conversationId)
-        .maybeSingle();
-
-      if (conversationError) {
-        console.error("useConversation: Error checking conversation:", conversationError);
-        throw conversationError;
-      }
-
-      if (!conversationExists) {
-        console.error("useConversation: Conversation not found");
-        throw new Error("Conversation not found");
-      }
-
-      // Verificar se o usuário é participante da conversa
-      const { data: participantData, error: participantError } = await supabase
-        .from("conversation_participants")
-        .select("*")
-        .eq("conversation_id", conversationId)
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      if (participantError) {
-        console.error("useConversation: Error checking participant:", participantError);
-        throw participantError;
-      }
-
-      if (!participantData) {
-        console.error("useConversation: User is not a participant");
-        throw new Error("User is not a participant in this conversation");
-      }
-
-      // Buscar os detalhes da conversa incluindo o anúncio
+      // Buscar diretamente os detalhes da conversa com todos os dados necessários
       const { data: conversationData, error: detailsError } = await supabase
         .from("conversation_participants")
         .select(`
+          conversation_id,
           user_id,
           advertisement_id,
           advertisements (
             id,
-            name
+            name,
+            profile_id
+          ),
+          conversations!inner (
+            id,
+            created_at,
+            updated_at
           )
         `)
         .eq("conversation_id", conversationId)
-        .neq("user_id", session.user.id)
+        .eq("user_id", session.user.id)
         .maybeSingle();
 
       if (detailsError) {
@@ -80,12 +52,18 @@ export const useConversation = (conversationId: string | undefined) => {
       }
 
       if (!conversationData) {
-        console.error("useConversation: No conversation details found");
-        throw new Error("Conversation details not found");
+        console.error("useConversation: No conversation data found");
+        throw new Error("Conversation not found");
       }
 
       console.log("useConversation: Successfully fetched conversation data:", conversationData);
-      return conversationData;
+
+      // Retornar os dados formatados conforme esperado
+      return {
+        user_id: conversationData.user_id,
+        advertisement_id: conversationData.advertisement_id,
+        advertisements: conversationData.advertisements
+      };
     },
     enabled: !!conversationId && !!session?.user?.id,
     retry: false,
