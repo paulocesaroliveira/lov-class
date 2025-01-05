@@ -8,7 +8,7 @@ import { useState } from "react";
 interface UserNotesProps {
   userName: string;
   notes: AdminNote[];
-  onAddNote: (note: string) => Promise<void>;
+  onAddNote: (note: string) => Promise<boolean>;
 }
 
 export const UserNotes = ({ userName, notes, onAddNote }: UserNotesProps) => {
@@ -16,8 +16,10 @@ export const UserNotes = ({ userName, notes, onAddNote }: UserNotesProps) => {
 
   const handleSubmit = async () => {
     if (!noteContent.trim()) return;
-    await onAddNote(noteContent);
-    setNoteContent("");
+    const success = await onAddNote(noteContent);
+    if (success) {
+      setNoteContent("");
+    }
   };
 
   return (
