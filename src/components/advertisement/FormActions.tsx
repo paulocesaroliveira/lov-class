@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Loader2, Upload } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 type FormActionsProps = {
   isLoading: boolean;
@@ -7,21 +7,23 @@ type FormActionsProps = {
 };
 
 export const FormActions = ({ isLoading, isEditing }: FormActionsProps) => {
-  console.log("FormActions isEditing:", isEditing); // Debug log
-  
   return (
-    <Button type="submit" className="w-full" disabled={isLoading}>
-      {isLoading ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {isEditing ? "Atualizando anúncio..." : "Criando anúncio..."}
-        </>
-      ) : (
-        <>
-          <Upload className="mr-2 h-4 w-4" />
-          {isEditing ? "Atualizar Anúncio" : "Criar Anúncio"}
-        </>
-      )}
-    </Button>
+    <div className="flex justify-end gap-4 pt-6">
+      <Button
+        type="submit"
+        className="relative overflow-hidden group"
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            <Check className="w-4 h-4 mr-2" />
+            {isEditing ? "Atualizar" : "Publicar"} Anúncio
+          </>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+      </Button>
+    </div>
   );
 };
