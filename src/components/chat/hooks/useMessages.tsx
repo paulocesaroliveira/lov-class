@@ -73,5 +73,9 @@ export const useMessages = (conversationId: string | undefined) => {
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: 0,
     enabled: !!conversationId,
+    staleTime: 1000 * 60 * 5, // Cache válido por 5 minutos
+    cacheTime: 1000 * 60 * 30, // Manter no cache por 30 minutos
+    refetchOnWindowFocus: false, // Não refetch ao focar a janela
+    retry: 3, // Tentar 3 vezes em caso de erro
   });
 };

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { useInView } from "react-intersection-observer";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -16,6 +16,56 @@ interface ChatMessagesProps {
   className?: string;
 }
 
+// Componente de mensagem individual memoizado
+const MessageItem = memo(({ 
+  message, 
+  userId 
+}: { 
+  message: any; 
+  userId: string;
+}) => {
+  return (
+    <div
+      className={cn(
+        "flex animate-fade-in",
+        message.sender_id === userId ? "justify-end" : "justify-start"
+      )}
+    >
+      <div
+        className={cn(
+          "max-w-[85%] sm:max-w-[70%] rounded-2xl p-3 sm:p-4 transition-all duration-300",
+          message.sender_id === userId
+            ? "bg-primary text-primary-foreground ml-4 sm:ml-12 hover:bg-primary/90"
+            : "bg-black/20 text-white mr-4 sm:mr-12 hover:bg-black/30"
+        )}
+      >
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="text-sm sm:text-base font-medium">
+            {message.sender?.name || "Usuário"}
+          </span>
+          <span className="text-xs sm:text-sm opacity-70">
+            {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
+          </span>
+          {message.sender_id === userId && (
+            <span className="ml-1 opacity-70 transition-opacity">
+              {message.read_at ? (
+                <CheckCheck size={16} className="text-blue-400" />
+              ) : (
+                <Check size={16} />
+              )}
+            </span>
+          )}
+        </div>
+        <p className="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">
+          {message.content}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+MessageItem.displayName = "MessageItem";
+
 export const ChatMessages = ({
   messages,
   isLoading,
@@ -26,8 +76,12 @@ export const ChatMessages = ({
   isLoadingMore,
   className
 }: ChatMessagesProps) => {
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    delay: 100
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollTimeout = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (inView && hasMore && !isLoadingMore) {
@@ -36,7 +90,21 @@ export const ChatMessages = ({
   }, [inView, hasMore, isLoadingMore, onLoadMore]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Limpar timeout anterior se existir
+    if (scrollTimeout.current) {
+      clearTimeout(scrollTimeout.current);
+    }
+
+    // Definir novo timeout para scroll suave
+    scrollTimeout.current = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
+    return () => {
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+    };
   }, [messages]);
 
   if (isLoading) {
@@ -60,7 +128,7 @@ export const ChatMessages = ({
   if (error) {
     return (
       <div className="flex-1 flex items-center justify-center p-4 text-red-500 animate-fade-in">
-        Erro ao carregar mensagens
+        Erro ao carregar mensagens. Tente novamente.
       </div>
     );
   }
@@ -79,51 +147,17 @@ export const ChatMessages = ({
               <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
           ) : (
-            "Carregue mais mensagens"
+            "Carregando mensagens antigas..."
           )}
         </div>
       )}
       
-      {messages?.map((message, index) => (
-        <div
-          key={message.id}
-          className={cn(
-            "flex animate-fade-in",
-            message.sender_id === userId ? "justify-end" : "justify-start",
-            // Add stagger effect
-            `[animation-delay:${index * 50}ms]`
-          )}
-        >
-          <div
-            className={cn(
-              "max-w-[85%] sm:max-w-[70%] rounded-2xl p-3 sm:p-4 transition-all duration-300",
-              message.sender_id === userId
-                ? "bg-primary text-primary-foreground ml-4 sm:ml-12 hover:bg-primary/90"
-                : "bg-black/20 text-white mr-4 sm:mr-12 hover:bg-black/30"
-            )}
-          >
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="text-sm sm:text-base font-medium">
-                {message.sender?.name || "Usuário"}
-              </span>
-              <span className="text-xs sm:text-sm opacity-70">
-                {format(new Date(message.created_at), "HH:mm", { locale: ptBR })}
-              </span>
-              {message.sender_id === userId && (
-                <span className="ml-1 opacity-70 transition-opacity">
-                  {message.read_at ? (
-                    <CheckCheck size={16} className="text-blue-400" />
-                  ) : (
-                    <Check size={16} />
-                  )}
-                </span>
-              )}
-            </div>
-            <p className="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">
-              {message.content}
-            </p>
-          </div>
-        </div>
+      {messages?.map((message) => (
+        <MessageItem 
+          key={message.id} 
+          message={message} 
+          userId={userId} 
+        />
       ))}
       <div ref={messagesEndRef} />
     </div>
