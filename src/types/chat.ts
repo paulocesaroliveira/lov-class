@@ -16,6 +16,7 @@ export interface ConversationParticipant {
   advertisements?: {
     id: string;
     name: string;
+    profile_id: string;
   } | null;
 }
 

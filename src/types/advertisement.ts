@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
-import { Database } from "@/integrations/supabase/types";
-
-type ServiceType = Database["public"]["Enums"]["service_type"];
-type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
+import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
 
 export type StyleType = z.infer<typeof formSchema>["style"];
 export type FormValues = z.infer<typeof formSchema> & {

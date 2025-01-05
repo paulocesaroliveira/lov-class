@@ -1,8 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
-
-type ServiceType = Database["public"]["Enums"]["service_type"];
-type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
+import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
 
 export const useAdvertisementServices = () => {
   const saveServices = async (advertisementId: string, services: ServiceType[]) => {
@@ -18,7 +15,7 @@ export const useAdvertisementServices = () => {
       .insert(
         services.map(service => ({
           advertisement_id: advertisementId,
-          service: service as ServiceType
+          service: service
         }))
       );
 
@@ -41,7 +38,7 @@ export const useAdvertisementServices = () => {
       .insert(
         locations.map(location => ({
           advertisement_id: advertisementId,
-          location: location as ServiceLocationType
+          location: location
         }))
       );
 

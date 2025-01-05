@@ -1,8 +1,5 @@
 import { z } from "zod";
-import { Database } from "@/integrations/supabase/types";
-
-type ServiceType = Database["public"]["Enums"]["service_type"];
-type ServiceLocationType = Database["public"]["Enums"]["service_location_type"];
+import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 

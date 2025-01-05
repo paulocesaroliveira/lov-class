@@ -1,6 +1,4 @@
-import { Database } from "@/integrations/supabase/types";
-
-type ServiceType = Database["public"]["Enums"]["service_type"];
+import { ServiceType } from "@/integrations/supabase/types/enums";
 
 export const services: { id: ServiceType; label: string }[] = [
   { id: "acessorios_eroticos", label: "Acessórios Eróticos" },

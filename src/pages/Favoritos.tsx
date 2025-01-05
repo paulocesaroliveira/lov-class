@@ -1,41 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
-import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
 import { Advertisement } from "@/types/advertisement";
-import { toast } from "sonner";
+import { AdvertisementCard } from "@/components/advertisement/AdvertisementCard";
 
-const Favoritos = () => {
-  const { session, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
-  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+export const Favoritos = () => {
+  const { session } = useAuth();
 
-  useEffect(() => {
-    if (!authLoading && !session) {
-      toast.error("Faça login para acessar seus favoritos");
-      navigate("/login", { 
-        state: { 
-          returnTo: "/favoritos",
-          message: "Faça login para acessar seus favoritos" 
-        }
-      });
-    }
-  }, [session, navigate, authLoading]);
-
-  const { data: favorites, isLoading } = useQuery({
-    queryKey: ["favorites", session?.user?.id],
+  const { data: favorites = [], isLoading } = useQuery({
+    queryKey: ["favorites"],
     queryFn: async () => {
-      if (!session?.user?.id) {
-        return [];
-      }
+      if (!session?.user?.id) return [];
 
-      const { data: favorites, error } = await supabase
+      const { data: favoritesData, error } = await supabase
         .from("favorites")
         .select(`
-          id,
           advertisement_id,
           advertisements (
             id,
@@ -63,6 +42,12 @@ const Favoritos = () => {
             silicone,
             blocked,
             block_reason,
+            advertisement_services (
+              service
+            ),
+            advertisement_service_locations (
+              location
+            ),
             advertisement_photos (
               id,
               photo_url
@@ -70,12 +55,6 @@ const Favoritos = () => {
             advertisement_videos (
               id,
               video_url
-            ),
-            advertisement_services (
-              service
-            ),
-            advertisement_service_locations (
-              location
             ),
             advertisement_comments (
               id
@@ -85,44 +64,45 @@ const Favoritos = () => {
         .eq("user_id", session.user.id);
 
       if (error) {
-        toast.error("Erro ao carregar favoritos");
+        console.error("Error fetching favorites:", error);
         throw error;
       }
 
-      const transformedFavorites = favorites
-        .map(favorite => favorite.advertisements)
-        .filter((ad): ad is Advertisement => ad !== null);
-
-      return transformedFavorites;
+      return favoritesData.map(favorite => favorite.advertisements as Advertisement);
     },
-    enabled: !!session?.user?.id,
+    enabled: !!session?.user?.id
   });
 
-  if (authLoading) {
-    return null;
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold">Faça login para ver seus favoritos</h2>
+          <p className="text-muted-foreground">Você precisa estar logado para acessar seus favoritos</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!session) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-96 bg-black/20 animate-pulse rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Meus Favoritos</h1>
-      <AdvertisementList
-        advertisements={favorites || []}
-        isLoading={isLoading}
-        onSelectAd={setSelectedAd}
-        isFavoritesPage={true}
-      />
-      {selectedAd && (
-        <AdvertisementDialog
-          advertisement={selectedAd}
-          onOpenChange={(open) => !open && setSelectedAd(null)}
-        />
-      )}
+    <div className="container mx-auto py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {favorites.map((advertisement) => (
+          <AdvertisementCard key={advertisement.id} advertisement={advertisement} />
+        ))}
+      </div>
     </div>
   );
 };
-
-export default Favoritos;

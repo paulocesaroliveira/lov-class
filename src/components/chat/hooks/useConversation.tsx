@@ -24,7 +24,6 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // Buscar a conversa com todos os participantes e anúncios em uma única query
       const { data, error } = await supabase
         .from("conversations")
         .select(`
@@ -54,7 +53,6 @@ export const useConversation = (conversationId: string | undefined) => {
 
       console.log("useConversation: Raw conversation data:", data);
 
-      // Encontrar o participante relevante
       const participants = data.conversation_participants;
       const relevantParticipant = participants.find(p => 
         p.advertisement_id !== null || p.user_id !== session.user.id
@@ -66,7 +64,12 @@ export const useConversation = (conversationId: string | undefined) => {
       }
 
       console.log("useConversation: Using participant data:", relevantParticipant);
-      return relevantParticipant;
+      
+      return {
+        user_id: relevantParticipant.user_id,
+        advertisement_id: relevantParticipant.advertisement_id,
+        advertisements: relevantParticipant.advertisements
+      };
     },
     enabled: !!conversationId && !!session?.user?.id,
     staleTime: 1000 * 60 * 5, // 5 minutos
