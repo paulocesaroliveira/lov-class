@@ -34,7 +34,7 @@ export const useRegistration = () => {
       });
 
       // Try to sign up the user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -48,50 +48,26 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Registration error:', signUpError);
         
-        // Parse the error message if it's a JSON string
-        let errorMessage = signUpError.message;
-        try {
-          if (typeof signUpError.message === 'string' && signUpError.message.includes('{')) {
-            const parsedError = JSON.parse(signUpError.message);
-            errorMessage = parsedError.msg || parsedError.message || errorMessage;
-          }
-        } catch (e) {
-          console.error('Error parsing error message:', e);
-        }
-        
-        // Handle specific error cases
-        if (errorMessage.includes('User already registered') || 
-            errorMessage.includes('user_already_exists') ||
-            signUpError.message.includes('User already registered')) {
+        // Check for user already exists error
+        if (signUpError.message.includes('User already registered') || 
+            signUpError.message.includes('user_already_exists')) {
           toast.error("Este email já está cadastrado. Por favor, faça login.");
           navigate('/login');
           return false;
         }
-        
-        // Handle other specific error cases
-        switch (true) {
-          case errorMessage.includes('Password'):
-            toast.error("A senha deve ter pelo menos 6 caracteres");
-            break;
-          case errorMessage.includes('Email'):
-            toast.error("Por favor, insira um email válido");
-            break;
-          case errorMessage.includes('422'):
-            toast.error("Dados inválidos. Verifique as informações fornecidas");
-            break;
-          default:
-            toast.error("Erro no cadastro. Por favor, tente novamente");
+
+        // Handle other error cases
+        if (signUpError.message.includes('Password')) {
+          toast.error("A senha deve ter pelo menos 6 caracteres");
+        } else if (signUpError.message.includes('Email')) {
+          toast.error("Por favor, insira um email válido");
+        } else {
+          toast.error("Erro no cadastro. Por favor, tente novamente");
+          console.error('Detailed error:', signUpError);
         }
         return false;
       }
 
-      if (!signUpData.user) {
-        console.error('No user data returned after signup');
-        toast.error("Não foi possível criar sua conta. Por favor, tente novamente");
-        return false;
-      }
-
-      console.log('Registration successful:', signUpData.user.id);
       toast.success("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro");
       navigate('/login');
       return true;
