@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRegistration } from '@/hooks/useRegistration';
+import { useRegistration, RegistrationData } from '@/hooks/useRegistration';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -36,7 +36,13 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    await register(data);
+    // Now data will have all required fields as non-optional
+    const registrationData: RegistrationData = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+    };
+    await register(registrationData);
   };
 
   return (
