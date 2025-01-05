@@ -17,14 +17,10 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const checkAndRedirect = async () => {
-      if (session) {
-        const state = location.state as { returnTo?: string } | null;
-        navigate(state?.returnTo || "/");
-      }
-    };
-
-    checkAndRedirect();
+    if (session) {
+      const state = location.state as { returnTo?: string } | null;
+      navigate(state?.returnTo || "/");
+    }
   }, [session, navigate, location.state]);
 
   useEffect(() => {
@@ -36,12 +32,15 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loading) return; // Previne múltiplos cliques
+    if (loading) return;
+    
     setLoading(true);
+    console.log("Iniciando processo de login...");
 
     try {
       // Limpa qualquer sessão existente
       await supabase.auth.signOut();
+      console.log("Sessão anterior limpa");
 
       // Tenta fazer login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -49,7 +48,10 @@ const Login = () => {
         password,
       });
 
+      console.log("Resposta do login:", { authData, authError });
+
       if (authError) {
+        console.error("Erro de autenticação:", authError);
         if (authError.message === "Invalid login credentials") {
           toast.error("Email ou senha incorretos");
         } else if (authError.message.includes("Email not confirmed")) {
@@ -62,12 +64,13 @@ const Login = () => {
       }
 
       if (!authData.user) {
+        console.error("Sem dados do usuário após login");
         toast.error("Erro ao recuperar dados do usuário");
         setLoading(false);
         return;
       }
 
-      // Verifica se o perfil existe
+      console.log("Verificando perfil do usuário...");
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
@@ -83,7 +86,7 @@ const Login = () => {
       }
 
       if (!profile) {
-        // Cria o perfil se não existir
+        console.log("Criando novo perfil...");
         const { error: createProfileError } = await supabase
           .from("profiles")
           .insert([
@@ -103,11 +106,12 @@ const Login = () => {
         }
       }
 
+      console.log("Login bem-sucedido, redirecionando...");
       const state = location.state as { returnTo?: string } | null;
       toast.success("Login realizado com sucesso!");
       navigate(state?.returnTo || "/");
     } catch (error: any) {
-      console.error("Login error:", error);
+      console.error("Erro inesperado no login:", error);
       toast.error("Erro ao fazer login. Tente novamente mais tarde.");
     } finally {
       setLoading(false);
