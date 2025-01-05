@@ -27,26 +27,7 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      // Primeiro, verificamos se o usuário já existe
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', data.email)
-        .maybeSingle();
-
-      if (existingUser) {
-        toast.error("Este email já está cadastrado", {
-          duration: 4000,
-          action: {
-            label: "Ir para login",
-            onClick: () => navigate('/login')
-          }
-        });
-        setIsLoading(false);
-        return false;
-      }
-
-      // Se não existe, tentamos criar o usuário
+      // Tenta criar o usuário diretamente
       const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -74,11 +55,9 @@ export const useRegistration = () => {
       }
 
       // Mostra mensagem de sucesso e redireciona
-      toast.success("Conta criada com sucesso! Redirecionando para o login...", {
-        duration: 2000,
-      });
+      toast.success("Conta criada com sucesso! Redirecionando para o login...");
       
-      // Delay para garantir que o usuário veja a mensagem
+      // Redireciona após um breve delay
       setTimeout(() => {
         navigate('/login');
       }, 2000);
