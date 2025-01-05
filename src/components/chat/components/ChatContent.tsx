@@ -6,6 +6,7 @@ import { ChatHeader } from "../ChatHeader";
 import { TypingIndicator } from "./TypingIndicator";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useMessages } from "../hooks/useMessages";
 
 interface ChatContentProps {
   conversationData: {
@@ -13,19 +14,26 @@ interface ChatContentProps {
       name: string;
     };
   };
-  messages: any[];
   userId: string;
   conversationId: string;
-  onRefetch: () => void;
 }
 
 export const ChatContent = ({ 
   conversationData, 
-  messages, 
   userId,
   conversationId,
-  onRefetch 
 }: ChatContentProps) => {
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch
+  } = useMessages(conversationId);
+
+  const messages = data?.pages.flatMap(page => page.messages) || [];
+
   useEffect(() => {
     const markMessagesAsRead = async () => {
       try {
@@ -42,7 +50,7 @@ export const ChatContent = ({
           if (error) {
             console.error("Error marking messages as read:", error);
           } else {
-            onRefetch();
+            refetch();
           }
         }
       } catch (error) {
@@ -51,7 +59,7 @@ export const ChatContent = ({
     };
 
     markMessagesAsRead();
-  }, [messages, userId, onRefetch]);
+  }, [messages, userId, refetch]);
 
   const handleSendMessage = async (content: string) => {
     try {
@@ -72,19 +80,31 @@ export const ChatContent = ({
         throw error;
       }
 
-      await onRefetch();
+      await refetch();
     } catch (error) {
       console.error("ChatContent: Error in handleSendMessage:", error);
       toast.error("Erro ao enviar mensagem");
     }
   };
 
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-full">
+      <span className="text-muted-foreground">Carregando mensagens...</span>
+    </div>;
+  }
+
   return (
     <div className="container mx-auto max-w-4xl p-2 sm:p-4 h-[calc(100vh-4rem)]">
       <div className="glass-card h-full flex flex-col">
         <ChatHeader title={conversationData?.advertisements?.name || "Usuário"} />
         <NotificationButton />
-        <MessageList messages={messages} currentUserId={userId} />
+        <MessageList 
+          messages={messages} 
+          currentUserId={userId}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          fetchNextPage={fetchNextPage}
+        />
         <TypingIndicator conversationId={conversationId} currentUserId={userId} />
         <MessageInput 
           onSendMessage={handleSendMessage} 

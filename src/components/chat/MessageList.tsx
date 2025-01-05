@@ -2,10 +2,44 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MessageListProps } from "@/types/chat";
 import { Check, CheckCheck } from "lucide-react";
+import { useInView } from "react-intersection-observer";
+import { useEffect, useRef } from "react";
 
-export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
+export const MessageList = ({ 
+  messages, 
+  currentUserId,
+  hasNextPage,
+  isFetchingNextPage,
+  fetchNextPage 
+}: MessageListProps) => {
+  const { ref, inView } = useInView();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   return (
     <div className="flex-1 space-y-6 overflow-y-auto p-3 sm:p-4">
+      {hasNextPage && (
+        <div
+          ref={ref}
+          className="flex justify-center p-2 text-sm text-muted-foreground"
+        >
+          {isFetchingNextPage ? (
+            "Carregando mensagens antigas..."
+          ) : (
+            "Carregue mais mensagens"
+          )}
+        </div>
+      )}
+      
       {messages?.map((message) => (
         <div
           key={message.id}
@@ -43,6 +77,7 @@ export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
           </div>
         </div>
       ))}
+      <div ref={messagesEndRef} />
     </div>
   );
 };

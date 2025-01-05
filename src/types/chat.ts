@@ -32,4 +32,7 @@ export interface MessageInputProps {
 export interface MessageListProps {
   messages: Message[];
   currentUserId?: string;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  fetchNextPage?: () => Promise<any>;
 }
