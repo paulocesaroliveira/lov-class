@@ -24,8 +24,8 @@ export const useConversation = (conversationId: string | undefined) => {
         userId: session.user.id
       });
 
-      // Buscar todos os participantes da conversa
-      const { data: participants, error: participantsError } = await supabase
+      // Buscar participante com dados do anúncio em uma única query
+      const { data: participantData, error } = await supabase
         .from("conversation_participants")
         .select(`
           user_id,
@@ -36,33 +36,49 @@ export const useConversation = (conversationId: string | undefined) => {
             profile_id
           )
         `)
-        .eq("conversation_id", conversationId);
+        .eq("conversation_id", conversationId)
+        .neq("user_id", session.user.id)
+        .maybeSingle();
 
-      if (participantsError) {
-        console.error("useConversation: Error fetching participants:", participantsError);
-        throw participantsError;
+      if (error) {
+        console.error("useConversation: Error fetching participant:", error);
+        throw error;
       }
 
-      if (!participants || participants.length === 0) {
-        console.error("useConversation: No participants found");
-        throw new Error("No participants found");
-      }
-
-      console.log("useConversation: Found participants:", participants);
-
-      // Primeiro tentar encontrar o outro participante
-      const otherParticipant = participants.find(p => p.user_id !== session.user.id);
-      
-      // Se não encontrar o outro participante, usar os dados do usuário atual
-      const participantData = otherParticipant || participants.find(p => p.user_id === session.user.id);
-
+      // Se não encontrou o outro participante, buscar os dados do usuário atual
       if (!participantData) {
-        console.error("useConversation: No participant data found");
-        throw new Error("No participant data found");
+        console.log("useConversation: No other participant found, fetching current user data");
+        
+        const { data: selfData, error: selfError } = await supabase
+          .from("conversation_participants")
+          .select(`
+            user_id,
+            advertisement_id,
+            advertisements (
+              id,
+              name,
+              profile_id
+            )
+          `)
+          .eq("conversation_id", conversationId)
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+
+        if (selfError) {
+          console.error("useConversation: Error fetching self data:", selfError);
+          throw selfError;
+        }
+
+        if (!selfData) {
+          console.error("useConversation: No conversation data found at all");
+          throw new Error("No conversation data found");
+        }
+
+        console.log("useConversation: Using self data:", selfData);
+        return selfData;
       }
 
-      console.log("useConversation: Using participant data:", participantData);
-
+      console.log("useConversation: Using other participant data:", participantData);
       return participantData;
     },
     enabled: !!conversationId && !!session?.user?.id,
