@@ -25,6 +25,7 @@ import { useAdvertisementOperations } from "@/hooks/useAdvertisementOperations";
 import { useAuthCheck } from "./hooks/useAuthCheck";
 import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
 import { supabase } from "@/integrations/supabase/client";
+import { Advertisement } from "@/types/advertisement";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type AdvertisementFormProps = {
-  advertisement?: FormValues;
+  advertisement?: Advertisement;
 };
 
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
@@ -149,8 +150,11 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       // Get the first error message
       const errors = form.formState.errors;
       const firstError = fieldsToValidate.find(field => errors[field]);
-      if (firstError) {
-        toast.error(errors[firstError]?.message || "Por favor, preencha todos os campos obrigatórios");
+      if (firstError && errors[firstError]) {
+        const errorMessage = typeof errors[firstError]?.message === 'string' 
+          ? errors[firstError]?.message 
+          : "Por favor, preencha todos os campos obrigatórios";
+        toast.error(errorMessage);
       }
     }
     return result;

@@ -36,10 +36,10 @@ export interface Advertisement {
   silicone: string;
   blocked: boolean;
   block_reason: string | null;
+  advertisement_photos?: { id: string; photo_url: string }[];
+  advertisement_videos?: { id: string; video_url: string }[];
   advertisement_services: { service: ServiceType }[];
   advertisement_service_locations: { location: ServiceLocationType }[];
-  advertisement_photos: { id: string; photo_url: string }[];
-  advertisement_videos: { id: string; video_url: string }[];
   advertisement_comments: { id: string }[];
 }
 
