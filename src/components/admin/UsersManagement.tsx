@@ -19,32 +19,37 @@ export const UsersManagement = () => {
     newRole: UserRole;
   } | null>(null);
 
-  const { data: users, isLoading, refetch } = useUsers();
-  const { handleRoleChange, handleAddNote } = useUserActions();
-
   const { 
     searchTerm, 
     setSearchTerm, 
     selectedRole, 
     setSelectedRole, 
     selectedDate, 
-    setSelectedDate, 
-    filteredUsers 
-  } = useUserFilters(users);
+    setSelectedDate 
+  } = useUserFilters();
+
+  const { page, setPage, itemsPerPage } = useUserPagination();
+
+  const { 
+    data: usersData, 
+    isLoading,
+    isFetching
+  } = useUsers({
+    page,
+    pageSize: itemsPerPage,
+    searchTerm,
+    role: selectedRole,
+    date: selectedDate
+  });
+
+  const { handleRoleChange, handleAddNote } = useUserActions();
 
   const { 
     sortColumn, 
     sortDirection, 
     handleSort, 
     sortedUsers 
-  } = useUserSort(filteredUsers);
-
-  const { 
-    page, 
-    setPage, 
-    paginatedUsers, 
-    totalPages 
-  } = useUserPagination(sortedUsers);
+  } = useUserSort(usersData?.data || []);
 
   const getRoleLabel = (role: UserRole) => {
     switch (role) {
@@ -68,36 +73,51 @@ export const UsersManagement = () => {
     
     setUpdating(roleChangeConfirm.userId);
     const success = await handleRoleChange(roleChangeConfirm.userId, roleChangeConfirm.newRole);
-    if (success) refetch();
+    if (success) {
+      // No need to refetch manually, React Query will handle it
+      toast.success("Papel atualizado com sucesso");
+    }
     setUpdating(null);
     setRoleChangeConfirm(null);
   };
 
-  const handleExportData = () => {
-    if (!filteredUsers?.length) {
+  const handleExportData = async () => {
+    if (!usersData?.data?.length) {
       toast.error("Não há dados para exportar");
       return;
     }
 
-    const headers = ["Nome", "Papel", "Data de Criação"];
-    const csvContent = [
-      headers.join(","),
-      ...filteredUsers.map(user => [
-        user.name,
-        getRoleLabel(user.role),
-        format(new Date(user.created_at), "dd/MM/yyyy HH:mm")
-      ].join(","))
-    ].join("\n");
+    try {
+      const { data: allUsers, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `usuarios_${format(new Date(), "yyyy-MM-dd")}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast.success("Dados exportados com sucesso");
+      if (error) throw error;
+
+      const headers = ["Nome", "Papel", "Data de Criação"];
+      const csvContent = [
+        headers.join(","),
+        ...allUsers.map(user => [
+          user.name,
+          getRoleLabel(user.role as UserRole),
+          format(new Date(user.created_at), "dd/MM/yyyy HH:mm")
+        ].join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `usuarios_${format(new Date(), "yyyy-MM-dd")}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Dados exportados com sucesso");
+    } catch (error) {
+      console.error("Erro ao exportar dados:", error);
+      toast.error("Erro ao exportar dados");
+    }
   };
 
   if (isLoading) {
@@ -107,6 +127,8 @@ export const UsersManagement = () => {
       </div>
     );
   }
+
+  const totalPages = Math.ceil((usersData?.totalCount || 0) / itemsPerPage);
 
   return (
     <div className="space-y-4">
@@ -121,7 +143,7 @@ export const UsersManagement = () => {
       />
 
       <UserTable
-        users={paginatedUsers || []}
+        users={sortedUsers}
         updating={updating}
         onRoleUpdate={handleRoleUpdate}
         onAddNote={handleAddNote}
@@ -129,6 +151,7 @@ export const UsersManagement = () => {
         onSort={handleSort}
         sortColumn={sortColumn}
         sortDirection={sortDirection}
+        isLoading={isFetching}
       />
 
       <UserPagination

@@ -29,6 +29,7 @@ interface UserTableProps {
   onSort: (column: keyof Profile) => void;
   sortColumn: keyof Profile | null;
   sortDirection: 'asc' | 'desc';
+  isLoading: boolean;
 }
 
 export const UserTable = ({
@@ -40,6 +41,7 @@ export const UserTable = ({
   onSort,
   sortColumn,
   sortDirection,
+  isLoading,
 }: UserTableProps) => {
   const getSortIcon = (column: keyof Profile) => {
     if (sortColumn !== column) return <ArrowUpDown className="w-4 h-4 ml-1" />;
@@ -47,7 +49,12 @@ export const UserTable = ({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      )}
       <Table>
         <TableHeader>
           <TableRow>

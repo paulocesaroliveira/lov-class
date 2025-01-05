@@ -1,53 +1,56 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserRole, Profile } from "../types";
-import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
-export const useUsers = () => {
+interface UsersQueryParams {
+  page: number;
+  pageSize: number;
+  searchTerm?: string;
+  role?: UserRole | "all";
+  date?: string;
+}
+
+export const useUsers = (params: UsersQueryParams) => {
+  const { page, pageSize, searchTerm, role, date } = params;
+
   return useQuery({
-    queryKey: ["admin-users"],
+    queryKey: ["admin-users", params],
     queryFn: async () => {
-      // First, get all profiles
-      const { data: profiles, error: profilesError } = await supabase
+      let query = supabase
         .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select("*, admin_notes(*), user_activity_logs(*)", { count: "exact" });
+
+      // Apply filters
+      if (searchTerm) {
+        query = query.ilike("name", `%${searchTerm}%`);
+      }
+      if (role && role !== "all") {
+        query = query.eq("role", role);
+      }
+      if (date) {
+        query = query.gte("created_at", `${date}T00:00:00`)
+          .lte("created_at", `${date}T23:59:59`);
+      }
+
+      // Apply pagination
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      query = query.range(from, to);
+
+      const { data: profiles, error: profilesError, count } = await query;
 
       if (profilesError) {
         toast.error("Erro ao carregar usuários");
         throw profilesError;
       }
 
-      // Then, get admin notes for all users
-      const { data: adminNotes, error: adminNotesError } = await supabase
-        .from("admin_notes")
-        .select("*");
-
-      if (adminNotesError) {
-        toast.error("Erro ao carregar notas administrativas");
-        throw adminNotesError;
-      }
-
-      // Get activity logs for all users
-      const { data: activityLogs, error: logsError } = await supabase
-        .from("user_activity_logs")
-        .select("*");
-
-      if (logsError) {
-        toast.error("Erro ao carregar logs de atividade");
-        throw logsError;
-      }
-
-      // Transform the data to match our Profile type
-      const transformedData = profiles.map(profile => ({
-        ...profile,
-        admin_notes: adminNotes?.filter(note => note.user_id === profile.id) || [],
-        user_activity_logs: activityLogs?.filter(log => log.user_id === profile.id) || []
-      })) as Profile[];
-
-      return transformedData;
+      return {
+        data: profiles as Profile[],
+        totalCount: count || 0,
+      };
     },
+    keepPreviousData: true,
   });
 };
 
@@ -89,6 +92,7 @@ export const useUserActions = () => {
       });
 
       if (error) throw error;
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -111,8 +115,7 @@ export const useUserActions = () => {
     },
     handleAddNote: async (userId: string, note: string) => {
       try {
-        await addNoteMutation.mutateAsync({ userId, note });
-        return true;
+        return await addNoteMutation.mutateAsync({ userId, note });
       } catch {
         return false;
       }
