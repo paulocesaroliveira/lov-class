@@ -1,10 +1,14 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { TypingUser } from '@/types/chat';
 
 export const useTypingStatus = (
   conversationId: string | undefined,
   userId: string | undefined
 ) => {
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUser, setTypingUser] = useState<TypingUser | null>(null);
+
   const setTypingStatus = useCallback(async (isTyping: boolean) => {
     if (!conversationId || !userId) return;
 
@@ -39,8 +43,24 @@ export const useTypingStatus = (
           table: 'user_typing_status',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        async (payload: any) => {
           console.log('Typing status changed:', payload);
+          
+          if (payload.new && payload.new.user_id !== userId) {
+            const { data: userData } = await supabase
+              .from('profiles')
+              .select('name')
+              .eq('id', payload.new.user_id)
+              .single();
+
+            if (userData) {
+              setIsTyping(payload.new.is_typing);
+              setTypingUser(payload.new.is_typing ? {
+                id: payload.new.user_id,
+                name: userData.name
+              } : null);
+            }
+          }
         }
       )
       .subscribe();
@@ -48,7 +68,7 @@ export const useTypingStatus = (
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, userId]);
 
-  return { setTypingStatus };
+  return { setTypingStatus, isTyping, typingUser };
 };

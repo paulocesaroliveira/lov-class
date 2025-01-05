@@ -32,6 +32,11 @@ export interface ChatInputProps {
   className?: string;
 }
 
+export interface MessageInputProps {
+  onSendMessage: (content: string) => Promise<void>;
+  conversationId: string;
+}
+
 export interface MessageListProps {
   messages: Message[];
   currentUserId?: string;
@@ -48,4 +53,9 @@ export interface TypingIndicatorProps {
 
 export interface NotificationButtonProps {
   className?: string;
+}
+
+export interface TypingUser {
+  id: string;
+  name: string;
 }
