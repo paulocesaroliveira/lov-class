@@ -28,8 +28,8 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Attempt to sign up the user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Try to sign up directly - Supabase will handle duplicate users
+      const { error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -40,35 +40,23 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        // Handle specific error cases
         if (signUpError.message.includes('User already registered')) {
           toast.error("Este email já está cadastrado");
           navigate('/login');
           return false;
         }
         
-        if (signUpError.message.includes('Password')) {
-          toast.error("A senha deve ter pelo menos 6 caracteres");
-        } else if (signUpError.message.includes('Email')) {
-          toast.error("Por favor, insira um email válido");
-        } else {
-          toast.error("Erro no cadastro. Por favor, tente novamente");
-          console.error('Detailed error:', signUpError);
-        }
+        console.error('Erro no cadastro:', signUpError);
+        toast.error("Erro no cadastro. Por favor, tente novamente");
         return false;
       }
 
-      if (signUpData?.user) {
-        toast.success("Conta criada com sucesso! Você já pode fazer login.");
-        navigate('/login');
-        return true;
-      }
-
-      toast.error("Erro inesperado no cadastro. Por favor, tente novamente.");
-      return false;
+      toast.success("Conta criada com sucesso! Você já pode fazer login.");
+      navigate('/login');
+      return true;
 
     } catch (error) {
-      console.error('Unexpected registration error:', error);
+      console.error('Erro inesperado no cadastro:', error);
       toast.error("Ocorreu um erro inesperado. Por favor, tente novamente");
       return false;
     } finally {
