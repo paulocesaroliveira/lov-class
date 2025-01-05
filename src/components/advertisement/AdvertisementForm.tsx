@@ -179,7 +179,21 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
       console.log("Usuário autenticado:", user.id);
 
-      // Upload do documento de identidade
+      const profilePhotoUrl = await uploadProfilePhoto();
+      console.log("Foto de perfil enviada:", profilePhotoUrl);
+      
+      if (advertisement?.id) {
+        await deleteExistingMedia(advertisement.id);
+      }
+
+      const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
+      console.log("Salvando anúncio com valores:", formValues);
+      
+      // First save the advertisement to get the ID
+      const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
+      console.log("Anúncio salvo com sucesso:", ad);
+
+      // Then upload the identity document using the advertisement ID
       if (identityDocument) {
         const documentFileName = `${user.id}/${Date.now()}-${identityDocument.name}`;
         const { error: documentError } = await supabase.storage
@@ -192,11 +206,11 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           return;
         }
 
-        // Salvar referência do documento
+        // Save document reference with the advertisement ID
         const { error: docRefError } = await supabase
           .from("advertiser_documents")
           .insert({
-            advertisement_id: advertisement?.id,
+            advertisement_id: ad.id,
             document_url: documentFileName,
           });
 
@@ -206,19 +220,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           return;
         }
       }
-
-      const profilePhotoUrl = await uploadProfilePhoto();
-      console.log("Foto de perfil enviada:", profilePhotoUrl);
-      
-      if (advertisement?.id) {
-        await deleteExistingMedia(advertisement.id);
-      }
-
-      const formValues = advertisement?.id ? { ...values, id: advertisement.id } : values;
-      console.log("Salvando anúncio com valores:", formValues);
-      
-      const ad = await saveAdvertisement(formValues, user.id, profilePhotoUrl, !!advertisement);
-      console.log("Anúncio salvo com sucesso:", ad);
       
       await saveServices(ad.id, values.services as ServiceType[]);
       console.log("Serviços salvos com sucesso");
