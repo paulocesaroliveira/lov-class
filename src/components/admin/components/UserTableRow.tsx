@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Loader2, IdCard } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,8 @@ import {
 import { TableCell, TableRow } from "@/components/ui/table";
 import { UserRole, Profile } from "../types";
 import { UserNotes } from "./UserNotes";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserTableRowProps {
   user: Profile;
@@ -28,6 +30,43 @@ export const UserTableRow = ({
   onAddNote,
   getRoleLabel,
 }: UserTableRowProps) => {
+  const handleVerifyDocument = async () => {
+    try {
+      // Get the document for this user's advertisement
+      const { data: advertiserDocs, error: docsError } = await supabase
+        .from('advertiser_documents')
+        .select('*')
+        .eq('advertisement_id', user.id)
+        .single();
+
+      if (docsError) {
+        toast.error("Erro ao buscar documento");
+        return;
+      }
+
+      if (!advertiserDocs) {
+        toast.error("Nenhum documento encontrado para este usuário");
+        return;
+      }
+
+      // Update the document as verified
+      const { error: updateError } = await supabase
+        .from('advertiser_documents')
+        .update({ verified: true })
+        .eq('id', advertiserDocs.id);
+
+      if (updateError) {
+        toast.error("Erro ao verificar documento");
+        return;
+      }
+
+      toast.success("Documento verificado com sucesso");
+    } catch (error) {
+      console.error("Error verifying document:", error);
+      toast.error("Erro ao verificar documento");
+    }
+  };
+
   return (
     <TableRow key={user.id}>
       <TableCell>{user.name}</TableCell>
@@ -35,7 +74,7 @@ export const UserTableRow = ({
       <TableCell>
         {format(new Date(user.created_at), "dd/MM/yyyy HH:mm")}
       </TableCell>
-      <TableCell>
+      <TableCell className="space-x-2">
         <Select
           value={user.role}
           disabled={updating === user.id}
@@ -54,6 +93,18 @@ export const UserTableRow = ({
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
+
+        {user.role === 'advertiser' && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleVerifyDocument}
+            className="ml-2"
+          >
+            <IdCard className="w-4 h-4 mr-2" />
+            Verificar Documento
+          </Button>
+        )}
       </TableCell>
       <TableCell>
         <Dialog>
