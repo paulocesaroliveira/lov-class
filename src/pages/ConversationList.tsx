@@ -1,12 +1,16 @@
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { MessageSquare, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useInView } from "react-intersection-observer";
+import { useEffect } from "react";
+
+const CONVERSATIONS_PER_PAGE = 10;
 
 type Conversation = {
   id: string;
@@ -20,15 +24,26 @@ type Conversation = {
 
 export default function ConversationList() {
   const { session } = useAuth();
+  const { ref, inView } = useInView();
 
-  const { data: conversations = [], isLoading, refetch } = useQuery<Conversation[]>({
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch
+  } = useInfiniteQuery({
     queryKey: ["conversations", session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return [];
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!session?.user?.id) return { conversations: [], nextPage: null };
 
-      console.log("Fetching conversations for user:", session.user.id);
+      console.log("Fetching conversations page:", pageParam);
 
-      const { data: userConversations, error } = await supabase
+      const from = pageParam * CONVERSATIONS_PER_PAGE;
+      const to = from + CONVERSATIONS_PER_PAGE - 1;
+
+      const { data: userConversations, error, count } = await supabase
         .from("conversations")
         .select(`
           id,
@@ -40,9 +55,10 @@ export default function ConversationList() {
             content,
             created_at
           )
-        `)
+        `, { count: 'exact' })
         .eq("conversation_participants.user_id", session.user.id)
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .range(from, to);
 
       if (error) {
         console.error("Error fetching conversations:", error);
@@ -52,7 +68,7 @@ export default function ConversationList() {
       console.log("Raw conversations data:", userConversations);
 
       const formattedConversations = await Promise.all(
-        userConversations.map(async (conv: any) => {
+        (userConversations || []).map(async (conv: any) => {
           const otherParticipants = conv.conversation_participants.filter(
             (p: any) => p.user_id !== session.user.id
           );
@@ -84,11 +100,25 @@ export default function ConversationList() {
         })
       );
 
-      console.log("Formatted conversations:", formattedConversations);
-      return formattedConversations;
+      const nextPage = count && from + CONVERSATIONS_PER_PAGE < count
+        ? pageParam + 1
+        : null;
+
+      return {
+        conversations: formattedConversations,
+        nextPage,
+        total: count
+      };
     },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!session?.user?.id,
   });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleDelete = async (conversationId: string) => {
     try {
@@ -122,6 +152,8 @@ export default function ConversationList() {
       </div>
     );
   }
+
+  const conversations = data?.pages.flatMap(page => page.conversations) || [];
 
   if (!conversations.length) {
     return (
@@ -183,6 +215,13 @@ export default function ConversationList() {
               </div>
             );
           })}
+          {hasNextPage && (
+            <div ref={ref} className="flex justify-center p-4">
+              <div className="animate-pulse text-muted-foreground">
+                Carregando mais conversas...
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
