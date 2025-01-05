@@ -65,14 +65,14 @@ export const useMessages = (conversationId: string | undefined) => {
       });
       
       // Transform the raw message data to match our Message type
-      const messages: Message[] = (messagesData as MessageWithSender[]).map(msg => ({
+      const messages: Message[] = messagesData.map(msg => ({
         id: msg.id,
         content: msg.content,
         sender_id: msg.sender_id,
         created_at: msg.created_at,
         conversation_id: msg.conversation_id,
         read_at: msg.read_at,
-        sender: msg.sender ? { name: msg.sender.name } : null
+        sender: msg.sender
       }));
 
       const nextCursor = messages.length === 20 ? pageParam + 1 : null;
