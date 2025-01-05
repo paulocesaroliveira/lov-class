@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Search, Shield, Heart, MessageSquare, Camera, Star, Clock, MapPin } from 'lucide-react';
+import { Search, Shield, Heart, Camera, Star, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -57,16 +57,6 @@ const Index = () => {
                 <h3 className="text-xl font-semibold text-foreground">Anúncios Premium</h3>
                 <p className="text-muted-foreground">
                   Acompanhantes de alto nível com fotos reais e informações verificadas
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-background/60 backdrop-blur-sm border border-border/50 hover:scale-105 transition-transform duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <MessageSquare className="w-12 h-12 mx-auto text-primary" />
-                <h3 className="text-xl font-semibold text-foreground">Chat Privativo</h3>
-                <p className="text-muted-foreground">
-                  Converse de forma segura e discreta com os acompanhantes
                 </p>
               </CardContent>
             </Card>
