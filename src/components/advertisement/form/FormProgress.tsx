@@ -8,9 +8,9 @@ type FormProgressProps = {
 export const FormProgress = ({ currentStep, totalSteps }: FormProgressProps) => {
   const stepLabels = [
     "Informações Básicas",
-    "Serviços e Valores",
+    "Serviços e Descrição",
     "Mídia",
-    "Descrição"
+    "Termos e Condições"
   ];
 
   return (

@@ -18,6 +18,7 @@ import { MediaUpload } from "./MediaUpload";
 import { ServiceLocations } from "./ServiceLocations";
 import { IdentityDocument } from "./IdentityDocument";
 import { ContactOptions } from "./ContactOptions";
+import { TermsAndConditions } from "./TermsAndConditions";
 import { formSchema } from "./advertisementSchema";
 import { FormValues } from "@/types/advertisement";
 import { useMediaUpload } from "@/hooks/useMediaUpload";
@@ -72,6 +73,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       services: [] as ServiceType[],
       serviceLocations: [] as ServiceLocationType[],
       description: "",
+      acceptTerms: false,
     },
     mode: "onBlur",
   });
@@ -87,15 +89,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     uploadPhotos,
     uploadVideos,
   } = useMediaUpload(user?.id);
-
-  const {
-    saveAdvertisement,
-    saveServices,
-    saveServiceLocations,
-    savePhotos,
-    saveVideos,
-    deleteExistingMedia,
-  } = useAdvertisementOperations();
 
   const validateStep = async (step: number) => {
     let fieldsToValidate: (keyof FormValues)[] = [];
@@ -124,6 +117,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           "style",
           "services",
           "serviceLocations",
+          "description",
         ];
         break;
       case 3:
@@ -141,7 +135,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
         }
         return true;
       case 4:
-        fieldsToValidate = ["description"];
+        fieldsToValidate = ["acceptTerms"];
         break;
     }
 
@@ -250,11 +244,13 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const handleNext = async () => {
     const isValid = await validateStep(currentStep);
     if (isValid) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
   };
 
   const handlePrevious = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
@@ -276,6 +272,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
             <StyleSelection form={form} />
             <ServicesSelection form={form} />
             <ServiceLocations form={form} />
+            <Description form={form} />
           </FormStep>
 
           <FormStep isActive={currentStep === 3}>
@@ -291,7 +288,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
           </FormStep>
 
           <FormStep isActive={currentStep === 4}>
-            <Description form={form} />
+            <TermsAndConditions form={form} />
           </FormStep>
 
           <StepNavigation
