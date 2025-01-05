@@ -1,3 +1,5 @@
+import { ServiceType, ServiceLocationType, AdCategory, UserRole } from './enums';
+
 export interface Database {
   public: {
     Tables: {

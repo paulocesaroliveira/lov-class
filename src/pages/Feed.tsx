@@ -3,11 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { CreatePost } from "@/components/feed/CreatePost";
 import { PostList } from "@/components/feed/PostList";
 import { useAuth } from "@/hooks/useAuth";
+import { FeedPost } from "@/components/feed/types";
 
 export const Feed = () => {
   const { session } = useAuth();
 
-  const { data: posts = [], isLoading } = useQuery({
+  const { data: posts = [], isLoading, refetch } = useQuery({
     queryKey: ["feed-posts"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -33,7 +34,17 @@ export const Feed = () => {
         throw error;
       }
 
-      return data;
+      return data.map((post): FeedPost => ({
+        id: post.id,
+        content: post.content,
+        created_at: post.created_at,
+        advertisement: post.profiles ? { name: post.profiles.name } : null,
+        feed_post_media: post.feed_post_media.map(media => ({
+          id: media.id,
+          media_type: media.media_type as "image" | "video",
+          media_url: media.media_url
+        }))
+      }));
     }
   });
 
@@ -51,8 +62,8 @@ export const Feed = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      {session && <CreatePost />}
-      <PostList posts={posts} />
+      {session && <CreatePost onPostCreated={refetch} />}
+      <PostList posts={posts} onPostDeleted={refetch} />
     </div>
   );
 };
