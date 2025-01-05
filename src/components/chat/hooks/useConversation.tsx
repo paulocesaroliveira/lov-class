@@ -44,7 +44,7 @@ export const useConversation = (conversationId: string | undefined) => {
 
       console.log("useConversation: Participant data found:", participantData);
 
-      // Then get the conversation details
+      // Then get the conversation details including the advertisement
       const { data, error } = await supabase
         .from("conversation_participants")
         .select(`
@@ -57,20 +57,14 @@ export const useConversation = (conversationId: string | undefined) => {
         `)
         .eq("conversation_id", conversationId)
         .neq("user_id", session.user.id)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error("useConversation: Error fetching conversation:", error);
         throw error;
       }
-      
+
       console.log("useConversation: Conversation data retrieved:", data);
-      
-      if (!data) {
-        console.error("useConversation: No conversation found");
-        return null;
-      }
-      
       return data;
     },
     enabled: !!conversationId && !!session?.user?.id,

@@ -11,7 +11,7 @@ import { useMessageSubscription } from "./hooks/useMessageSubscription";
 import { useAuth } from "@/hooks/useAuth";
 
 export const ChatContainer = () => {
-  const { conversationId } = useParams();
+  const { conversationId } = useParams<{ conversationId: string }>();
   const { session } = useAuth();
   
   const { 
@@ -40,7 +40,7 @@ export const ChatContainer = () => {
     messagesError
   });
 
-  if (!session) {
+  if (!session?.user) {
     console.log("ChatContainer: No session found");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -83,7 +83,7 @@ export const ChatContainer = () => {
   }
 
   if (!conversationData) {
-    console.error("ChatContainer: No conversation data found for ID:", conversationId);
+    console.log("ChatContainer: No conversation data found");
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
         <p className="text-muted-foreground">Conversa não encontrada</p>
