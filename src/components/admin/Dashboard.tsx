@@ -16,15 +16,16 @@ import { useRegionalMetrics } from "./hooks/useRegionalMetrics";
 export const Dashboard = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [isCompact, setIsCompact] = useState(false);
   const dateFilter = startDate || endDate ? { startDate, endDate } : undefined;
 
   const { data: userMetrics } = useUserMetrics(dateFilter);
-  const { data: adMetrics } = useAdMetrics(dateFilter);
+  const { data: adMetricsData } = useAdMetrics(dateFilter);
   const { data: engagementMetrics } = useEngagementMetrics(dateFilter);
   const { data: regionalMetrics } = useRegionalMetrics();
 
   const prepareExportData = () => {
-    if (!userMetrics || !adMetrics || !engagementMetrics || !regionalMetrics) {
+    if (!userMetrics || !adMetricsData || !engagementMetrics || !regionalMetrics) {
       toast.error("Não há dados para exportar");
       return null;
     }
@@ -44,11 +45,11 @@ export const Dashboard = () => {
       ["Métricas de Anúncios"],
       ["Total", "Pendentes", "Aprovados", "Rejeitados", "Taxa de Aprovação"],
       [
-        adMetrics.total,
-        adMetrics.pending,
-        adMetrics.approved,
-        adMetrics.rejected,
-        `${adMetrics.approvalRate.toFixed(1)}%`
+        adMetricsData?.current.total,
+        adMetricsData?.current.pending,
+        adMetricsData?.current.approved,
+        adMetricsData?.current.rejected,
+        `${adMetricsData?.current.approvalRate.toFixed(1)}%`
       ],
       [],
       ["Métricas de Engajamento"],
@@ -120,21 +121,26 @@ export const Dashboard = () => {
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
         onExport={handleExport}
+        isCompact={isCompact}
+        onToggleCompact={() => setIsCompact(!isCompact)}
       />
 
       <MetricCards 
         userMetrics={userMetrics}
-        adMetrics={adMetrics}
+        adMetrics={adMetricsData?.current}
+        previousPeriod={{
+          totalUsers: userMetrics?.previousPeriod?.totalUsers || 0,
+          activeUsers: userMetrics?.previousPeriod?.activeUsers || 0,
+          approvalRate: adMetricsData?.previous?.approvalRate || 0,
+          pending: adMetricsData?.previous?.pending || 0,
+        }}
       />
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <UserDistributionChart userMetrics={userMetrics} />
-        <AdStatusChart adMetrics={adMetrics} />
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <EngagementTrendsChart engagementMetrics={engagementMetrics} />
-        <RegionalActivityChart regionalMetrics={regionalMetrics} />
+      <div className={`grid gap-4 ${isCompact ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2'}`}>
+        <UserDistributionChart userMetrics={userMetrics} isCompact={isCompact} />
+        <AdStatusChart adMetrics={adMetricsData?.current} isCompact={isCompact} />
+        <EngagementTrendsChart engagementMetrics={engagementMetrics} isCompact={isCompact} />
+        <RegionalActivityChart regionalMetrics={regionalMetrics} isCompact={isCompact} />
       </div>
     </div>
   );
