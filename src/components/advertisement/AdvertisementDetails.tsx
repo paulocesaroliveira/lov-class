@@ -32,8 +32,27 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      // First create the conversation
-      const { data: conversation, error: conversationError } = await supabase
+      // First check if a conversation already exists
+      const { data: existingConversation, error: searchError } = await supabase
+        .from('conversation_participants')
+        .select('conversation_id')
+        .eq('user_id', session.user.id)
+        .eq('advertisement_id', advertisement.id)
+        .single();
+
+      if (searchError && searchError.code !== 'PGRST116') { // PGRST116 means no rows returned
+        console.error('Error searching for existing conversation:', searchError);
+        throw searchError;
+      }
+
+      if (existingConversation) {
+        console.log("Found existing conversation:", existingConversation.conversation_id);
+        navigate(`/mensagens/${existingConversation.conversation_id}`);
+        return;
+      }
+
+      // If no conversation exists, create a new one without SELECT
+      const { data: newConversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({})
         .select()
@@ -44,19 +63,19 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         throw conversationError;
       }
 
-      console.log("Created conversation:", conversation);
+      console.log("Created new conversation:", newConversation);
 
-      // Then create the participants
+      // Add participants
       const { error: participantsError } = await supabase
         .from('conversation_participants')
         .insert([
           {
-            conversation_id: conversation.id,
+            conversation_id: newConversation.id,
             user_id: session.user.id,
             advertisement_id: advertisement.id
           },
           {
-            conversation_id: conversation.id,
+            conversation_id: newConversation.id,
             user_id: advertisement.profile_id,
             advertisement_id: advertisement.id
           }
@@ -68,7 +87,7 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
       }
 
       console.log("Added participants successfully");
-      navigate(`/mensagens/${conversation.id}`);
+      navigate(`/mensagens/${newConversation.id}`);
     } catch (error: any) {
       console.error('Error in handleChatClick:', error);
       toast.error("Erro ao iniciar conversa");
