@@ -7,6 +7,19 @@ interface EngagementTrendsChartProps {
 }
 
 export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsChartProps) => {
+  if (!engagementMetrics?.length) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Tendências de Engajamento</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[300px] flex items-center justify-center">
+          <p className="text-muted-foreground">Nenhum dado disponível</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -24,6 +37,7 @@ export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsCha
               <YAxis />
               <Tooltip 
                 labelFormatter={(date) => format(new Date(date), 'dd/MM/yyyy')}
+                formatter={(value: number) => [value.toLocaleString('pt-BR'), '']}
               />
               <Legend />
               <Line 
@@ -31,12 +45,24 @@ export const EngagementTrendsChart = ({ engagementMetrics }: EngagementTrendsCha
                 dataKey="unique_views" 
                 stroke="#22c55e" 
                 name="Visualizações Únicas"
+                strokeWidth={2}
+                dot={false}
               />
               <Line 
                 type="monotone" 
                 dataKey="whatsapp_clicks" 
                 stroke="#f59e0b" 
                 name="Cliques WhatsApp"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="total_views" 
+                stroke="#3b82f6" 
+                name="Visualizações Totais"
+                strokeWidth={2}
+                dot={false}
               />
             </LineChart>
           </ResponsiveContainer>

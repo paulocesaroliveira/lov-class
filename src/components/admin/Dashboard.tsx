@@ -22,35 +22,57 @@ export const Dashboard = () => {
   const { data: engagementMetrics } = useEngagementMetrics(dateFilter);
   const { data: regionalMetrics } = useRegionalMetrics();
 
-  const handleExport = () => {
+  const exportToCSV = () => {
     if (!userMetrics || !adMetrics || !engagementMetrics || !regionalMetrics) {
       toast.error("Não há dados para exportar");
       return;
     }
 
-    const data = {
-      período: `${startDate || 'Início'} até ${endDate || 'Hoje'}`,
-      métricas_usuários: {
-        total: userMetrics.totalUsers,
-        ativos: userMetrics.activeUsers,
-        inativos: userMetrics.inactiveUsers,
-      },
-      métricas_anúncios: {
-        total: adMetrics.total,
-        pendentes: adMetrics.pending,
-        aprovados: adMetrics.approved,
-        rejeitados: adMetrics.rejected,
-        taxa_aprovação: `${adMetrics.approvalRate.toFixed(1)}%`,
-      },
-      métricas_engajamento: engagementMetrics,
-      métricas_regionais: regionalMetrics,
-    };
+    const data = [
+      ["Período", `${startDate || 'Início'} até ${endDate || 'Hoje'}`],
+      [],
+      ["Métricas de Usuários"],
+      ["Total", "Ativos", "Inativos"],
+      [userMetrics.totalUsers, userMetrics.activeUsers, userMetrics.inactiveUsers],
+      [],
+      ["Métricas de Anúncios"],
+      ["Total", "Pendentes", "Aprovados", "Rejeitados", "Taxa de Aprovação"],
+      [
+        adMetrics.total,
+        adMetrics.pending,
+        adMetrics.approved,
+        adMetrics.rejected,
+        `${adMetrics.approvalRate.toFixed(1)}%`
+      ],
+      [],
+      ["Métricas de Engajamento"],
+      ["Data", "Visualizações Únicas", "Cliques WhatsApp"],
+      ...engagementMetrics.map(metric => [
+        format(new Date(metric.date), 'dd/MM/yyyy'),
+        metric.unique_views,
+        metric.whatsapp_clicks
+      ]),
+      [],
+      ["Métricas Regionais"],
+      ["Estado", "Cidade", "Visualizações", "Cliques", "Anúncios Ativos"],
+      ...regionalMetrics.map(metric => [
+        metric.state,
+        metric.city,
+        metric.view_count,
+        metric.click_count,
+        metric.active_ads
+      ])
+    ];
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const csvContent = data
+      .map(row => row.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `metricas_${format(new Date(), 'yyyy-MM-dd')}.json`;
+    link.download = `metricas_${format(new Date(), 'yyyy-MM-dd')}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -65,7 +87,7 @@ export const Dashboard = () => {
         endDate={endDate}
         onStartDateChange={setStartDate}
         onEndDateChange={setEndDate}
-        onExport={handleExport}
+        onExport={exportToCSV}
       />
 
       <MetricCards 
