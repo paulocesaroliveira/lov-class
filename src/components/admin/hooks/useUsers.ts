@@ -22,9 +22,10 @@ export const useUsers = (params: UsersQueryParams) => {
   return useQuery<UsersResponse>({
     queryKey: ["admin-users", params],
     queryFn: async () => {
+      // First get profiles
       let query = supabase
         .from("profiles")
-        .select("*, admin_notes(*), user_activity_logs(*)", { count: "exact" });
+        .select("*", { count: "exact" });
 
       // Apply filters
       if (searchTerm) {
@@ -51,8 +52,37 @@ export const useUsers = (params: UsersQueryParams) => {
         throw profilesError;
       }
 
+      // If we have profiles, get their notes and logs
+      if (profiles && profiles.length > 0) {
+        const profileIds = profiles.map(p => p.id);
+
+        // Get admin notes
+        const { data: notes } = await supabase
+          .from("admin_notes")
+          .select("*")
+          .in("user_id", profileIds);
+
+        // Get activity logs
+        const { data: logs } = await supabase
+          .from("user_activity_logs")
+          .select("*")
+          .in("user_id", profileIds);
+
+        // Merge the data
+        const enrichedProfiles = profiles.map(profile => ({
+          ...profile,
+          admin_notes: notes?.filter(note => note.user_id === profile.id) || [],
+          user_activity_logs: logs?.filter(log => log.user_id === profile.id) || []
+        }));
+
+        return {
+          data: enrichedProfiles as Profile[],
+          totalCount: count || 0,
+        };
+      }
+
       return {
-        data: profiles as unknown as Profile[],
+        data: [],
         totalCount: count || 0,
       };
     },
