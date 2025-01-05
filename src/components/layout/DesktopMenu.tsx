@@ -13,6 +13,7 @@ export const DesktopMenu = ({ menuItems }: DesktopMenuProps) => {
           <Link
             key={item.href}
             to={item.href}
+            onClick={item.onClick}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-foreground/60 hover:text-foreground hover:bg-primary/10 transition-colors"
           >
             <item.icon className="h-4 w-4" />
