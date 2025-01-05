@@ -42,8 +42,9 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Erro no cadastro:', signUpError);
         
-        if (signUpError.message.includes('already registered')) {
-          toast.error("Este email já está cadastrado");
+        // Handle specific error cases
+        if (signUpError.message.includes('User already registered')) {
+          toast.error("Este email já está cadastrado. Por favor, faça login ou use outro email.");
           navigate('/login');
           return false;
         }
@@ -60,7 +61,7 @@ export const useRegistration = () => {
 
       console.log("Usuário registrado com sucesso:", signUpData.user);
 
-      // Criar perfil do usuário
+      // Create user profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
