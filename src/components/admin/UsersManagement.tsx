@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -18,103 +16,20 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { toast } from "sonner";
-import type { Database } from "@/integrations/supabase/types";
-
-type UserRole = Database["public"]["Enums"]["user_role"];
-type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
-  admin_notes: Database["public"]["Tables"]["admin_notes"]["Row"][];
-  user_activity_logs: Database["public"]["Tables"]["user_activity_logs"]["Row"][];
-};
+import { UserRole, Profile } from "./types";
+import { useUsers, useUserActions } from "./hooks/useUsers";
+import { UserNotes } from "./components/UserNotes";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
   const [selectedDate, setSelectedDate] = useState<string>("");
-  const [noteContent, setNoteContent] = useState("");
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const { data: users, refetch } = useQuery({
-    queryKey: ["admin-users"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select(`
-          *,
-          admin_notes (
-            id,
-            note,
-            created_at,
-            created_by,
-            updated_at,
-            user_id
-          ),
-          user_activity_logs (
-            id,
-            action_type,
-            description,
-            created_at,
-            created_by,
-            metadata,
-            user_id
-          )
-        `)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as Profile[];
-    },
-  });
-
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    try {
-      setUpdating(userId);
-      const { error } = await supabase
-        .from("profiles")
-        .update({ role: newRole })
-        .eq("id", userId);
-
-      if (error) throw error;
-      
-      // Log the role change
-      await supabase.from("user_activity_logs").insert({
-        user_id: userId,
-        action_type: "role_change",
-        description: `Role changed to ${newRole}`,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      });
-
-      toast.success("Papel do usuário atualizado com sucesso");
-      refetch();
-    } catch (error) {
-      console.error("Erro ao atualizar papel do usuário:", error);
-      toast.error("Erro ao atualizar papel do usuário");
-    } finally {
-      setUpdating(null);
-    }
-  };
-
-  const handleAddNote = async (userId: string) => {
-    try {
-      const { error } = await supabase.from("admin_notes").insert({
-        user_id: userId,
-        note: noteContent,
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      });
-
-      if (error) throw error;
-      toast.success("Nota adicionada com sucesso");
-      setNoteContent("");
-      refetch();
-    } catch (error) {
-      console.error("Erro ao adicionar nota:", error);
-      toast.error("Erro ao adicionar nota");
-    }
-  };
+  const { data: users, refetch } = useUsers();
+  const { handleRoleChange, handleAddNote } = useUserActions();
 
   const getRoleLabel = (role: UserRole) => {
     switch (role) {
@@ -127,6 +42,18 @@ export const UsersManagement = () => {
       default:
         return role;
     }
+  };
+
+  const handleRoleUpdate = async (userId: string, newRole: UserRole) => {
+    setUpdating(userId);
+    const success = await handleRoleChange(userId, newRole);
+    if (success) refetch();
+    setUpdating(null);
+  };
+
+  const handleNoteAdd = async (userId: string, note: string) => {
+    const success = await handleAddNote(userId, note);
+    if (success) refetch();
   };
 
   const filteredUsers = users?.filter((user) => {
@@ -187,7 +114,7 @@ export const UsersManagement = () => {
                   <Select
                     value={user.role}
                     disabled={updating === user.id}
-                    onValueChange={(value: UserRole) => handleRoleChange(user.id, value)}
+                    onValueChange={(value: UserRole) => handleRoleUpdate(user.id, value)}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
@@ -202,43 +129,15 @@ export const UsersManagement = () => {
                 <TableCell>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button 
-                        variant="outline"
-                        onClick={() => setSelectedUserId(user.id)}
-                      >
+                      <Button variant="outline">
                         Ver Notas
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Notas Administrativas - {user.name}</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          {user.admin_notes?.map((note) => (
-                            <div key={note.id} className="p-2 border rounded">
-                              <p className="text-sm">{note.note}</p>
-                              <p className="text-xs text-gray-500">
-                                {format(new Date(note.created_at), "dd/MM/yyyy HH:mm")}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="space-y-2">
-                          <Textarea
-                            placeholder="Adicionar nova nota..."
-                            value={noteContent}
-                            onChange={(e) => setNoteContent(e.target.value)}
-                          />
-                          <Button 
-                            onClick={() => handleAddNote(user.id)}
-                            disabled={!noteContent.trim()}
-                          >
-                            Adicionar Nota
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
+                    <UserNotes
+                      userName={user.name}
+                      notes={user.admin_notes}
+                      onAddNote={(note) => handleNoteAdd(user.id, note)}
+                    />
                   </Dialog>
                 </TableCell>
               </TableRow>
