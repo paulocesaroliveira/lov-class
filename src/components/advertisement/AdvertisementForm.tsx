@@ -96,11 +96,70 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     deleteExistingMedia,
   } = useAdvertisementOperations();
 
+  const validateStep = async (step: number) => {
+    let fieldsToValidate: (keyof FormValues)[] = [];
+
+    switch (step) {
+      case 1:
+        fieldsToValidate = [
+          "name",
+          "birthDate",
+          "height",
+          "weight",
+          "category",
+          "ethnicity",
+          "hairColor",
+          "bodyType",
+          "silicone",
+          "contact_phone",
+          "state",
+          "city",
+          "neighborhood",
+        ];
+        break;
+      case 2:
+        if (!profilePhoto && !advertisement?.profile_photo_url) {
+          toast.error("Foto de perfil é obrigatória");
+          return false;
+        }
+        if (photos.length === 0 && !advertisement?.advertisement_photos?.length) {
+          toast.error("Pelo menos uma foto é obrigatória");
+          return false;
+        }
+        if (!identityDocument && !advertisement) {
+          toast.error("Documento de identidade é obrigatório");
+          return false;
+        }
+        return true;
+      case 3:
+        fieldsToValidate = [
+          "hourlyRate",
+          "style",
+          "services",
+          "serviceLocations",
+        ];
+        break;
+      case 4:
+        fieldsToValidate = ["description"];
+        break;
+    }
+
+    const result = await form.trigger(fieldsToValidate);
+    if (!result) {
+      // Get the first error message
+      const errors = form.formState.errors;
+      const firstError = fieldsToValidate.find(field => errors[field]);
+      if (firstError) {
+        toast.error(errors[firstError]?.message || "Por favor, preencha todos os campos obrigatórios");
+      }
+    }
+    return result;
+  };
+
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
-      console.log("Iniciando " + (advertisement ? "atualização" : "criação") + " do anúncio com valores:", values);
-
+      
       if (!user) {
         console.error("Usuário não está logado");
         toast.error("Você precisa estar logado para " + (advertisement ? "atualizar" : "criar") + " um anúncio");
@@ -186,8 +245,7 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   };
 
   const handleNext = async () => {
-    const fields = form.getValues();
-    const isValid = await form.trigger();
+    const isValid = await validateStep(currentStep);
     if (isValid) {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
     }
