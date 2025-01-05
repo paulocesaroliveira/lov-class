@@ -51,13 +51,14 @@ export const AdvertisementList = ({
             ),
             advertisement_comments (
               id
+            ),
+            advertisement_reviews (
+              status,
+              review_notes,
+              updated_at
             )
-          `);
-
-        // Only filter out non-approved ads on the Anuncios page
-        if (location.pathname === "/anuncios") {
-          query = query.eq("status", "approved");
-        }
+          `)
+          .eq('status', 'approved');
 
         const { data, error } = await query;
 
@@ -66,7 +67,17 @@ export const AdvertisementList = ({
           return;
         }
 
-        setLocalAdvertisements(data || []);
+        // Process the data to get only the latest review for each ad
+        const processedData = data?.map(ad => ({
+          ...ad,
+          advertisement_reviews: ad.advertisement_reviews?.length > 0 
+            ? [ad.advertisement_reviews.reduce((latest, current) => 
+                new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
+              )]
+            : []
+        }));
+
+        setLocalAdvertisements(processedData || []);
       } catch (error) {
         console.error("Error:", error);
       } finally {
