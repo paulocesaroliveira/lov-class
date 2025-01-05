@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Home, Newspaper, Heart, User, LogIn, UserPlus } from "lucide-react";
+import { Home, Newspaper, Heart, User, LogIn, UserPlus, LogOut } from "lucide-react";
 
 export type MenuItem = {
   label: string;
@@ -12,16 +12,17 @@ export const useNavigation = () => {
 
   const menuItems: MenuItem[] = [
     { label: "Início", href: "/", icon: Home },
-    { label: "Feed", href: "/feed", icon: Newspaper },
     { label: "Anúncios", href: "/anuncios", icon: Newspaper },
+    { label: "Feed", href: "/feed", icon: Newspaper },
+    { label: "Favoritos", href: "/favoritos", icon: Heart },
     ...(session?.user
       ? [
-          { label: "Favoritos", href: "/favoritos", icon: Heart },
           { label: "Perfil", href: "/perfil", icon: User },
+          { label: "Sair", href: "/login", icon: LogOut },
         ]
       : [
-          { label: "Login", href: "/login", icon: LogIn },
-          { label: "Registro", href: "/registro", icon: UserPlus },
+          { label: "Entrar", href: "/login", icon: LogIn },
+          { label: "Cadastre-se", href: "/registro", icon: UserPlus },
         ]),
   ];
 
