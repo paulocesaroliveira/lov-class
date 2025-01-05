@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export interface RegistrationData {
   name: string;
@@ -10,6 +11,7 @@ export interface RegistrationData {
 
 export const useRegistration = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const register = async (data: RegistrationData) => {
     setIsLoading(true);
@@ -46,38 +48,42 @@ export const useRegistration = () => {
         console.error('Registration error:', signUpError);
         
         // Handle specific error cases
+        if (signUpError.message.includes('User already registered')) {
+          toast.error("Este email já está cadastrado");
+          navigate('/login');
+          return false;
+        }
+        
         switch (true) {
-          case signUpError.message.includes('User already registered'):
-            toast.error("Este email já está cadastrado. Por favor, faça login.");
-            break;
           case signUpError.message.includes('Password'):
-            toast.error("A senha deve ter pelo menos 6 caracteres.");
+            toast.error("A senha deve ter pelo menos 6 caracteres");
             break;
           case signUpError.message.includes('Email'):
-            toast.error("Por favor, insira um email válido.");
+            toast.error("Por favor, insira um email válido");
             break;
           case signUpError.message.includes('422'):
-            toast.error("Dados inválidos. Verifique as informações fornecidas.");
+            toast.error("Dados inválidos. Verifique as informações fornecidas");
             break;
           default:
-            toast.error("Erro no cadastro. Por favor, tente novamente.");
+            toast.error("Erro no cadastro. Por favor, tente novamente");
         }
         return false;
       }
 
       if (!signUpData.user) {
         console.error('No user data returned after signup');
-        toast.error("Não foi possível criar sua conta. Por favor, tente novamente.");
+        toast.error("Não foi possível criar sua conta. Por favor, tente novamente");
         return false;
       }
 
       console.log('Registration successful:', signUpData.user.id);
-      toast.success("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro.");
+      toast.success("Conta criada com sucesso! Verifique seu e-mail para confirmar o cadastro");
+      navigate('/login');
       return true;
 
     } catch (error) {
       console.error('Unexpected registration error:', error);
-      toast.error("Ocorreu um erro inesperado. Por favor, tente novamente.");
+      toast.error("Ocorreu um erro inesperado. Por favor, tente novamente");
       return false;
     } finally {
       setIsLoading(false);
