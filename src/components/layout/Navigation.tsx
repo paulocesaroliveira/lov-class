@@ -1,43 +1,31 @@
-import { useAuth } from "@/hooks/useAuth";
-import { DesktopMenu } from "./DesktopMenu";
-import { MobileMenu } from "./MobileMenu";
-import { Home, Newspaper, Heart, User, LogIn, UserPlus } from "lucide-react";
-import { useState, useCallback } from "react";
+import React, { memo } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X, Sun, Moon } from 'lucide-react';
+import { DesktopMenu } from './DesktopMenu';
+import { MobileMenu } from './MobileMenu';
+import { useNavigation } from './Navigation';
+import { useTheme } from 'next-themes';
+import { Button } from '../ui/button';
 
-export type MenuItem = {
-  label: string;
-  href: string;
-  icon: any;
-};
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
-export const useNavigation = () => {
-  const { session } = useAuth();
-
-  const menuItems: MenuItem[] = [
-    { label: "Início", href: "/", icon: Home },
-    { label: "Feed", href: "/feed", icon: Newspaper },
-    { label: "Anúncios", href: "/anuncios", icon: Newspaper },
-    ...(session?.user
-      ? [
-          { label: "Favoritos", href: "/favoritos", icon: Heart },
-          { label: "Perfil", href: "/perfil", icon: User },
-        ]
-      : [
-          { label: "Login", href: "/login", icon: LogIn },
-          { label: "Registro", href: "/registro", icon: UserPlus },
-        ]),
-  ];
-
-  return { menuItems };
-};
+const MemoizedDesktopMenu = memo(DesktopMenu);
+const MemoizedMobileMenu = memo(MobileMenu);
 
 export const Navigation = () => {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { menuItems } = useNavigation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
-  const handleClose = useCallback(() => {
+  const handleClose = React.useCallback(() => {
     setIsMenuOpen(false);
   }, []);
+
+  const toggleTheme = React.useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
@@ -48,6 +36,8 @@ export const Navigation = () => {
             menuItems={menuItems} 
             isOpen={isMenuOpen} 
             onClose={handleClose}
+            onThemeToggle={toggleTheme}
+            theme={theme}
           />
         </div>
       </div>
