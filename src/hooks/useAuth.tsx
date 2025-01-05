@@ -39,16 +39,24 @@ export const useAuth = () => {
 
           // If no profile exists, create one
           if (!profile) {
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: initialSession.user.id,
-                name: initialSession.user.email?.split('@')[0] || 'User',
-                role: 'user'
-              });
+            try {
+              const { error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: initialSession.user.id,
+                  name: initialSession.user.email?.split('@')[0] || 'User',
+                  role: 'user'
+                });
 
-            if (insertError) {
-              console.error("Erro ao criar perfil:", insertError);
+              if (insertError) {
+                console.error("Erro ao criar perfil:", insertError);
+                toast.error("Erro ao criar perfil de usuário");
+                return;
+              }
+              
+              toast.success("Perfil criado com sucesso!");
+            } catch (error) {
+              console.error("Erro ao criar perfil:", error);
               toast.error("Erro ao criar perfil de usuário");
               return;
             }
@@ -71,32 +79,40 @@ export const useAuth = () => {
       console.log("Estado de autenticação alterado:", _event);
       
       if (currentSession?.user) {
-        // Check/create profile when auth state changes
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentSession.user.id)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error("Erro ao verificar perfil:", profileError);
-          return;
-        }
-
-        if (!profile) {
-          const { error: insertError } = await supabase
+        try {
+          // Check/create profile when auth state changes
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .insert({
-              id: currentSession.user.id,
-              name: currentSession.user.email?.split('@')[0] || 'User',
-              role: 'user'
-            });
+            .select('*')
+            .eq('id', currentSession.user.id)
+            .maybeSingle();
 
-          if (insertError) {
-            console.error("Erro ao criar perfil:", insertError);
-            toast.error("Erro ao criar perfil de usuário");
+          if (profileError) {
+            console.error("Erro ao verificar perfil:", profileError);
             return;
           }
+
+          if (!profile) {
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: currentSession.user.id,
+                name: currentSession.user.email?.split('@')[0] || 'User',
+                role: 'user'
+              });
+
+            if (insertError) {
+              console.error("Erro ao criar perfil:", insertError);
+              toast.error("Erro ao criar perfil de usuário");
+              return;
+            }
+            
+            toast.success("Perfil criado com sucesso!");
+          }
+        } catch (error) {
+          console.error("Erro ao verificar/criar perfil:", error);
+          toast.error("Erro ao verificar/criar perfil de usuário");
+          return;
         }
       }
       
