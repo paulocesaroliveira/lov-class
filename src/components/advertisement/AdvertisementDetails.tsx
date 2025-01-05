@@ -32,62 +32,38 @@ export const AdvertisementDetails = ({ advertisement, onWhatsAppClick }: Adverti
         name: advertisement.name
       });
 
-      // First check if a conversation already exists using maybeSingle()
-      const { data: existingConversation, error: searchError } = await supabase
-        .from('conversation_participants')
-        .select('conversation_id')
-        .eq('user_id', session.user.id)
-        .eq('advertisement_id', advertisement.id)
-        .maybeSingle();
-
-      if (searchError) {
-        console.error('Error searching for existing conversation:', searchError);
-        throw searchError;
-      }
-
-      if (existingConversation) {
-        console.log("Found existing conversation:", existingConversation.conversation_id);
-        navigate(`/mensagens/${existingConversation.conversation_id}`);
-        return;
-      }
-
-      // If no conversation exists, create a new one
-      const { data: newConversation, error: conversationError } = await supabase
-        .from('conversations')
-        .insert({})
-        .select()
-        .single();
+      // Create conversation and get participants in one go
+      const { data: conversationData, error: conversationError } = await supabase
+        .rpc('find_or_create_conversation', {
+          current_user_id: session.user.id,
+          other_user_id: advertisement.profile_id
+        });
 
       if (conversationError) {
-        console.error('Error creating conversation:', conversationError);
+        console.error('Error creating/finding conversation:', conversationError);
         throw conversationError;
       }
 
-      console.log("Created new conversation:", newConversation);
-
-      // Add participants
-      const { error: participantsError } = await supabase
-        .from('conversation_participants')
-        .insert([
-          {
-            conversation_id: newConversation.id,
-            user_id: session.user.id,
-            advertisement_id: advertisement.id
-          },
-          {
-            conversation_id: newConversation.id,
-            user_id: advertisement.profile_id,
-            advertisement_id: advertisement.id
-          }
-        ]);
-
-      if (participantsError) {
-        console.error('Error adding participants:', participantsError);
-        throw participantsError;
+      if (!conversationData || conversationData.length === 0) {
+        throw new Error('No conversation data returned');
       }
 
-      console.log("Added participants successfully");
-      navigate(`/mensagens/${newConversation.id}`);
+      const conversationId = conversationData[0].conversation_id;
+      console.log("Conversation created/found:", conversationId);
+      
+      // Add advertisement reference if it doesn't exist
+      const { error: participantError } = await supabase
+        .from('conversation_participants')
+        .update({ advertisement_id: advertisement.id })
+        .eq('conversation_id', conversationId)
+        .eq('user_id', session.user.id);
+
+      if (participantError) {
+        console.error('Error updating participant:', participantError);
+        // Don't throw here, just log the error as it's not critical
+      }
+
+      navigate(`/mensagens/${conversationId}`);
     } catch (error: any) {
       console.error('Error in handleChatClick:', error);
       toast.error("Erro ao iniciar conversa");
