@@ -12,6 +12,7 @@ import { useUserMetrics } from "./hooks/useUserMetrics";
 import { useAdMetrics } from "./hooks/useAdMetrics";
 import { useEngagementMetrics } from "./hooks/useEngagementMetrics";
 import { useRegionalMetrics } from "./hooks/useRegionalMetrics";
+import { EngagementMetric, RegionalMetric } from "./types/metrics";
 
 export const Dashboard = () => {
   const [startDate, setStartDate] = useState("");
@@ -54,7 +55,7 @@ export const Dashboard = () => {
       [],
       ["Métricas de Engajamento"],
       ["Data", "Visualizações Únicas", "Visualizações Totais", "Cliques WhatsApp"],
-      ...engagementMetrics.map(metric => [
+      ...(engagementMetrics as EngagementMetric[]).map(metric => [
         format(new Date(metric.date), 'dd/MM/yyyy'),
         metric.unique_views,
         metric.total_views,
@@ -63,7 +64,7 @@ export const Dashboard = () => {
       [],
       ["Métricas Regionais"],
       ["Estado", "Cidade", "Visualizações", "Cliques", "Anúncios Ativos"],
-      ...regionalMetrics.map(metric => [
+      ...(regionalMetrics as RegionalMetric[]).map(metric => [
         metric.state,
         metric.city,
         metric.view_count,
