@@ -46,7 +46,48 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
           )
         `, { count: 'exact' })
         .eq('status', 'approved')
-        .eq('blocked', false)
+        .eq('blocked', false);
+
+      // Apply filters
+      if (filters.category) {
+        query = query.eq('category', filters.category);
+      }
+      if (filters.city) {
+        query = query.eq('city', filters.city);
+      }
+      if (filters.minPrice) {
+        query = query.gte('hourly_rate', filters.minPrice);
+      }
+      if (filters.maxPrice) {
+        query = query.lte('hourly_rate', filters.maxPrice);
+      }
+      if (filters.ethnicity) {
+        query = query.eq('ethnicity', filters.ethnicity);
+      }
+      if (filters.hairColor) {
+        query = query.eq('hair_color', filters.hairColor);
+      }
+      if (filters.bodyType) {
+        query = query.eq('body_type', filters.bodyType);
+      }
+      if (filters.style) {
+        query = query.eq('style', filters.style);
+      }
+      if (filters.minHeight) {
+        query = query.gte('height', filters.minHeight);
+      }
+      if (filters.maxHeight) {
+        query = query.lte('height', filters.maxHeight);
+      }
+      if (filters.minWeight) {
+        query = query.gte('weight', filters.minWeight);
+      }
+      if (filters.maxWeight) {
+        query = query.lte('weight', filters.maxWeight);
+      }
+
+      // Add order and pagination
+      query = query
         .order("created_at", { ascending: false })
         .range(from, to);
 

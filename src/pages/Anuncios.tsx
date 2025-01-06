@@ -6,10 +6,31 @@ import { Button } from "@/components/ui/button";
 import { useAdvertisementList } from "@/hooks/useAdvertisementList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Advertisement } from "@/types/advertisement";
+
+type Filters = {
+  category?: "mulher" | "trans" | "homem";
+  state?: string;
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minAge?: number;
+  maxAge?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  minWeight?: number;
+  maxWeight?: number;
+  ethnicity?: string;
+  hairColor?: string;
+  bodyType?: string;
+  services?: string[];
+  serviceLocations?: string[];
+  style?: string;
+};
 
 const Anuncios = () => {
-  const [selectedAd, setSelectedAd] = useState<any>(null);
-  const [filters, setFilters] = useState<any>({});
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
   const { session } = useAuth();
 
   // Get user role for debugging
@@ -44,7 +65,7 @@ const Anuncios = () => {
     fetchNextPage 
   } = useAdvertisementList({ filters });
 
-  const handleFilterChange = (newFilters: any) => {
+  const handleFilterChange = (newFilters: Filters) => {
     console.log("Applying new filters:", newFilters);
     setFilters(newFilters);
   };
