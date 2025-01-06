@@ -10,6 +10,7 @@ interface UserTableProps {
   users: Profile[];
   updating: string | null;
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
+  onDeleteUser: (userId: string) => void;
   onAddNote: (userId: string, note: string) => Promise<boolean>;
   getRoleLabel: (role: UserRole) => string;
   onSort: (column: keyof Profile) => void;
@@ -22,6 +23,7 @@ export const UserTable = ({
   users,
   updating,
   onRoleUpdate,
+  onDeleteUser,
   onAddNote,
   getRoleLabel,
   onSort,
@@ -34,7 +36,7 @@ export const UserTable = ({
   const rowVirtualizer = useVirtualizer({
     count: users.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 50, // altura estimada de cada linha
+    estimateSize: () => 50,
     overscan: 5,
   });
 
@@ -63,6 +65,7 @@ export const UserTable = ({
                 user={user}
                 updating={updating}
                 onRoleUpdate={onRoleUpdate}
+                onDeleteUser={onDeleteUser}
                 onAddNote={onAddNote}
                 getRoleLabel={getRoleLabel}
               />

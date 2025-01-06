@@ -44,7 +44,7 @@ export const UsersManagement = () => {
     date: selectedDate
   });
 
-  const { handleRoleChange, handleAddNote } = useUserActions();
+  const { handleRoleChange, handleAddNote, handleDeleteUser } = useUserActions();
 
   const { 
     sortColumn, 
@@ -68,6 +68,13 @@ export const UsersManagement = () => {
 
   const handleRoleUpdate = async (userId: string, newRole: UserRole) => {
     setRoleChangeConfirm({ userId, newRole });
+  };
+
+  const handleUserDelete = async (userId: string) => {
+    const success = await handleDeleteUser(userId);
+    if (success) {
+      toast.success("Usuário excluído com sucesso");
+    }
   };
 
   const confirmRoleChange = async () => {
@@ -111,6 +118,7 @@ export const UsersManagement = () => {
           users={sortedUsers}
           updating={updating}
           onRoleUpdate={handleRoleUpdate}
+          onDeleteUser={handleUserDelete}
           onAddNote={handleAddNote}
           getRoleLabel={getRoleLabel}
           onSort={handleSort}

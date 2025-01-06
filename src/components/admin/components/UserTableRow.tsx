@@ -15,11 +15,14 @@ import { UserNotes } from "./UserNotes";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
 
 interface UserTableRowProps {
   user: Profile;
   updating: string | null;
   onRoleUpdate: (userId: string, newRole: UserRole) => void;
+  onDeleteUser: (userId: string) => void;
   onAddNote: (userId: string, note: string) => Promise<boolean>;
   getRoleLabel: (role: UserRole) => string;
 }
@@ -28,6 +31,7 @@ export const UserTableRow = ({
   user,
   updating,
   onRoleUpdate,
+  onDeleteUser,
   onAddNote,
   getRoleLabel,
 }: UserTableRowProps) => {
@@ -124,6 +128,28 @@ export const UserTableRow = ({
             </DialogContent>
           </Dialog>
         )}
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir usuário</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir o usuário {user.name}? Esta ação não pode ser desfeita.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={() => onDeleteUser(user.id)}>
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </TableCell>
       <TableCell>
         <Dialog>
