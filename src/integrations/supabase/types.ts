@@ -352,7 +352,7 @@ export type Database = {
           profile_photo_url: string | null
           silicone: string
           state: string
-          status: Database["public"]["Enums"]["advertisement_status"]
+          status: Database["public"]["Enums"]["advertisement_status"] | null
           style: string
           updated_at: string
           weight: number
@@ -380,7 +380,7 @@ export type Database = {
           profile_photo_url?: string | null
           silicone?: string
           state: string
-          status?: Database["public"]["Enums"]["advertisement_status"]
+          status?: Database["public"]["Enums"]["advertisement_status"] | null
           style: string
           updated_at?: string
           weight: number
@@ -408,7 +408,7 @@ export type Database = {
           profile_photo_url?: string | null
           silicone?: string
           state?: string
-          status?: Database["public"]["Enums"]["advertisement_status"]
+          status?: Database["public"]["Enums"]["advertisement_status"] | null
           style?: string
           updated_at?: string
           weight?: number
@@ -769,7 +769,7 @@ export type Database = {
     }
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
-      advertisement_status: "pending" | "approved" | "blocked"
+      advertisement_status: "new" | "approved" | "blocked" | "pending"
       block_reason_type:
         | "spam"
         | "inappropriate_content"
