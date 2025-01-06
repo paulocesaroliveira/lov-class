@@ -142,6 +142,8 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    initialPageParam: 0
+    initialPageParam: 0,
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
