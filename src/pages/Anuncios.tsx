@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
 import { Button } from "@/components/ui/button";
 import { useAdvertisementList } from "@/hooks/useAdvertisementList";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { Advertisement } from "@/types/advertisement";
 
 type Filters = {
@@ -31,31 +29,6 @@ type Filters = {
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
   const [filters, setFilters] = useState<Filters>({});
-  const { session } = useAuth();
-
-  // Get user role for debugging
-  const getUserRole = async () => {
-    if (!session?.user?.id) return null;
-    
-    const { data: userData } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-    
-    console.log("User role data:", userData);
-    console.log("User Role:", userData?.role);
-    console.log("Is admin:", userData?.role === 'admin');
-    return userData?.role;
-  };
-
-  // Call getUserRole when component mounts
-  useEffect(() => {
-    if (session?.user?.id) {
-      console.log("User ID:", session.user.id);
-      getUserRole();
-    }
-  }, [session?.user?.id]);
 
   const { 
     data, 

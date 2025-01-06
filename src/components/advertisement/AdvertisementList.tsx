@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdvertisementCard } from "./AdvertisementCard";
 import { Advertisement } from "@/types/advertisement";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface AdvertisementListProps {
   advertisements?: Advertisement[];
@@ -31,6 +32,7 @@ export const AdvertisementList = ({
 
     const fetchAdvertisements = async () => {
       try {
+        console.log("Fetching advertisements...");
         let query = supabase
           .from("advertisements")
           .select(`
@@ -58,14 +60,18 @@ export const AdvertisementList = ({
               updated_at
             )
           `)
-          .eq('status', 'approved');
+          .eq('status', 'approved')
+          .eq('blocked', false);
 
-        const { data, error } = await query;
+        const { data, error, count } = await query;
 
         if (error) {
           console.error("Error fetching advertisements:", error);
+          toast.error("Erro ao carregar anúncios");
           return;
         }
+
+        console.log("Fetched advertisements:", { count, dataLength: data?.length });
 
         // Process the data to get only the latest review for each ad
         const processedData = data?.map(ad => ({
@@ -80,6 +86,7 @@ export const AdvertisementList = ({
         setLocalAdvertisements(processedData || []);
       } catch (error) {
         console.error("Error:", error);
+        toast.error("Erro ao carregar anúncios");
       } finally {
         setLoading(false);
       }
