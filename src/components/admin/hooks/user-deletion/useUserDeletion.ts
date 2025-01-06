@@ -12,14 +12,14 @@ export const useUserDeletion = () => {
         return { success: false };
       }
 
-      // Delete user and related data directly using Supabase client
-      const { error: deleteError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+      // Call the database function to delete user and related data
+      const { data, error } = await supabase
+        .rpc('delete_user_and_related_data', {
+          user_id: userId
+        });
 
-      if (deleteError) {
-        console.error("Error deleting user:", deleteError);
+      if (error) {
+        console.error("Error deleting user:", error);
         toast.error("Erro ao excluir usuário");
         return { success: false };
       }
