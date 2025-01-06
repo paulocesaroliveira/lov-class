@@ -68,7 +68,7 @@ export const useAdvertisementActions = (refetch: () => void) => {
       const { error: blockError } = await supabase
         .from("advertisements")
         .update({ 
-          status: 'rejected',
+          status: 'blocked',
           blocked: true,
           block_reason: reason
         })
