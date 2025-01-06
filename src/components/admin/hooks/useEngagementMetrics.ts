@@ -10,7 +10,17 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
         .rpc('get_engagement_metrics');
 
       if (error) throw error;
-      return data as EngagementMetric[];
+
+      // Filter data if date range is provided
+      let filteredData = data as EngagementMetric[];
+      if (dateFilter?.startDate) {
+        filteredData = filteredData.filter(d => d.date >= dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        filteredData = filteredData.filter(d => d.date <= dateFilter.endDate);
+      }
+
+      return filteredData;
     },
   });
 };

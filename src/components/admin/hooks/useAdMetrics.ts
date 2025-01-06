@@ -17,15 +17,15 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
         query = query.lte('created_at', dateFilter.endDate);
       }
 
-      const { data: currentData, error } = await query;
+      const { data: reviews, error } = await query;
 
       if (error) throw error;
 
       // Calculate metrics
-      const total = currentData?.length || 0;
-      const approved = currentData?.filter(item => item.status === 'approved').length || 0;
-      const pending = currentData?.filter(item => item.status === 'pending').length || 0;
-      const rejected = currentData?.filter(item => item.status === 'rejected').length || 0;
+      const total = reviews?.length || 0;
+      const approved = reviews?.filter(r => r.status === 'approved').length || 0;
+      const pending = reviews?.filter(r => r.status === 'pending').length || 0;
+      const rejected = reviews?.filter(r => r.status === 'rejected').length || 0;
       const approvalRate = total > 0 ? (approved / total) * 100 : 0;
 
       // Get previous period metrics if date filter is provided
@@ -40,19 +40,19 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
         const previousStartDate = new Date(previousEndDate);
         previousStartDate.setDate(previousStartDate.getDate() - daysDiff);
 
-        const { data: prevData } = await supabase
+        const { data: prevReviews } = await supabase
           .from('advertisement_reviews')
           .select('*')
           .gte('created_at', previousStartDate.toISOString())
           .lte('created_at', previousEndDate.toISOString());
 
-        previousData = prevData || [];
+        previousData = prevReviews || [];
       }
 
       const prevTotal = previousData.length;
-      const prevApproved = previousData.filter((item: any) => item.status === 'approved').length;
-      const prevPending = previousData.filter((item: any) => item.status === 'pending').length;
-      const prevRejected = previousData.filter((item: any) => item.status === 'rejected').length;
+      const prevApproved = previousData.filter((r: any) => r.status === 'approved').length;
+      const prevPending = previousData.filter((r: any) => r.status === 'pending').length;
+      const prevRejected = previousData.filter((r: any) => r.status === 'rejected').length;
       const prevApprovalRate = prevTotal > 0 ? (prevApproved / prevTotal) * 100 : 0;
 
       return {

@@ -3,12 +3,6 @@ export interface DateFilter {
   endDate?: string;
 }
 
-export interface AdvertisementReviewCount {
-  status: string;
-  count: number;
-  created_at: string;
-}
-
 export interface EngagementMetric {
   date: string;
   unique_views: number;
