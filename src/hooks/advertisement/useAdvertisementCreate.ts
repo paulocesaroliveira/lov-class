@@ -39,29 +39,40 @@ export const useAdvertisementCreate = () => {
           style: values.style,
           status: 'new'
         })
-        .select()
-        .single();
+        .select();
 
       if (adError) {
         console.error("Error creating advertisement:", adError);
         throw adError;
       }
 
-      // Now that we have the advertisement, we can create the review
+      if (!advertisement || advertisement.length === 0) {
+        throw new Error("Failed to create advertisement");
+      }
+
+      const newAd = advertisement[0];
+      console.log("Advertisement created:", newAd);
+
+      // Now create the review
       const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
-          advertisement_id: advertisement.id,
+          advertisement_id: newAd.id,
           status: 'pending',
           review_notes: 'Novo anúncio aguardando revisão'
         });
 
       if (reviewError) {
         console.error("Error creating review:", reviewError);
+        // If review creation fails, we should delete the advertisement
+        await supabase
+          .from("advertisements")
+          .delete()
+          .eq('id', newAd.id);
         throw reviewError;
       }
 
-      return advertisement;
+      return newAd;
     } catch (error) {
       console.error("Error:", error);
       toast.error("Erro ao criar anúncio");
