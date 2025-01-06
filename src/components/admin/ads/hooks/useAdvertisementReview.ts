@@ -34,7 +34,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
-          status: status, // Keep 'rejected' or 'approved' for the review
+          status: status,
           reviewer_id: currentUser,
           review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`,
           block_reason: status === 'rejected' ? reviewNotes : null

@@ -300,13 +300,6 @@ export type Database = {
             referencedRelation: "advertisements"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_advertisement_views_advertisement"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
         ]
       }
       advertisement_whatsapp_clicks: {
@@ -328,13 +321,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_advertisement_whatsapp_clicks_advertisement"
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
@@ -700,32 +686,6 @@ export type Database = {
       }
     }
     Views: {
-      advertisement_engagement_metrics: {
-        Row: {
-          date: string | null
-          total_views: number | null
-          unique_views: number | null
-          whatsapp_clicks: number | null
-        }
-        Relationships: []
-      }
-      advertisement_review_counts: {
-        Row: {
-          count: number | null
-          status: string | null
-        }
-        Relationships: []
-      }
-      regional_activity_metrics: {
-        Row: {
-          active_ads: number | null
-          city: string | null
-          click_count: number | null
-          state: string | null
-          view_count: number | null
-        }
-        Relationships: []
-      }
       user_metrics: {
         Row: {
           active_users_7d: number | null
