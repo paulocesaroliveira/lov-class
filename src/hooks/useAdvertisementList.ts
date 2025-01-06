@@ -20,12 +20,11 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
 
       console.log("Query parameters:", { from, to });
 
-      // Primeiro, vamos verificar se existem anúncios aprovados
+      // First, vamos verificar se existem anúncios aprovados
       const statusCheck = await supabase
         .from("advertisements")
-        .select('status, blocked', { count: 'exact' })
-        .eq('status', 'approved')
-        .eq('blocked', false);
+        .select('status', { count: 'exact' })
+        .eq('status', 'approved');
 
       console.log("Status check results:", {
         count: statusCheck.count,
@@ -57,11 +56,11 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
           advertisement_reviews (
             status,
             review_notes,
+            block_reason,
             updated_at
           )
         `, { count: 'exact' })
-        .eq('status', 'approved')
-        .eq('blocked', false);
+        .eq('status', 'approved');
 
       // Apply filters
       if (filters.category) {
@@ -131,10 +130,10 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
               new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
             )]
           : []
-      }));
+      })) as Advertisement[];
 
       return {
-        data: processedData as Advertisement[],
+        data: processedData,
         count,
         nextPage: processedData?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
       };
