@@ -39,6 +39,7 @@ export const AdsTable = ({
   const handleViewDocument = async (adId: string) => {
     setLoadingDoc(adId);
     try {
+      // Primeiro, buscar o registro do documento
       const { data: advertiserDocs, error: docsError } = await supabase
         .from('advertiser_documents')
         .select('document_url')
@@ -55,12 +56,18 @@ export const AdsTable = ({
         return;
       }
 
-      const { data } = await supabase
+      // Agora, obter a URL pública do documento
+      const { data: publicUrlData } = await supabase
         .storage
         .from('identity_documents')
-        .getPublicUrl(advertiserDocs.document_url);
+        .createSignedUrl(advertiserDocs.document_url, 60); // URL válida por 60 segundos
 
-      setDocumentUrl(data.publicUrl);
+      if (!publicUrlData?.signedUrl) {
+        toast.error("Erro ao gerar URL do documento");
+        return;
+      }
+
+      setDocumentUrl(publicUrlData.signedUrl);
     } catch (error) {
       console.error("Error fetching document:", error);
       toast.error("Erro ao buscar documento");
