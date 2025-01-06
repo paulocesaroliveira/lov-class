@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { FormValues } from "@/types/advertisement";
-import { prepareAdvertisementData } from "./utils";
+import { toast } from "sonner";
 
 export const useAdvertisementCreate = () => {
   const createAdvertisement = async (
@@ -8,43 +8,65 @@ export const useAdvertisementCreate = () => {
     userId: string,
     profilePhotoUrl: string | null
   ) => {
-    console.log("Checking for existing advertisement...");
-    
-    const { data: existingAd, error: existingAdError } = await supabase
-      .from("advertisements")
-      .select()
-      .eq("profile_id", userId)
-      .maybeSingle();
+    try {
+      console.log("Creating new advertisement...");
 
-    if (existingAdError) {
-      console.error("Erro ao verificar anúncio existente:", existingAdError);
-      throw existingAdError;
-    }
+      // First create the advertisement
+      const { data: advertisement, error: adError } = await supabase
+        .from("advertisements")
+        .insert({
+          profile_id: userId,
+          name: values.name,
+          birth_date: values.birthDate,
+          height: values.height,
+          weight: values.weight,
+          category: values.category,
+          ethnicity: values.ethnicity,
+          hair_color: values.hairColor,
+          body_type: values.bodyType,
+          silicone: values.silicone,
+          contact_phone: values.contact_phone,
+          contact_whatsapp: values.contact_whatsapp,
+          contact_telegram: values.contact_telegram,
+          state: values.state,
+          city: values.city,
+          neighborhood: values.neighborhood,
+          hourly_rate: values.hourlyRate,
+          custom_rate_description: values.customRates?.[0]?.description || null,
+          custom_rate_value: values.customRates?.[0]?.value || null,
+          description: values.description,
+          profile_photo_url: profilePhotoUrl,
+          style: values.style,
+          status: 'new'
+        })
+        .select()
+        .single();
 
-    if (existingAd) {
-      throw new Error("Você já possui um anúncio cadastrado");
-    }
+      if (adError) {
+        console.error("Error creating advertisement:", adError);
+        throw adError;
+      }
 
-    console.log("Creating new advertisement...");
-    const adData = prepareAdvertisementData(values, userId, profilePhotoUrl);
+      // Now that we have the advertisement, we can create the review
+      const { error: reviewError } = await supabase
+        .from("advertisement_reviews")
+        .insert({
+          advertisement_id: advertisement.id,
+          status: 'pending',
+          review_notes: 'Novo anúncio aguardando revisão'
+        });
 
-    const { data, error } = await supabase
-      .from("advertisements")
-      .insert(adData)
-      .select()
-      .single();
+      if (reviewError) {
+        console.error("Error creating review:", reviewError);
+        throw reviewError;
+      }
 
-    if (error) {
-      console.error("Erro ao criar anúncio:", error);
+      return advertisement;
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Erro ao criar anúncio");
       throw error;
     }
-
-    if (!data) {
-      throw new Error("Erro ao criar anúncio");
-    }
-
-    console.log("Advertisement created successfully:", data);
-    return data;
   };
 
   return { createAdvertisement };
