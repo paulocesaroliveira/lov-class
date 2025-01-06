@@ -57,13 +57,13 @@ export const AdvertisementList = ({
             advertisement_reviews (
               status,
               review_notes,
+              block_reason,
               updated_at
             )
           `)
-          .eq('status', 'approved')
-          .eq('blocked', false);
+          .eq('status', 'approved');
 
-        const { data, error, count } = await query;
+        const { data, error } = await query;
 
         if (error) {
           console.error("Error fetching advertisements:", error);
@@ -71,7 +71,7 @@ export const AdvertisementList = ({
           return;
         }
 
-        console.log("Fetched advertisements:", { count, dataLength: data?.length });
+        console.log("Fetched advertisements:", { dataLength: data?.length });
 
         // Process the data to get only the latest review for each ad
         const processedData = data?.map(ad => ({
@@ -81,7 +81,7 @@ export const AdvertisementList = ({
                 new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
               )]
             : []
-        }));
+        })) as Advertisement[];
 
         setLocalAdvertisements(processedData || []);
       } catch (error) {

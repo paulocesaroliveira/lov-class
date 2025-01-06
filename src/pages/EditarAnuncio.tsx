@@ -35,6 +35,12 @@ const EditarAnuncio = () => {
             ),
             advertisement_comments (
               id
+            ),
+            advertisement_reviews (
+              status,
+              review_notes,
+              block_reason,
+              updated_at
             )
           `
           )
@@ -55,38 +61,8 @@ const EditarAnuncio = () => {
 
         // Transform the data to match the Advertisement type
         const transformedData: Advertisement = {
-          id: data.id,
-          profile_id: data.profile_id,
-          name: data.name,
-          birth_date: data.birth_date,
-          height: data.height,
-          weight: data.weight,
-          category: data.category,
-          contact_phone: data.contact_phone,
-          contact_whatsapp: data.contact_whatsapp,
-          contact_telegram: data.contact_telegram,
-          state: data.state,
-          city: data.city,
-          neighborhood: data.neighborhood,
-          hourly_rate: data.hourly_rate,
-          custom_rate_description: data.custom_rate_description,
-          custom_rate_value: data.custom_rate_value,
-          description: data.description,
-          profile_photo_url: data.profile_photo_url,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-          style: data.style,
-          ethnicity: data.ethnicity,
-          hair_color: data.hair_color,
-          body_type: data.body_type,
-          silicone: data.silicone,
-          block_reason: data.block_reason,
-          status: data.status,
-          advertisement_services: data.advertisement_services,
-          advertisement_service_locations: data.advertisement_service_locations,
-          advertisement_photos: data.advertisement_photos,
-          advertisement_videos: data.advertisement_videos,
-          advertisement_comments: data.advertisement_comments
+          ...data,
+          advertisement_reviews: data.advertisement_reviews || []
         };
 
         setAdvertisement(transformedData);

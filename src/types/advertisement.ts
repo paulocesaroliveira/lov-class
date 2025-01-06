@@ -36,13 +36,18 @@ export interface Advertisement {
   hair_color: string;
   body_type: string;
   silicone: string;
-  block_reason: string | null;
   status: AdvertisementStatus;
   advertisement_photos?: { id: string; photo_url: string }[];
   advertisement_videos?: { id: string; video_url: string }[];
   advertisement_services: { service: ServiceType }[];
   advertisement_service_locations: { location: ServiceLocationType }[];
   advertisement_comments: { id: string }[];
+  advertisement_reviews?: {
+    status: string;
+    review_notes: string | null;
+    block_reason: string | null;
+    updated_at: string;
+  }[];
 }
 
 export type { ServiceType, ServiceLocationType };
