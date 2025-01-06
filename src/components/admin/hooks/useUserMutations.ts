@@ -42,7 +42,87 @@ export const useUserMutations = () => {
       const canProceed = await checkRateLimit('delete_user');
       if (!canProceed) throw new Error('Rate limit exceeded');
 
-      // First delete from auth.users which will cascade to profiles
+      // First check if user has any advertisements
+      const { data: advertisements } = await supabase
+        .from("advertisements")
+        .select("id")
+        .eq("profile_id", userId);
+
+      if (advertisements && advertisements.length > 0) {
+        console.log("Deleting user's advertisements:", advertisements);
+        
+        // Delete all related data for each advertisement
+        for (const ad of advertisements) {
+          // Delete advertisement photos
+          await supabase
+            .from("advertisement_photos")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement videos
+          await supabase
+            .from("advertisement_videos")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement services
+          await supabase
+            .from("advertisement_services")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement service locations
+          await supabase
+            .from("advertisement_service_locations")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement reviews
+          await supabase
+            .from("advertisement_reviews")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement comments
+          await supabase
+            .from("advertisement_comments")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertisement views and clicks
+          await supabase
+            .from("advertisement_views")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          await supabase
+            .from("advertisement_whatsapp_clicks")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Delete advertiser documents
+          await supabase
+            .from("advertiser_documents")
+            .delete()
+            .eq("advertisement_id", ad.id);
+
+          // Finally delete the advertisement itself
+          await supabase
+            .from("advertisements")
+            .delete()
+            .eq("id", ad.id);
+        }
+      }
+
+      // Delete user's profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
+
+      if (profileError) throw profileError;
+
+      // Delete from auth.users which will cascade to profiles
       const { error: authError } = await supabase.auth.admin.deleteUser(userId);
       if (authError) throw authError;
 
