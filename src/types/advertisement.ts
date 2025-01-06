@@ -8,7 +8,7 @@ export type FormValues = z.infer<typeof formSchema> & {
   identityDocument?: File;
 };
 
-export type AdvertisementStatus = 'pending' | 'approved' | 'blocked';
+export type AdvertisementStatus = 'new' | 'pending' | 'approved' | 'blocked';
 
 export interface Advertisement {
   id: string;
