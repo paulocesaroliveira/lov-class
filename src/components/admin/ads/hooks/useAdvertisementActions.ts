@@ -62,29 +62,41 @@ export const useAdvertisementActions = (refetch: () => void) => {
       const canProceed = await checkRateLimit('block_advertisement');
       if (!canProceed) return;
 
-      // Atualizar o status do anúncio para bloqueado e adicionar a revisão
+      console.log("Blocking advertisement:", id);
+
+      // Atualizar o status do anúncio para bloqueado
       const { error: blockError } = await supabase
         .from("advertisements")
         .update({ 
+          status: 'rejected',
           blocked: true,
           block_reason: reason
         })
         .eq("id", id);
 
-      if (blockError) throw blockError;
+      if (blockError) {
+        console.error("Error blocking advertisement:", blockError);
+        throw blockError;
+      }
 
       // Criar uma nova revisão com status rejected
+      const currentUser = (await supabase.auth.getUser()).data.user?.id;
+      
       const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
           advertisement_id: id,
           status: 'rejected',
           review_notes: reason,
-          reviewer_id: (await supabase.auth.getUser()).data.user?.id
+          reviewer_id: currentUser
         });
 
-      if (reviewError) throw reviewError;
+      if (reviewError) {
+        console.error("Error creating review:", reviewError);
+        throw reviewError;
+      }
       
+      console.log("Advertisement blocked successfully");
       toast.success("Anúncio bloqueado com sucesso");
       refetch();
     } catch (error) {

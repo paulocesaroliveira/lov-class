@@ -31,7 +31,7 @@ export const AdsManagement = () => {
     try {
       console.log("Approving advertisement:", ad.id);
       
-      // Update advertisement status
+      // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
@@ -46,7 +46,7 @@ export const AdsManagement = () => {
         throw adError;
       }
 
-      // Create new review
+      // Depois cria uma nova revisão
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
