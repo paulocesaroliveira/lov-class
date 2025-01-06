@@ -47,7 +47,7 @@ export const useAdvertisementActions = (refetch: () => void) => {
       if (error) throw error;
       
       toast.success("Anúncio excluído com sucesso");
-      refetch();
+      await refetch();
     } catch (error) {
       console.error("Erro ao excluir anúncio:", error);
       toast.error("Erro ao excluir anúncio");
