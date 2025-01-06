@@ -18,6 +18,8 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
       const from = pageParam * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
+      console.log("Query parameters:", { from, to });
+
       let query = supabase
         .from("advertisements")
         .select(`
@@ -48,61 +50,42 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
         .eq('status', 'approved')
         .eq('blocked', false);
 
-      // Log initial query state
-      console.log("Initial query state:", { from, to });
-
-      // Apply filters with logging
-      if (Object.keys(filters).length > 0) {
-        console.log("Applying filters to query...");
-        
-        if (filters.category) {
-          console.log("Applying category filter:", filters.category);
-          query = query.eq('category', filters.category);
-        }
-        if (filters.city) {
-          console.log("Applying city filter:", filters.city);
-          query = query.eq('city', filters.city);
-        }
-        if (filters.minPrice) {
-          console.log("Applying minPrice filter:", filters.minPrice);
-          query = query.gte('hourly_rate', filters.minPrice);
-        }
-        if (filters.maxPrice) {
-          console.log("Applying maxPrice filter:", filters.maxPrice);
-          query = query.lte('hourly_rate', filters.maxPrice);
-        }
-        if (filters.ethnicity) {
-          console.log("Applying ethnicity filter:", filters.ethnicity);
-          query = query.eq('ethnicity', filters.ethnicity);
-        }
-        if (filters.hairColor) {
-          console.log("Applying hairColor filter:", filters.hairColor);
-          query = query.eq('hair_color', filters.hairColor);
-        }
-        if (filters.bodyType) {
-          console.log("Applying bodyType filter:", filters.bodyType);
-          query = query.eq('body_type', filters.bodyType);
-        }
-        if (filters.style) {
-          console.log("Applying style filter:", filters.style);
-          query = query.eq('style', filters.style);
-        }
-        if (filters.minHeight) {
-          console.log("Applying minHeight filter:", filters.minHeight);
-          query = query.gte('height', filters.minHeight);
-        }
-        if (filters.maxHeight) {
-          console.log("Applying maxHeight filter:", filters.maxHeight);
-          query = query.lte('height', filters.maxHeight);
-        }
-        if (filters.minWeight) {
-          console.log("Applying minWeight filter:", filters.minWeight);
-          query = query.gte('weight', filters.minWeight);
-        }
-        if (filters.maxWeight) {
-          console.log("Applying maxWeight filter:", filters.maxWeight);
-          query = query.lte('weight', filters.maxWeight);
-        }
+      // Apply filters
+      if (filters.category) {
+        query = query.eq('category', filters.category);
+      }
+      if (filters.city) {
+        query = query.eq('city', filters.city);
+      }
+      if (filters.minPrice) {
+        query = query.gte('hourly_rate', filters.minPrice);
+      }
+      if (filters.maxPrice) {
+        query = query.lte('hourly_rate', filters.maxPrice);
+      }
+      if (filters.ethnicity) {
+        query = query.eq('ethnicity', filters.ethnicity);
+      }
+      if (filters.hairColor) {
+        query = query.eq('hair_color', filters.hairColor);
+      }
+      if (filters.bodyType) {
+        query = query.eq('body_type', filters.bodyType);
+      }
+      if (filters.style) {
+        query = query.eq('style', filters.style);
+      }
+      if (filters.minHeight) {
+        query = query.gte('height', filters.minHeight);
+      }
+      if (filters.maxHeight) {
+        query = query.lte('height', filters.maxHeight);
+      }
+      if (filters.minWeight) {
+        query = query.gte('weight', filters.minWeight);
+      }
+      if (filters.maxWeight) {
+        query = query.lte('weight', filters.maxWeight);
       }
 
       // Add order and pagination
@@ -122,7 +105,8 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
       console.log("Query results:", { 
         resultCount: data?.length || 0,
         totalCount: count,
-        firstResult: data?.[0]
+        firstResult: data?.[0],
+        error
       });
 
       // Process the data to get only the latest review for each ad

@@ -32,7 +32,8 @@ const Anuncios = () => {
 
   const { 
     data, 
-    isLoading, 
+    isLoading,
+    error,
     isFetchingNextPage, 
     hasNextPage, 
     fetchNextPage 
@@ -47,8 +48,13 @@ const Anuncios = () => {
   const totalCount = data?.pages?.[0]?.count || 0;
   const canLoadMore = allAds.length < totalCount;
 
-  console.log("Rendered ads:", allAds.length);
-  console.log("Total count:", totalCount);
+  console.log("Page render:", {
+    adsCount: allAds.length,
+    totalCount,
+    isLoading,
+    error,
+    hasNextPage
+  });
 
   return (
     <div className="space-y-8">
