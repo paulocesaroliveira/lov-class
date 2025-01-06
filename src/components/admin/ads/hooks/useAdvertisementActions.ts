@@ -9,14 +9,14 @@ type ActionDialogState = {
   reason: string;
 };
 
-export const useAdvertisementActions = (refetch: () => void) => {
+export const useAdvertisementActions = (refetch: () => Promise<void>) => {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [actionDialog, setActionDialog] = useState<ActionDialogState>({
     type: null,
     adId: null,
     reason: "",
   });
-  const { checkRateLimit, isChecking } = useAdminRateLimit();
+  const { checkRateLimit } = useAdminRateLimit();
 
   const handleDelete = async (id: string, reason: string) => {
     try {
@@ -24,6 +24,7 @@ export const useAdvertisementActions = (refetch: () => void) => {
       if (!canProceed) return;
 
       setDeleting(id);
+      console.log("Iniciando exclusão do anúncio:", id);
 
       // Delete related records first
       for (const table of RELATED_TABLES) {
@@ -46,6 +47,7 @@ export const useAdvertisementActions = (refetch: () => void) => {
 
       if (error) throw error;
       
+      console.log("Anúncio excluído com sucesso");
       toast.success("Anúncio excluído com sucesso");
       await refetch();
     } catch (error) {
@@ -114,8 +116,7 @@ export const useAdvertisementActions = (refetch: () => void) => {
     actionDialog,
     setActionDialog,
     handleDelete,
-    handleBlock,
-    isChecking
+    handleBlock
   };
 };
 

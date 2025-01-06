@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const useAdvertisementReview = (refetch: () => void) => {
+export const useAdvertisementReview = (refetch: () => Promise<void>) => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState("");
 
@@ -10,7 +10,19 @@ export const useAdvertisementReview = (refetch: () => void) => {
     if (!selectedAd) return;
 
     try {
-      // Inserir nova revisão
+      // Primeiro atualiza o status do anúncio
+      const { error: adError } = await supabase
+        .from("advertisements")
+        .update({ 
+          status: status === 'approved' ? 'approved' : 'blocked',
+          blocked: status !== 'approved',
+          block_reason: status === 'rejected' ? reviewNotes : null
+        })
+        .eq("id", selectedAd.id);
+
+      if (adError) throw adError;
+
+      // Depois cria uma nova revisão
       const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
@@ -25,7 +37,7 @@ export const useAdvertisementReview = (refetch: () => void) => {
       toast.success(`Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} com sucesso`);
       setSelectedAd(null);
       setReviewNotes("");
-      refetch();
+      await refetch();
     } catch (error) {
       console.error("Erro ao revisar anúncio:", error);
       toast.error("Erro ao revisar anúncio");
