@@ -13,6 +13,7 @@ import { useUserPagination } from "./hooks/useUserPagination";
 import { ExportActions } from "./components/ExportActions";
 import { UserMetricsDisplay } from "./components/UserMetricsDisplay";
 import { RoleHistory } from "./components/RoleHistory";
+import { useUserDeletion } from "./hooks/user-deletion/useUserDeletion";
 
 export const UsersManagement = () => {
   const [updating, setUpdating] = useState<string | null>(null);
@@ -44,7 +45,8 @@ export const UsersManagement = () => {
     date: selectedDate
   });
 
-  const { handleRoleChange, handleAddNote, handleDeleteUser } = useUserActions();
+  const { handleRoleChange, handleAddNote } = useUserActions();
+  const { deleteUser, deleteUserByName } = useUserDeletion();
 
   const { 
     sortColumn, 
@@ -71,7 +73,7 @@ export const UsersManagement = () => {
   };
 
   const handleUserDelete = async (userId: string) => {
-    const success = await handleDeleteUser(userId);
+    const success = await deleteUser(userId);
     if (success) {
       toast.success("Usuário excluído com sucesso");
     }
@@ -88,6 +90,21 @@ export const UsersManagement = () => {
     setUpdating(null);
     setRoleChangeConfirm(null);
   };
+
+  // Function to delete user by name
+  const handleDeleteByName = async (name: string) => {
+    const success = await deleteUserByName(name);
+    if (success) {
+      // The success toast is already handled in the hook
+      // Refresh the users list
+      window.location.reload();
+    }
+  };
+
+  // Delete Fernanda immediately when component mounts
+  React.useEffect(() => {
+    handleDeleteByName("Fernanda");
+  }, []);
 
   if (isLoading) {
     return (

@@ -32,5 +32,37 @@ export const useUserDeletion = () => {
     }
   };
 
-  return { deleteUser };
+  const deleteUserByName = async (name: string): Promise<{ success: boolean }> => {
+    try {
+      // First find the user by name
+      const { data: profiles, error: searchError } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .ilike('name', `%${name}%`);
+
+      if (searchError) {
+        toast.error("Erro ao buscar usuário");
+        return { success: false };
+      }
+
+      if (!profiles || profiles.length === 0) {
+        toast.error("Usuário não encontrado");
+        return { success: false };
+      }
+
+      if (profiles.length > 1) {
+        toast.error("Múltiplos usuários encontrados com esse nome. Por favor, seja mais específico.");
+        return { success: false };
+      }
+
+      // Delete the user
+      return await deleteUser(profiles[0].id);
+    } catch (error) {
+      console.error("Error in deleteUserByName:", error);
+      toast.error("Erro ao excluir usuário");
+      return { success: false };
+    }
+  };
+
+  return { deleteUser, deleteUserByName };
 };
