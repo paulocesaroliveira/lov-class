@@ -118,13 +118,6 @@ export const AdsTable = ({
                   >
                     <CheckCircle className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onBlock(ad.id)}
-                  >
-                    <Ban className="h-4 w-4" />
-                  </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
@@ -146,6 +139,13 @@ export const AdsTable = ({
                       )}
                     </DialogContent>
                   </Dialog>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onBlock(ad.id)}
+                  >
+                    <Ban className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="destructive"
                     size="icon"
