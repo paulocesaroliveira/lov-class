@@ -20,6 +20,19 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
 
       console.log("Query parameters:", { from, to });
 
+      // Primeiro, vamos verificar se existem anúncios aprovados
+      const statusCheck = await supabase
+        .from("advertisements")
+        .select('status, blocked', { count: 'exact' })
+        .eq('status', 'approved')
+        .eq('blocked', false);
+
+      console.log("Status check results:", {
+        count: statusCheck.count,
+        error: statusCheck.error,
+        data: statusCheck.data
+      });
+
       let query = supabase
         .from("advertisements")
         .select(`
@@ -93,7 +106,7 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
         .order("created_at", { ascending: false })
         .range(from, to);
 
-      console.log("Executing query...");
+      console.log("Executing main query...");
       const { data, error, count } = await query;
 
       if (error) {
@@ -106,7 +119,8 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
         resultCount: data?.length || 0,
         totalCount: count,
         firstResult: data?.[0],
-        error
+        error,
+        filters: Object.keys(filters).length > 0 ? filters : 'No filters applied'
       });
 
       // Process the data to get only the latest review for each ad
