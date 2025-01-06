@@ -1,4 +1,4 @@
-export type UserRole = 'user' | 'advertiser' | 'admin';
+export type UserRole = 'cliente' | 'anunciante' | 'admin';
 
 export interface AdminNote {
   id: string;

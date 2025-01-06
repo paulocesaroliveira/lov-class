@@ -45,7 +45,7 @@ export const useRegistration = () => {
       }
 
       // Se não existe, tenta criar
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -71,6 +71,23 @@ export const useRegistration = () => {
 
         toast.error("Erro no cadastro. Por favor, tente novamente");
         return false;
+      }
+
+      // Criar perfil do usuário com role 'cliente'
+      if (signUpData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: signUpData.user.id,
+            name: data.name,
+            role: 'cliente'
+          });
+
+        if (profileError) {
+          console.error('Erro ao criar perfil:', profileError);
+          toast.error("Erro ao criar perfil de usuário");
+          return false;
+        }
       }
 
       toast.success("Conta criada com sucesso! Redirecionando para o login...");
