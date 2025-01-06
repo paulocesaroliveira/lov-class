@@ -16,7 +16,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: status === 'approved' ? 'approved' : 'rejected'
+          status: status === 'approved' ? 'approved' : 'blocked' // Changed 'rejected' to 'blocked'
         })
         .eq("id", selectedAd.id);
 
