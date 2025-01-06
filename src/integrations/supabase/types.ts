@@ -343,6 +343,7 @@ export type Database = {
         Row: {
           birth_date: string
           block_reason: string | null
+          blocked: boolean | null
           body_type: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -372,6 +373,7 @@ export type Database = {
         Insert: {
           birth_date: string
           block_reason?: string | null
+          blocked?: boolean | null
           body_type?: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -401,6 +403,7 @@ export type Database = {
         Update: {
           birth_date?: string
           block_reason?: string | null
+          blocked?: boolean | null
           body_type?: string
           category?: Database["public"]["Enums"]["ad_category"]
           city?: string

@@ -29,7 +29,7 @@ export const AdsManagement = () => {
 
   const handleApprove = async (ad: any) => {
     try {
-      // Primeiro, atualizar o status do anúncio
+      // Update advertisement status
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
@@ -39,9 +39,12 @@ export const AdsManagement = () => {
         })
         .eq("id", ad.id);
 
-      if (adError) throw adError;
+      if (adError) {
+        console.error("Error updating advertisement:", adError);
+        throw adError;
+      }
 
-      // Buscar a revisão mais recente
+      // Fetch the most recent review
       const { data: reviews, error: fetchError } = await supabase
         .from("advertisement_reviews")
         .select("*")
@@ -49,39 +52,49 @@ export const AdsManagement = () => {
         .order("created_at", { ascending: false })
         .limit(1);
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        console.error("Error fetching reviews:", fetchError);
+        throw fetchError;
+      }
 
       const reviewId = reviews?.[0]?.id;
+      const currentUser = (await supabase.auth.getUser()).data.user?.id;
 
       if (reviewId) {
-        // Se existe uma revisão, atualiza ela
+        // Update existing review
         const { error: updateError } = await supabase
           .from("advertisement_reviews")
           .update({
             status: 'approved',
-            reviewer_id: (await supabase.auth.getUser()).data.user?.id,
+            reviewer_id: currentUser,
             updated_at: new Date().toISOString()
           })
           .eq("id", reviewId);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error("Error updating review:", updateError);
+          throw updateError;
+        }
       } else {
-        // Se não existe, cria uma nova
+        // Create new review
         const { error: insertError } = await supabase
           .from("advertisement_reviews")
           .insert({
             advertisement_id: ad.id,
             status: 'approved',
-            reviewer_id: (await supabase.auth.getUser()).data.user?.id
+            reviewer_id: currentUser
           });
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error("Error creating review:", insertError);
+          throw insertError;
+        }
       }
 
       toast.success("Anúncio aprovado com sucesso");
       refetch();
     } catch (error) {
-      console.error("Erro ao aprovar anúncio:", error);
+      console.error("Error in handleApprove:", error);
       toast.error("Erro ao aprovar anúncio");
     }
   };
