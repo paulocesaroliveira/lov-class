@@ -61,7 +61,7 @@ export const AdsManagement = () => {
           status: 'approved',
           reviewer_id: currentUser,
           review_notes: "Anúncio aprovado pela administração",
-          block_reason: null // Garante que qualquer bloqueio anterior seja removido
+          block_reason: null
         });
 
       if (reviewError) {

@@ -10,18 +10,18 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
     if (!selectedAd) return;
 
     try {
-      console.log(`Iniciando ${status === 'approved' ? 'aprovação' : 'rejeição'} do anúncio:`, selectedAd.id);
+      console.log(`Iniciando revisão do anúncio ${selectedAd.id} com status ${status}`);
       
       // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: status === 'approved' ? 'approved' : 'blocked' // Changed 'rejected' to 'blocked'
+          status: status === 'approved' ? 'approved' : 'blocked'
         })
         .eq("id", selectedAd.id);
 
       if (adError) {
-        console.error("Erro ao atualizar anúncio:", adError);
+        console.error("Erro ao atualizar status do anúncio:", adError);
         throw adError;
       }
 
@@ -34,7 +34,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
-          status,
+          status: status, // Aqui mantemos 'rejected' ou 'approved'
           reviewer_id: currentUser,
           review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`,
           block_reason: status === 'rejected' ? reviewNotes : null
