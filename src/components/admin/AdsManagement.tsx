@@ -11,13 +11,18 @@ import { supabase } from "@/integrations/supabase/client";
 export const AdsManagement = () => {
   const { data: advertisements, refetch } = useAdvertisements();
 
+  // Create a wrapper function that returns void
+  const handleRefetch = async () => {
+    await refetch();
+  };
+
   const {
     deleting,
     actionDialog,
     setActionDialog,
     handleDelete,
     handleBlock
-  } = useAdvertisementActions(refetch);
+  } = useAdvertisementActions(handleRefetch);
 
   const {
     selectedAd,
@@ -25,13 +30,12 @@ export const AdsManagement = () => {
     reviewNotes,
     setReviewNotes,
     handleReview
-  } = useAdvertisementReview(refetch);
+  } = useAdvertisementReview(handleRefetch);
 
   const handleApprove = async (ad: any) => {
     try {
       console.log("Iniciando aprovação do anúncio:", ad.id);
       
-      // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
@@ -48,7 +52,6 @@ export const AdsManagement = () => {
 
       console.log("Status do anúncio atualizado com sucesso");
 
-      // Depois cria uma nova revisão
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
@@ -67,7 +70,7 @@ export const AdsManagement = () => {
 
       console.log("Revisão criada com sucesso");
       toast.success("Anúncio aprovado com sucesso");
-      await refetch();
+      await handleRefetch();
     } catch (error) {
       console.error("Erro ao aprovar anúncio:", error);
       toast.error("Erro ao aprovar anúncio");

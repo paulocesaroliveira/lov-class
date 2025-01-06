@@ -23,13 +23,15 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
       if (adError) throw adError;
 
       // Depois cria uma nova revisão
+      const currentUser = (await supabase.auth.getUser()).data.user?.id;
+      
       const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
           status,
-          review_notes: reviewNotes,
-          reviewer_id: (await supabase.auth.getUser()).data.user?.id
+          reviewer_id: currentUser,
+          review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`
         });
 
       if (reviewError) throw reviewError;
