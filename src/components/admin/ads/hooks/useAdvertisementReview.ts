@@ -10,17 +10,22 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
     if (!selectedAd) return;
 
     try {
+      console.log(`Iniciando ${status === 'approved' ? 'aprovação' : 'rejeição'} do anúncio:`, selectedAd.id);
+      
       // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: status === 'approved' ? 'approved' : 'blocked',
-          blocked: status !== 'approved',
-          block_reason: status === 'rejected' ? reviewNotes : null
+          status: status === 'approved' ? 'approved' : 'rejected'
         })
         .eq("id", selectedAd.id);
 
-      if (adError) throw adError;
+      if (adError) {
+        console.error("Erro ao atualizar anúncio:", adError);
+        throw adError;
+      }
+
+      console.log("Status do anúncio atualizado com sucesso");
 
       // Depois cria uma nova revisão
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
@@ -31,11 +36,16 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
           advertisement_id: selectedAd.id,
           status,
           reviewer_id: currentUser,
-          review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`
+          review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`,
+          block_reason: status === 'rejected' ? reviewNotes : null
         });
 
-      if (reviewError) throw reviewError;
+      if (reviewError) {
+        console.error("Erro ao criar revisão:", reviewError);
+        throw reviewError;
+      }
 
+      console.log("Revisão criada com sucesso");
       toast.success(`Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} com sucesso`);
       setSelectedAd(null);
       setReviewNotes("");

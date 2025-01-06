@@ -36,6 +36,7 @@ export const AdsManagement = () => {
     try {
       console.log("Iniciando aprovação do anúncio:", ad.id);
       
+      // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
@@ -50,6 +51,7 @@ export const AdsManagement = () => {
 
       console.log("Status do anúncio atualizado com sucesso");
 
+      // Depois cria uma nova revisão
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
@@ -58,7 +60,8 @@ export const AdsManagement = () => {
           advertisement_id: ad.id,
           status: 'approved',
           reviewer_id: currentUser,
-          review_notes: "Anúncio aprovado pela administração"
+          review_notes: "Anúncio aprovado pela administração",
+          block_reason: null // Garante que qualquer bloqueio anterior seja removido
         });
 
       if (reviewError) {
