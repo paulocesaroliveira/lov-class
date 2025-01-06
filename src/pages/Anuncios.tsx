@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdvancedFilter } from "@/components/advertisement/AdvancedFilter";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { AdvertisementDialog } from "@/components/advertisement/AdvertisementDialog";
 import { Button } from "@/components/ui/button";
 import { useAdvertisementList } from "@/hooks/useAdvertisementList";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Anuncios = () => {
   const [selectedAd, setSelectedAd] = useState<any>(null);
@@ -28,7 +29,7 @@ const Anuncios = () => {
   };
 
   // Call getUserRole when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     if (session?.user?.id) {
       console.log("User ID:", session.user.id);
       getUserRole();
@@ -42,11 +43,6 @@ const Anuncios = () => {
     hasNextPage, 
     fetchNextPage 
   } = useAdvertisementList({ filters });
-
-  const handleFilterChange = (newFilters: any) => {
-    console.log("Applying new filters:", newFilters);
-    setFilters(newFilters);
-  };
 
   const allAds = data?.pages?.flatMap(page => page.data) || [];
   const totalCount = data?.pages?.[0]?.count || 0;
