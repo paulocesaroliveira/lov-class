@@ -29,6 +29,8 @@ export const AdsManagement = () => {
 
   const handleApprove = async (ad: any) => {
     try {
+      console.log("Approving advertisement:", ad.id);
+      
       // Update advertisement status
       const { error: adError } = await supabase
         .from("advertisements")
@@ -44,53 +46,24 @@ export const AdsManagement = () => {
         throw adError;
       }
 
-      // Fetch the most recent review
-      const { data: reviews, error: fetchError } = await supabase
-        .from("advertisement_reviews")
-        .select("*")
-        .eq("advertisement_id", ad.id)
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (fetchError) {
-        console.error("Error fetching reviews:", fetchError);
-        throw fetchError;
-      }
-
-      const reviewId = reviews?.[0]?.id;
+      // Create new review
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
+      
+      const { error: reviewError } = await supabase
+        .from("advertisement_reviews")
+        .insert({
+          advertisement_id: ad.id,
+          status: 'approved',
+          reviewer_id: currentUser,
+          review_notes: "Anúncio aprovado pela administração"
+        });
 
-      if (reviewId) {
-        // Update existing review
-        const { error: updateError } = await supabase
-          .from("advertisement_reviews")
-          .update({
-            status: 'approved',
-            reviewer_id: currentUser,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", reviewId);
-
-        if (updateError) {
-          console.error("Error updating review:", updateError);
-          throw updateError;
-        }
-      } else {
-        // Create new review
-        const { error: insertError } = await supabase
-          .from("advertisement_reviews")
-          .insert({
-            advertisement_id: ad.id,
-            status: 'approved',
-            reviewer_id: currentUser
-          });
-
-        if (insertError) {
-          console.error("Error creating review:", insertError);
-          throw insertError;
-        }
+      if (reviewError) {
+        console.error("Error creating review:", reviewError);
+        throw reviewError;
       }
 
+      console.log("Advertisement approved successfully");
       toast.success("Anúncio aprovado com sucesso");
       refetch();
     } catch (error) {
