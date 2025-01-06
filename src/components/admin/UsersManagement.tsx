@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { UserRole } from "./types";
@@ -102,7 +102,7 @@ export const UsersManagement = () => {
   };
 
   // Delete Fernanda immediately when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     handleDeleteByName("Fernanda");
   }, []);
 
