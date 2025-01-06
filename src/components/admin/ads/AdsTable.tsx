@@ -136,14 +136,16 @@ export const AdsTable = ({
                         <IdCard className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[90vh]">
-                      {documentUrl && (
-                        <img 
-                          src={documentUrl} 
-                          alt="Documento de identidade"
-                          className="w-full h-auto object-contain"
-                        />
-                      )}
+                    <DialogContent className="max-w-3xl">
+                      <div className="max-h-[80vh] overflow-auto p-4">
+                        {documentUrl && (
+                          <img 
+                            src={documentUrl} 
+                            alt="Documento de identidade"
+                            className="w-full h-auto object-contain rounded-lg"
+                          />
+                        )}
+                      </div>
                     </DialogContent>
                   </Dialog>
                   <Button
