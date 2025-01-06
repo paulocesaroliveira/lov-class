@@ -20,18 +20,6 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
 
       console.log("Query parameters:", { from, to });
 
-      // First, vamos verificar se existem anúncios aprovados
-      const statusCheck = await supabase
-        .from("advertisements")
-        .select('status', { count: 'exact' })
-        .eq('status', 'approved');
-
-      console.log("Status check results:", {
-        count: statusCheck.count,
-        error: statusCheck.error,
-        data: statusCheck.data
-      });
-
       let query = supabase
         .from("advertisements")
         .select(`
