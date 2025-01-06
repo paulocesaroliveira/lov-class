@@ -44,6 +44,11 @@ const Anuncios = () => {
     fetchNextPage 
   } = useAdvertisementList({ filters });
 
+  const handleFilterChange = (newFilters: any) => {
+    console.log("Applying new filters:", newFilters);
+    setFilters(newFilters);
+  };
+
   const allAds = data?.pages?.flatMap(page => page.data) || [];
   const totalCount = data?.pages?.[0]?.count || 0;
   const canLoadMore = allAds.length < totalCount;
