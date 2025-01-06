@@ -1,64 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
-import { DeletionProgress, DeletionResult } from "./types";
-import { deleteUserRelatedData } from "./deleteUserRelatedData";
-import { deleteUserProfile } from "./deleteUserProfile";
-import { validateDeletion } from "./validations";
 import { toast } from "sonner";
+import { validateUserDeletion } from "./validations";
 
 export const useUserDeletion = () => {
-  const deleteUser = async (userId: string): Promise<DeletionResult> => {
-    const logs: DeletionProgress[] = [];
-    const logStep = (step: string, success: boolean, error?: string) => {
-      console.log(`Delete user step: ${step}`, success ? "Success" : "Failed", error || "");
-      logs.push({ step, success, error });
-    };
-
+  const deleteUser = async (userId: string): Promise<{ success: boolean }> => {
     try {
-      // Validate if deletion is allowed
-      const validationResult = await validateDeletion(userId);
+      // Validate if we can delete the user
+      const validationResult = await validateUserDeletion(userId);
       if (!validationResult.success) {
-        logStep("Validation", false, validationResult.error);
-        return { success: false, error: validationResult.error, logs };
+        toast.error(validationResult.error || "Erro na validação");
+        return { success: false };
       }
-      logStep("Validation", true);
 
-      // Start transaction
-      const { error: txError } = await supabase.rpc('begin_transaction');
-      if (txError) throw new Error(`Transaction start failed: ${txError.message}`);
-      logStep("Transaction Start", true);
+      // Call the database function to delete user and related data
+      const { data, error } = await supabase
+        .rpc('delete_user_and_related_data', {
+          user_id: userId
+        });
 
-      try {
-        // Delete related data first
-        await deleteUserRelatedData(userId, logStep);
-        
-        // Delete user profile
-        await deleteUserProfile(userId, logStep);
-
-        // Delete auth user
-        const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-        if (authError) throw new Error(`Auth user deletion failed: ${authError.message}`);
-        logStep("Auth User Deletion", true);
-
-        // Commit transaction
-        const { error: commitError } = await supabase.rpc('commit_transaction');
-        if (commitError) throw new Error(`Transaction commit failed: ${commitError.message}`);
-        logStep("Transaction Commit", true);
-
-        toast.success("Usuário excluído com sucesso");
-        return { success: true, logs };
-      } catch (error) {
-        // Rollback on error
-        const { error: rollbackError } = await supabase.rpc('rollback_transaction');
-        if (rollbackError) {
-          console.error("Rollback failed:", rollbackError);
-        }
-        throw error;
+      if (error) {
+        console.error("Error deleting user:", error);
+        toast.error("Erro ao excluir usuário");
+        return { success: false };
       }
+
+      toast.success("Usuário excluído com sucesso");
+      return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-      logStep("Final", false, errorMessage);
-      toast.error(`Erro ao excluir usuário: ${errorMessage}`);
-      return { success: false, error: errorMessage, logs };
+      console.error("Error in deleteUser:", error);
+      toast.error("Erro ao excluir usuário");
+      return { success: false };
     }
   };
 

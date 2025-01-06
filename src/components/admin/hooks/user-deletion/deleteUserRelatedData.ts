@@ -1,65 +1,41 @@
 import { supabase } from "@/integrations/supabase/client";
-import { DeletionProgress } from "./types";
+import { toast } from "sonner";
 
-export const deleteUserRelatedData = async (
-  userId: string,
-  logStep: (step: string, success: boolean, error?: string) => void
-) => {
-  const tables = [
-    { name: "favorites", column: "user_id" },
-    { name: "advertisement_comments", column: "user_id" },
-    { name: "admin_notes", column: "user_id" },
-    { name: "user_activity_logs", column: "user_id" },
-    { name: "role_change_history", column: "user_id" }
-  ];
+type TableName = 
+  | "favorites"
+  | "advertisement_comments"
+  | "admin_notes"
+  | "user_activity_logs"
+  | "role_change_history"
+  | "profiles";
 
-  // Delete user's advertisements and related data
-  const { data: advertisements } = await supabase
-    .from("advertisements")
-    .select("id")
-    .eq("profile_id", userId);
+const TABLES_TO_DELETE_FROM: TableName[] = [
+  "favorites",
+  "advertisement_comments",
+  "admin_notes",
+  "user_activity_logs",
+  "role_change_history",
+  "profiles"
+];
 
-  if (advertisements && advertisements.length > 0) {
-    for (const ad of advertisements) {
-      const adRelatedTables = [
-        { name: "advertisement_photos", column: "advertisement_id" },
-        { name: "advertisement_videos", column: "advertisement_id" },
-        { name: "advertisement_services", column: "advertisement_id" },
-        { name: "advertisement_service_locations", column: "advertisement_id" },
-        { name: "advertisement_views", column: "advertisement_id" },
-        { name: "advertisement_whatsapp_clicks", column: "advertisement_id" },
-        { name: "advertiser_documents", column: "advertisement_id" }
-      ];
+export const deleteUserRelatedData = async (userId: string): Promise<boolean> => {
+  try {
+    for (const table of TABLES_TO_DELETE_FROM) {
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq('user_id', userId);
 
-      for (const table of adRelatedTables) {
-        const { error } = await supabase
-          .from(table.name)
-          .delete()
-          .eq(table.column, ad.id);
-        
-        logStep(`Delete ${table.name}`, !error, error?.message);
-        if (error) throw new Error(`Failed to delete ${table.name}: ${error.message}`);
+      if (error) {
+        console.error(`Error deleting from ${table}:`, error);
+        toast.error(`Erro ao deletar dados de ${table}`);
+        return false;
       }
     }
-
-    // Delete advertisements
-    const { error: adsError } = await supabase
-      .from("advertisements")
-      .delete()
-      .eq("profile_id", userId);
     
-    logStep("Delete advertisements", !adsError, adsError?.message);
-    if (adsError) throw new Error(`Failed to delete advertisements: ${adsError.message}`);
-  }
-
-  // Delete other related data
-  for (const table of tables) {
-    const { error } = await supabase
-      .from(table.name)
-      .delete()
-      .eq(table.column, userId);
-    
-    logStep(`Delete ${table.name}`, !error, error?.message);
-    if (error) throw new Error(`Failed to delete ${table.name}: ${error.message}`);
+    return true;
+  } catch (error) {
+    console.error("Error in deleteUserRelatedData:", error);
+    return false;
   }
 };
