@@ -1,3 +1,8 @@
+export interface DateFilter {
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface AdvertisementReviewCount {
   status: string;
   count: number;
