@@ -1,25 +1,25 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { validateUserDeletion } from "./validations";
+import { validateDeletion } from "./validations";
 
 export const useUserDeletion = () => {
   const deleteUser = async (userId: string): Promise<{ success: boolean }> => {
     try {
       // Validate if we can delete the user
-      const validationResult = await validateUserDeletion(userId);
+      const validationResult = await validateDeletion(userId);
       if (!validationResult.success) {
         toast.error(validationResult.error || "Erro na validação");
         return { success: false };
       }
 
-      // Call the database function to delete user and related data
-      const { data, error } = await supabase
-        .rpc('delete_user_and_related_data', {
-          user_id: userId
-        });
+      // Delete user and related data directly using Supabase client
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
 
-      if (error) {
-        console.error("Error deleting user:", error);
+      if (deleteError) {
+        console.error("Error deleting user:", deleteError);
         toast.error("Erro ao excluir usuário");
         return { success: false };
       }
