@@ -1,72 +1,76 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DateFilter, AdMetricsResponse } from "../types/metrics";
+import { DateFilter } from "../types/metrics";
 
 export const useAdMetrics = (dateFilter?: DateFilter) => {
   return useQuery({
     queryKey: ["admin-ad-metrics", dateFilter],
     queryFn: async () => {
-      const query = supabase
+      let query = supabase
         .from('advertisement_reviews')
-        .select('status, count')
-        .eq('status', 'approved');
+        .select('*');
 
       if (dateFilter?.startDate) {
-        query.gte('created_at', dateFilter.startDate);
+        query = query.gte('created_at', dateFilter.startDate);
       }
       if (dateFilter?.endDate) {
-        query.lte('created_at', dateFilter.endDate);
+        query = query.lte('created_at', dateFilter.endDate);
       }
 
       const { data: currentData, error } = await query;
 
       if (error) throw error;
 
-      // Calculate previous period metrics
-      let previousStartDate, previousEndDate;
+      // Calculate metrics
+      const total = currentData?.length || 0;
+      const approved = currentData?.filter(item => item.status === 'approved').length || 0;
+      const pending = currentData?.filter(item => item.status === 'pending').length || 0;
+      const rejected = currentData?.filter(item => item.status === 'rejected').length || 0;
+      const approvalRate = total > 0 ? (approved / total) * 100 : 0;
+
+      // Get previous period metrics if date filter is provided
+      let previousData = [];
       if (dateFilter?.startDate && dateFilter?.endDate) {
-        const currentStart = new Date(dateFilter.startDate);
-        const currentEnd = new Date(dateFilter.endDate);
-        const daysDiff = (currentEnd.getTime() - currentStart.getTime()) / (1000 * 60 * 60 * 24);
+        const startDate = new Date(dateFilter.startDate);
+        const endDate = new Date(dateFilter.endDate);
+        const daysDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
         
-        previousEndDate = new Date(currentStart);
+        const previousEndDate = new Date(startDate);
         previousEndDate.setDate(previousEndDate.getDate() - 1);
-        previousStartDate = new Date(previousEndDate);
+        const previousStartDate = new Date(previousEndDate);
         previousStartDate.setDate(previousStartDate.getDate() - daysDiff);
-      }
 
-      const previousQuery = supabase
-        .from('advertisement_reviews')
-        .select('status, count');
-
-      if (previousStartDate && previousEndDate) {
-        previousQuery
+        const { data: prevData } = await supabase
+          .from('advertisement_reviews')
+          .select('*')
           .gte('created_at', previousStartDate.toISOString())
           .lte('created_at', previousEndDate.toISOString());
+
+        previousData = prevData || [];
       }
 
-      const { data: previousData } = await previousQuery;
+      const prevTotal = previousData.length;
+      const prevApproved = previousData.filter((item: any) => item.status === 'approved').length;
+      const prevPending = previousData.filter((item: any) => item.status === 'pending').length;
+      const prevRejected = previousData.filter((item: any) => item.status === 'rejected').length;
+      const prevApprovalRate = prevTotal > 0 ? (prevApproved / prevTotal) * 100 : 0;
 
-      const processMetrics = (data: any[]) => {
-        const total = data?.length || 0;
-        const approved = data?.filter(item => item.status === 'approved').length || 0;
-        const pending = data?.filter(item => item.status === 'pending').length || 0;
-        const rejected = data?.filter(item => item.status === 'rejected').length || 0;
-        const approvalRate = total > 0 ? (approved / total) * 100 : 0;
-
-        return {
+      return {
+        current: {
           total,
           approved,
           pending,
           rejected,
           approvalRate
-        };
+        },
+        previous: {
+          total: prevTotal,
+          approved: prevApproved,
+          pending: prevPending,
+          rejected: prevRejected,
+          approvalRate: prevApprovalRate
+        }
       };
-
-      return {
-        current: processMetrics(currentData || []),
-        previous: processMetrics(previousData || [])
-      } as AdMetricsResponse;
     },
   });
 };

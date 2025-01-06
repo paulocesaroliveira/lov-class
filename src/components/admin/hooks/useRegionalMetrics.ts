@@ -6,7 +6,8 @@ export const useRegionalMetrics = () => {
   return useQuery({
     queryKey: ["admin-regional-metrics"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_regional_metrics');
+      const { data, error } = await supabase
+        .rpc('get_regional_metrics');
 
       if (error) throw error;
       return data as RegionalMetric[];

@@ -724,6 +724,15 @@ export type Database = {
           conversation_id: string
         }[]
       }
+      get_engagement_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          date: string
+          unique_views: number
+          total_views: number
+          whatsapp_clicks: number
+        }[]
+      }
       get_messages_with_sender_names: {
         Args: {
           p_conversation_id: string
@@ -736,6 +745,16 @@ export type Database = {
           conversation_id: string
           read_at: string
           sender_name: string
+        }[]
+      }
+      get_regional_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          state: string
+          city: string
+          view_count: number
+          click_count: number
+          active_ads: number
         }[]
       }
       get_user_metrics: {
