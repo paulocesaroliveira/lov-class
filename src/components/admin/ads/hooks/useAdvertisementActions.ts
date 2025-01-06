@@ -70,9 +70,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
       const { error: blockError } = await supabase
         .from("advertisements")
         .update({ 
-          status: 'blocked',
-          blocked: true,
-          block_reason: reason
+          status: 'blocked'
         })
         .eq("id", id);
 
@@ -83,7 +81,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
 
       console.log("Status do anúncio atualizado para bloqueado");
 
-      // Criar uma nova revisão com status rejected
+      // Criar uma nova revisão com status rejected e o motivo do bloqueio
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
@@ -92,6 +90,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
           advertisement_id: id,
           status: 'rejected',
           review_notes: reason,
+          block_reason: reason,
           reviewer_id: currentUser
         });
 

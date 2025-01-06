@@ -153,6 +153,7 @@ export type Database = {
       advertisement_reviews: {
         Row: {
           advertisement_id: string
+          block_reason: string | null
           created_at: string
           id: string
           moderation_message: string | null
@@ -163,6 +164,7 @@ export type Database = {
         }
         Insert: {
           advertisement_id: string
+          block_reason?: string | null
           created_at?: string
           id?: string
           moderation_message?: string | null
@@ -173,6 +175,7 @@ export type Database = {
         }
         Update: {
           advertisement_id?: string
+          block_reason?: string | null
           created_at?: string
           id?: string
           moderation_message?: string | null
@@ -342,8 +345,6 @@ export type Database = {
       advertisements: {
         Row: {
           birth_date: string
-          block_reason: string | null
-          blocked: boolean | null
           body_type: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -372,8 +373,6 @@ export type Database = {
         }
         Insert: {
           birth_date: string
-          block_reason?: string | null
-          blocked?: boolean | null
           body_type?: string
           category: Database["public"]["Enums"]["ad_category"]
           city: string
@@ -402,8 +401,6 @@ export type Database = {
         }
         Update: {
           birth_date?: string
-          block_reason?: string | null
-          blocked?: boolean | null
           body_type?: string
           category?: Database["public"]["Enums"]["ad_category"]
           city?: string

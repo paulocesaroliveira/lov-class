@@ -39,9 +39,7 @@ export const AdsManagement = () => {
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: 'approved',
-          blocked: false,
-          block_reason: null
+          status: 'approved'
         })
         .eq("id", ad.id);
 
