@@ -29,7 +29,7 @@ export const AdsManagement = () => {
 
   const handleApprove = async (ad: any) => {
     try {
-      console.log("Approving advertisement:", ad.id);
+      console.log("Iniciando aprovação do anúncio:", ad.id);
       
       // Primeiro atualiza o status do anúncio
       const { error: adError } = await supabase
@@ -42,9 +42,11 @@ export const AdsManagement = () => {
         .eq("id", ad.id);
 
       if (adError) {
-        console.error("Error updating advertisement:", adError);
+        console.error("Erro ao atualizar anúncio:", adError);
         throw adError;
       }
+
+      console.log("Status do anúncio atualizado com sucesso");
 
       // Depois cria uma nova revisão
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
@@ -59,15 +61,15 @@ export const AdsManagement = () => {
         });
 
       if (reviewError) {
-        console.error("Error creating review:", reviewError);
+        console.error("Erro ao criar revisão:", reviewError);
         throw reviewError;
       }
 
-      console.log("Advertisement approved successfully");
+      console.log("Revisão criada com sucesso");
       toast.success("Anúncio aprovado com sucesso");
-      refetch();
+      await refetch();
     } catch (error) {
-      console.error("Error in handleApprove:", error);
+      console.error("Erro ao aprovar anúncio:", error);
       toast.error("Erro ao aprovar anúncio");
     }
   };
