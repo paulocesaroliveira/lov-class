@@ -29,7 +29,19 @@ export const AdsManagement = () => {
 
   const handleApprove = async (ad: any) => {
     try {
-      // Primeiro, buscar a revisão mais recente
+      // Primeiro, atualizar o status do anúncio
+      const { error: adError } = await supabase
+        .from("advertisements")
+        .update({ 
+          status: 'approved',
+          blocked: false,
+          block_reason: null
+        })
+        .eq("id", ad.id);
+
+      if (adError) throw adError;
+
+      // Buscar a revisão mais recente
       const { data: reviews, error: fetchError } = await supabase
         .from("advertisement_reviews")
         .select("*")
@@ -40,17 +52,6 @@ export const AdsManagement = () => {
       if (fetchError) throw fetchError;
 
       const reviewId = reviews?.[0]?.id;
-
-      // Atualizar o status do anúncio para não bloqueado
-      const { error: unblockError } = await supabase
-        .from("advertisements")
-        .update({ 
-          blocked: false,
-          block_reason: null
-        })
-        .eq("id", ad.id);
-
-      if (unblockError) throw unblockError;
 
       if (reviewId) {
         // Se existe uma revisão, atualiza ela
@@ -108,7 +109,7 @@ export const AdsManagement = () => {
       <AdvertisementDialog 
         advertisement={selectedAd} 
         onOpenChange={() => setSelectedAd(null)}
-        isAdminView={true} // Set to true for admin panel views
+        isAdminView={true}
       />
 
       <ActionDialog
