@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, Trash2, CheckCircle, Ban, IdCard } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -44,9 +44,10 @@ export const AdsTable = ({
         .from('advertiser_documents')
         .select('document_url')
         .eq('advertisement_id', adId)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
       if (docsError) {
+        console.error("Error fetching document:", docsError);
         toast.error("Erro ao buscar documento");
         return;
       }
@@ -60,7 +61,7 @@ export const AdsTable = ({
       const { data: publicUrlData } = await supabase
         .storage
         .from('identity_documents')
-        .createSignedUrl(advertiserDocs.document_url, 60); // URL válida por 60 segundos
+        .createSignedUrl(advertiserDocs.document_url, 60);
 
       if (!publicUrlData?.signedUrl) {
         toast.error("Erro ao gerar URL do documento");
@@ -137,6 +138,9 @@ export const AdsTable = ({
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-3xl">
+                      <DialogHeader>
+                        <DialogTitle>Documento de Identidade</DialogTitle>
+                      </DialogHeader>
                       <div className="max-h-[80vh] overflow-auto p-4">
                         {documentUrl && (
                           <img 
