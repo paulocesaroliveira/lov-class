@@ -12,7 +12,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
     try {
       console.log(`Iniciando revisão do anúncio ${selectedAd.id} com status ${status}`);
       
-      // Primeiro atualiza o status do anúncio
+      // First update the advertisement status
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
@@ -27,14 +27,14 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
 
       console.log("Status do anúncio atualizado com sucesso");
 
-      // Depois cria uma nova revisão
+      // Then create a new review
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
-          status: status, // Aqui mantemos 'rejected' ou 'approved'
+          status: status, // Keep 'rejected' or 'approved' for the review
           reviewer_id: currentUser,
           review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`,
           block_reason: status === 'rejected' ? reviewNotes : null

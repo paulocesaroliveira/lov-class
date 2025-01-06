@@ -66,7 +66,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
 
       console.log("Iniciando bloqueio do anúncio:", id);
 
-      // Atualizar o status do anúncio para bloqueado
+      // First update the advertisement status
       const { error: blockError } = await supabase
         .from("advertisements")
         .update({ 
@@ -81,7 +81,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
 
       console.log("Status do anúncio atualizado para bloqueado");
 
-      // Criar uma nova revisão com status rejected e o motivo do bloqueio
+      // Then create a new review with rejected status and block reason
       const currentUser = (await supabase.auth.getUser()).data.user?.id;
       
       const { error: reviewError } = await supabase
@@ -89,16 +89,16 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
         .insert({
           advertisement_id: id,
           status: 'rejected',
+          reviewer_id: currentUser,
           review_notes: reason,
-          block_reason: reason,
-          reviewer_id: currentUser
+          block_reason: reason
         });
 
       if (reviewError) {
         console.error("Erro ao criar revisão:", reviewError);
         throw reviewError;
       }
-      
+
       console.log("Revisão criada com sucesso");
       toast.success("Anúncio bloqueado com sucesso");
       await refetch();
@@ -119,7 +119,6 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
   };
 };
 
-// Define valid table names as a const array for type safety
 const RELATED_TABLES = [
   'advertisement_whatsapp_clicks',
   'advertisement_views',
