@@ -715,6 +715,12 @@ export type Database = {
           created_at: string
         }[]
       }
+      delete_user_and_related_data: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
       find_or_create_conversation: {
         Args: {
           current_user_id: string

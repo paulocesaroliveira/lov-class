@@ -13,10 +13,9 @@ export const useUserDeletion = () => {
       }
 
       // Call the database function to delete user and related data
-      const { data, error } = await supabase
-        .rpc('delete_user_and_related_data', {
-          user_id: userId
-        });
+      const { data, error } = await supabase.rpc('delete_user_and_related_data', {
+        user_id: userId
+      });
 
       if (error) {
         console.error("Error deleting user:", error);
