@@ -39,6 +39,8 @@ export const useUserMutations = () => {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId: string) => {
+      console.log("Starting user deletion process for:", userId);
+      
       const canProceed = await checkRateLimit('delete_user');
       if (!canProceed) throw new Error('Rate limit exceeded');
 
@@ -114,25 +116,43 @@ export const useUserMutations = () => {
         }
       }
 
+      // Delete user's admin notes
+      await supabase
+        .from("admin_notes")
+        .delete()
+        .eq("user_id", userId);
+
+      // Delete user's activity logs
+      await supabase
+        .from("user_activity_logs")
+        .delete()
+        .eq("user_id", userId);
+
+      // Delete user's role change history
+      await supabase
+        .from("role_change_history")
+        .delete()
+        .eq("user_id", userId);
+
       // Delete user's profile
       const { error: profileError } = await supabase
         .from("profiles")
         .delete()
         .eq("id", userId);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Error deleting profile:", profileError);
+        throw profileError;
+      }
 
-      // Delete from auth.users which will cascade to profiles
+      // Delete from auth.users using admin API
       const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) throw authError;
+      if (authError) {
+        console.error("Error deleting auth user:", authError);
+        throw authError;
+      }
 
-      // Log the deletion
-      await supabase.from("user_activity_logs").insert({
-        user_id: userId,
-        action_type: "user_deletion",
-        description: "User account deleted by admin",
-        created_by: (await supabase.auth.getUser()).data.user?.id,
-      });
+      console.log("User deletion completed successfully");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
