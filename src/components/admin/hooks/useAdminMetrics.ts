@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { DateFilter } from "../types/metrics";
 
-interface DateFilter {
-  startDate?: string;
-  endDate?: string;
+interface AdMetricsResponse {
+  total: number;
+  approved: number;
+  pending: number;
+  rejected: number;
+  approvalRate: number;
 }
 
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
@@ -49,7 +53,7 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
     queryKey: ["admin-ad-metrics", dateFilter],
     queryFn: async () => {
       let query = supabase
-        .from("advertisement_review_counts")
+        .from("advertisement_reviews")
         .select("*");
 
       if (dateFilter?.startDate) {
@@ -59,32 +63,23 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
         query = query.lte('created_at', dateFilter.endDate);
       }
 
-      const { data: adStatusCount, error } = await query;
+      const { data: reviews, error } = await query;
 
       if (error) throw error;
 
-      const statusCount = {
-        pending: 0,
-        approved: 0,
-        rejected: 0,
-      };
-
-      adStatusCount?.forEach((item: any) => {
-        if (item.status in statusCount) {
-          statusCount[item.status as keyof typeof statusCount] = item.count;
-        }
-      });
-
-      const total = Object.values(statusCount).reduce((a, b) => a + b, 0);
-      const approvalRate = total > 0 ? (statusCount.approved / total) * 100 : 0;
-      const rejectionRate = total > 0 ? (statusCount.rejected / total) * 100 : 0;
+      const total = reviews?.length || 0;
+      const approved = reviews?.filter(r => r.status === 'approved').length || 0;
+      const pending = reviews?.filter(r => r.status === 'pending').length || 0;
+      const rejected = reviews?.filter(r => r.status === 'rejected').length || 0;
+      const approvalRate = total > 0 ? (approved / total) * 100 : 0;
 
       return {
-        ...statusCount,
         total,
+        approved,
+        pending,
+        rejected,
         approvalRate,
-        rejectionRate,
-      };
+      } as AdMetricsResponse;
     },
   });
 
@@ -92,21 +87,20 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
   const { data: engagementMetrics } = useQuery({
     queryKey: ["admin-engagement-metrics", dateFilter],
     queryFn: async () => {
-      let query = supabase
-        .from("advertisement_engagement_metrics")
-        .select("*")
-        .order("date", { ascending: true });
+      const { data, error } = await supabase
+        .rpc('get_engagement_metrics');
 
+      if (error) throw error;
+
+      let filteredData = data;
       if (dateFilter?.startDate) {
-        query = query.gte('date', dateFilter.startDate);
+        filteredData = filteredData.filter((d: any) => d.date >= dateFilter.startDate);
       }
       if (dateFilter?.endDate) {
-        query = query.lte('date', dateFilter.endDate);
+        filteredData = filteredData.filter((d: any) => d.date <= dateFilter.endDate);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
+      return filteredData;
     },
   });
 
@@ -115,8 +109,7 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
     queryKey: ["admin-regional-metrics"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("regional_activity_metrics")
-        .select("*");
+        .rpc('get_regional_metrics');
 
       if (error) throw error;
       return data;

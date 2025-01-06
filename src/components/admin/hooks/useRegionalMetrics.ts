@@ -4,7 +4,7 @@ import { RegionalMetric } from "../types/metrics";
 
 export const useRegionalMetrics = () => {
   return useQuery({
-    queryKey: ["admin-regional-metrics"],
+    queryKey: ["regional-metrics"],
     queryFn: async () => {
       const { data, error } = await supabase
         .rpc('get_regional_metrics');

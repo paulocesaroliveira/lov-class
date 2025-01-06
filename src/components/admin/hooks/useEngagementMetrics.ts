@@ -4,7 +4,7 @@ import { DateFilter, EngagementMetric } from "../types/metrics";
 
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery({
-    queryKey: ["admin-engagement-metrics", dateFilter],
+    queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase
         .rpc('get_engagement_metrics');

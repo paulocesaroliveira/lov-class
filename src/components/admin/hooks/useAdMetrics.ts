@@ -2,9 +2,26 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DateFilter } from "../types/metrics";
 
+interface AdMetricsResponse {
+  current: {
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    approvalRate: number;
+  };
+  previous?: {
+    total: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    approvalRate: number;
+  };
+}
+
 export const useAdMetrics = (dateFilter?: DateFilter) => {
   return useQuery({
-    queryKey: ["admin-ad-metrics", dateFilter],
+    queryKey: ["ad-metrics", dateFilter],
     queryFn: async () => {
       let query = supabase
         .from('advertisement_reviews')
@@ -29,7 +46,7 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
       const approvalRate = total > 0 ? (approved / total) * 100 : 0;
 
       // Get previous period metrics if date filter is provided
-      let previousData = [];
+      let previousData: any[] = [];
       if (dateFilter?.startDate && dateFilter?.endDate) {
         const startDate = new Date(dateFilter.startDate);
         const endDate = new Date(dateFilter.endDate);
@@ -70,7 +87,7 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
           rejected: prevRejected,
           approvalRate: prevApprovalRate
         }
-      };
+      } as AdMetricsResponse;
     },
   });
 };
