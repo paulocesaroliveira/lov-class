@@ -89,6 +89,7 @@ export type Database = {
           id: string
           review_notes: string | null
           reviewer_id: string | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
@@ -98,6 +99,7 @@ export type Database = {
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -107,6 +109,7 @@ export type Database = {
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -235,6 +238,7 @@ export type Database = {
           name: string
           neighborhood: string | null
           profile_id: string | null
+          status: string | null
           updated_at: string
         }
         Insert: {
@@ -246,6 +250,7 @@ export type Database = {
           name: string
           neighborhood?: string | null
           profile_id?: string | null
+          status?: string | null
           updated_at?: string
         }
         Update: {
@@ -257,6 +262,7 @@ export type Database = {
           name?: string
           neighborhood?: string | null
           profile_id?: string | null
+          status?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -265,6 +271,38 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertiser_documents: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          document_url: string
+          id: string
+          verified: boolean | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          document_url: string
+          id?: string
+          verified?: boolean | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          document_url?: string
+          id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_documents_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
             referencedColumns: ["id"]
           },
         ]
@@ -359,18 +397,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          role: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           id: string
           name: string
+          role?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          role?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -431,6 +472,7 @@ export type Database = {
           blocked_by_id: string | null
           blocked_user_id: string | null
           created_at: string | null
+          description: string | null
           id: string
           reason: string | null
         }
@@ -438,6 +480,7 @@ export type Database = {
           blocked_by_id?: string | null
           blocked_user_id?: string | null
           created_at?: string | null
+          description?: string | null
           id?: string
           reason?: string | null
         }
@@ -445,6 +488,7 @@ export type Database = {
           blocked_by_id?: string | null
           blocked_user_id?: string | null
           created_at?: string | null
+          description?: string | null
           id?: string
           reason?: string | null
         }
