@@ -89,7 +89,7 @@ export type Database = {
           id: string
           review_notes: string | null
           reviewer_id: string | null
-          status: Database["public"]["Enums"]["ad_status"]
+          updated_at: string | null
         }
         Insert: {
           advertisement_id?: string | null
@@ -98,7 +98,7 @@ export type Database = {
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
-          status: Database["public"]["Enums"]["ad_status"]
+          updated_at?: string | null
         }
         Update: {
           advertisement_id?: string | null
@@ -107,7 +107,7 @@ export type Database = {
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
-          status?: Database["public"]["Enums"]["ad_status"]
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -228,32 +228,35 @@ export type Database = {
       advertisements: {
         Row: {
           block_reason: string | null
+          city: string | null
           created_at: string
           description: string | null
           id: string
           name: string
+          neighborhood: string | null
           profile_id: string | null
-          status: Database["public"]["Enums"]["ad_status"] | null
           updated_at: string
         }
         Insert: {
           block_reason?: string | null
+          city?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name: string
+          neighborhood?: string | null
           profile_id?: string | null
-          status?: Database["public"]["Enums"]["ad_status"] | null
           updated_at?: string
         }
         Update: {
           block_reason?: string | null
+          city?: string | null
           created_at?: string
           description?: string | null
           id?: string
           name?: string
+          neighborhood?: string | null
           profile_id?: string | null
-          status?: Database["public"]["Enums"]["ad_status"] | null
           updated_at?: string
         }
         Relationships: [
@@ -287,26 +290,87 @@ export type Database = {
         }
         Relationships: []
       }
+      feed_post_media: {
+        Row: {
+          created_at: string | null
+          id: string
+          media_type: string
+          media_url: string
+          post_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          media_type: string
+          media_url: string
+          post_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          media_type?: string
+          media_url?: string
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          profile_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           id: string
           name: string
-          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
         }
         Insert: {
           created_at?: string
           id: string
           name: string
-          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
         }
         Relationships: []
@@ -361,6 +425,45 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_by_id: string | null
+          blocked_user_id: string | null
+          created_at: string | null
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_blocks_blocked_by_id_fkey"
+            columns: ["blocked_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_blocks_blocked_user_id_fkey"
+            columns: ["blocked_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
