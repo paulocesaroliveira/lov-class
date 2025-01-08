@@ -30,22 +30,6 @@ const Login = () => {
     }
   }, [location.state]);
 
-  const handleResendConfirmation = async (userEmail: string) => {
-    try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: userEmail,
-      });
-      
-      if (error) throw error;
-      
-      toast.success("Email de confirmação reenviado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao reenviar email:", error);
-      toast.error("Erro ao reenviar email de confirmação");
-    }
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
@@ -62,34 +46,12 @@ const Login = () => {
       if (authError) {
         console.error("Erro de autenticação:", authError);
         
-        // Parse the error message from the response body
-        let errorBody;
-        try {
-          errorBody = JSON.parse(authError.message);
-        } catch {
-          errorBody = null;
-        }
-
-        // Handle email not confirmed error
-        if (errorBody?.code === "email_not_confirmed" || authError.message.includes("Email not confirmed")) {
-          toast.error("Por favor, confirme seu email antes de fazer login", {
-            description: "Verifique sua caixa de entrada e spam",
-            action: {
-              label: "Reenviar email",
-              onClick: () => handleResendConfirmation(email.trim()),
-            },
-          });
-          return;
-        }
-
-        // Handle other common errors
         if (authError.message.includes("Invalid login credentials")) {
           toast.error("Email ou senha incorretos");
           return;
         }
 
-        // Handle any other errors
-        toast.error("Erro ao fazer login: " + (errorBody?.message || authError.message));
+        toast.error("Erro ao fazer login: " + authError.message);
         return;
       }
 
