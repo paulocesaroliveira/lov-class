@@ -45,10 +45,35 @@ const Login = () => {
 
       if (authError) {
         console.error("Erro de autenticação:", authError);
-        if (authError.message === "Invalid login credentials") {
+        
+        // Parse the error message from the response body if it exists
+        let errorBody;
+        try {
+          errorBody = JSON.parse(authError.message);
+        } catch {
+          errorBody = null;
+        }
+
+        if (errorBody?.code === "email_not_confirmed") {
+          toast.error("Por favor, confirme seu email antes de fazer login", {
+            description: "Verifique sua caixa de entrada e spam",
+            action: {
+              label: "Reenviar email",
+              onClick: async () => {
+                const { error: resendError } = await supabase.auth.resend({
+                  type: 'signup',
+                  email: email.trim(),
+                });
+                if (resendError) {
+                  toast.error("Erro ao reenviar email de confirmação");
+                } else {
+                  toast.success("Email de confirmação reenviado");
+                }
+              },
+            },
+          });
+        } else if (authError.message === "Invalid login credentials") {
           toast.error("Email ou senha incorretos");
-        } else if (authError.message.includes("Email not confirmed")) {
-          toast.error("Por favor, confirme seu email antes de fazer login");
         } else {
           toast.error("Erro ao fazer login: " + authError.message);
         }
