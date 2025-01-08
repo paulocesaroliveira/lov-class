@@ -36,3 +36,5 @@ export type ServiceLocationType =
   | "clube_swing"
   | "domicilio"
   | "viagens";
+
+export type AdCategory = "mulher" | "trans" | "homem";
