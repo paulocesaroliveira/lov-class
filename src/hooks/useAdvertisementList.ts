@@ -9,6 +9,20 @@ interface UseAdvertisementListProps {
   filters?: any;
 }
 
+const processAdvertisementData = (data: any[]): Advertisement[] => {
+  return data.map(ad => ({
+    ...ad,
+    advertisement_reviews: ad.advertisement_reviews?.length > 0 
+      ? [ad.advertisement_reviews.reduce((latest: any, current: any) => 
+          new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
+        )]
+      : [],
+    advertisement_photos: ad.advertisement_photos ?? [],
+    advertisement_services: ad.advertisement_services ?? [],
+    advertisement_service_locations: ad.advertisement_service_locations ?? []
+  })) as Advertisement[];
+};
+
 export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps) => {
   return useInfiniteQuery({
     queryKey: ["public-advertisements", filters],
@@ -102,28 +116,12 @@ export const useAdvertisementList = ({ filters = {} }: UseAdvertisementListProps
         throw error;
       }
 
-      console.log("Query results:", { 
-        resultCount: data?.length || 0,
-        totalCount: count,
-        firstResult: data?.[0],
-        error,
-        filters: Object.keys(filters).length > 0 ? filters : 'No filters applied'
-      });
-
-      // Process the data to get only the latest review for each ad
-      const processedData = data?.map(ad => ({
-        ...ad,
-        advertisement_reviews: ad.advertisement_reviews?.length > 0 
-          ? [ad.advertisement_reviews.reduce((latest, current) => 
-              new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
-            )]
-          : []
-      })) as Advertisement[];
+      const processedData = processAdvertisementData(data || []);
 
       return {
         data: processedData,
         count,
-        nextPage: processedData?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+        nextPage: processedData.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
