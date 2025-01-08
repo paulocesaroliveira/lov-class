@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Loader2 } from 'lucide-react';
 import {
   Form,
@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRegistration, RegistrationData } from '@/hooks/useRegistration';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -24,7 +25,8 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const Registro = () => {
-  const { isLoading, register } = useRegistration();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -36,17 +38,71 @@ const Registro = () => {
   });
   
   const onSubmit = async (data: RegisterForm) => {
-    const registrationData: RegistrationData = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-    };
-    await register(registrationData);
+    setIsLoading(true);
+    try {
+      // Step 1: Create the auth user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+          },
+        },
+      });
+
+      if (signUpError) {
+        if (signUpError.message.includes('User already registered')) {
+          toast.error("Este email já está cadastrado", {
+            duration: 4000,
+            action: {
+              label: "Ir para login",
+              onClick: () => navigate('/login')
+            }
+          });
+          return;
+        }
+        throw signUpError;
+      }
+
+      if (!authData.user) {
+        throw new Error("Erro ao criar usuário");
+      }
+
+      // Step 2: Create the user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          name: data.name,
+          role: 'cliente'
+        });
+
+      if (profileError) {
+        console.error('Erro ao criar perfil:', profileError);
+        if (profileError.code === '23505') { // Unique violation
+          console.log("Perfil já existe, ignorando erro de duplicação");
+        } else {
+          throw profileError;
+        }
+      }
+
+      toast.success("Conta criada com sucesso! Redirecionando para o login...");
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Erro no cadastro:', error);
+      toast.error("Ocorreu um erro no cadastro. Por favor, tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
-      <div className="max-w-md w-full space-y-8 p-8 bg-card rounded-lg shadow-lg">
+      <div className="max-w-md w-full space-y-8 p-8 glass-card">
         <div className="text-center">
           <h2 className="text-2xl font-bold tracking-tight">Criar nova conta</h2>
           <p className="text-muted-foreground mt-2">

@@ -1,4 +1,10 @@
-export type ServiceType =
+export type AdStatus = "novo" | "aprovado" | "bloqueado" | "pendente";
+
+export type UserRole = "cliente" | "anunciante" | "admin";
+
+export type AdCategory = "mulher" | "trans" | "homem";
+
+export type ServiceType = 
   | "beijo_na_boca"
   | "beijo_grego"
   | "bondage"
@@ -19,15 +25,9 @@ export type ServiceType =
   | "orgia"
   | "gangbang";
 
-export type ServiceLocationType =
+export type ServiceLocationType = 
   | "com_local"
   | "motel"
   | "clube_swing"
   | "domicilio"
   | "viagens";
-
-export type AdCategory = "mulher" | "trans" | "homem";
-
-export type UserRole = "cliente" | "anunciante" | "admin";
-
-export type AdStatus = "novo" | "aprovado" | "bloqueado" | "pendente";
