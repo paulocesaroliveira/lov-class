@@ -31,22 +31,7 @@ export type Database = {
           note?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "admin_notes_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_comments: {
         Row: {
@@ -73,22 +58,7 @@ export type Database = {
           rating?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advertisement_comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_photos: {
         Row: {
@@ -109,21 +79,13 @@ export type Database = {
           id?: string
           photo_url?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_reviews: {
         Row: {
           advertisement_id: string | null
           block_reason: string | null
-          created_at: string | null
+          created_at: string
           id: string
           review_notes: string | null
           reviewer_id: string | null
@@ -132,7 +94,7 @@ export type Database = {
         Insert: {
           advertisement_id?: string | null
           block_reason?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
@@ -141,7 +103,7 @@ export type Database = {
         Update: {
           advertisement_id?: string | null
           block_reason?: string | null
-          created_at?: string | null
+          created_at?: string
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
@@ -183,15 +145,7 @@ export type Database = {
           id?: string
           location?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_services: {
         Row: {
@@ -212,15 +166,7 @@ export type Database = {
           id?: string
           service?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_services_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_videos: {
         Row: {
@@ -241,15 +187,7 @@ export type Database = {
           id?: string
           video_url?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_views: {
         Row: {
@@ -267,15 +205,7 @@ export type Database = {
           created_at?: string | null
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_views_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_whatsapp_clicks: {
         Row: {
@@ -293,46 +223,38 @@ export type Database = {
           created_at?: string | null
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisements: {
         Row: {
           block_reason: string | null
-          created_at: string | null
+          created_at: string
           description: string | null
           id: string
           name: string
           profile_id: string | null
-          status: Database["public"]["Enums"]["ad_status"]
-          updated_at: string | null
+          status: Database["public"]["Enums"]["ad_status"] | null
+          updated_at: string
         }
         Insert: {
           block_reason?: string | null
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           name: string
           profile_id?: string | null
-          status?: Database["public"]["Enums"]["ad_status"]
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          updated_at?: string
         }
         Update: {
           block_reason?: string | null
-          created_at?: string | null
+          created_at?: string
           description?: string | null
           id?: string
           name?: string
           profile_id?: string | null
-          status?: Database["public"]["Enums"]["ad_status"]
-          updated_at?: string | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -363,44 +285,29 @@ export type Database = {
           id?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "favorites_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           name: string
           role: Database["public"]["Enums"]["user_role"]
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id: string
           name: string
           role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           name?: string
           role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -409,42 +316,21 @@ export type Database = {
           changed_by: string | null
           created_at: string | null
           id: string
-          new_role: Database["public"]["Enums"]["user_role"] | null
-          old_role: Database["public"]["Enums"]["user_role"] | null
           user_id: string | null
         }
         Insert: {
           changed_by?: string | null
           created_at?: string | null
           id?: string
-          new_role?: Database["public"]["Enums"]["user_role"] | null
-          old_role?: Database["public"]["Enums"]["user_role"] | null
           user_id?: string | null
         }
         Update: {
           changed_by?: string | null
           created_at?: string | null
           id?: string
-          new_role?: Database["public"]["Enums"]["user_role"] | null
-          old_role?: Database["public"]["Enums"]["user_role"] | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "role_change_history_changed_by_fkey"
-            columns: ["changed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_change_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_activity_logs: {
         Row: {
@@ -474,22 +360,7 @@ export type Database = {
           metadata?: Json | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_activity_logs_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_activity_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
