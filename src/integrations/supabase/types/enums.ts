@@ -1,3 +1,7 @@
+export type AdStatus = "novo" | "aprovado" | "bloqueado" | "pendente";
+
+export type UserRole = "cliente" | "anunciante" | "admin";
+
 export type ServiceType =
   | "beijo_na_boca"
   | "beijo_grego"
@@ -27,7 +31,3 @@ export type ServiceLocationType =
   | "viagens";
 
 export type AdCategory = "mulher" | "trans" | "homem";
-
-export type UserRole = "user" | "admin" | "advertiser";
-
-export type BlockReasonType = "spam" | "inappropriate_content" | "harassment" | "other";

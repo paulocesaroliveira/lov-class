@@ -72,9 +72,6 @@ export const useRegistration = () => {
 
       if (profileError) {
         console.error('Erro ao criar perfil:', profileError);
-        
-        // If profile creation fails, we should clean up by deleting the auth user
-        // But we can't since we don't have admin access, so we'll just show an error
         toast.error("Erro ao criar perfil de usuário");
         return false;
       }
