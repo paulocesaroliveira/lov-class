@@ -27,8 +27,8 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      // Tentar criar o usuário
-      const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
+      // Step 1: Create the user account
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -39,7 +39,7 @@ export const useRegistration = () => {
       });
 
       if (signUpError) {
-        console.error('Erro detalhado no cadastro:', signUpError);
+        console.error('Erro no cadastro:', signUpError);
         
         if (signUpError.message.includes('User already registered')) {
           toast.error("Este email já está cadastrado", {
@@ -56,7 +56,7 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Criar perfil do usuário com role 'cliente'
+      // Step 2: Create the user profile
       if (signUpData.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -68,6 +68,10 @@ export const useRegistration = () => {
 
         if (profileError) {
           console.error('Erro ao criar perfil:', profileError);
+          
+          // If profile creation fails, we should clean up by deleting the auth user
+          await supabase.auth.admin.deleteUser(signUpData.user.id);
+          
           toast.error("Erro ao criar perfil de usuário");
           return false;
         }

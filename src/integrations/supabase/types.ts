@@ -9,6 +9,116 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_notes: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          note: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          note?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_comments: {
+        Row: {
+          advertisement_id: string | null
+          comment: string
+          created_at: string | null
+          id: string
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          comment: string
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          comment?: string
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_photos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisement_reviews: {
         Row: {
           advertisement_id: string | null
@@ -54,6 +164,145 @@ export type Database = {
           },
         ]
       }
+      advertisement_service_locations: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+          location: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          location: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_services: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+          service: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          service: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          service?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_videos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+          video_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          video_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_views: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_views_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_whatsapp_clicks: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisements: {
         Row: {
           block_reason: string | null
@@ -95,6 +344,42 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -118,6 +403,93 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      role_change_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_role: Database["public"]["Enums"]["user_role"] | null
+          old_role: Database["public"]["Enums"]["user_role"] | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"] | null
+          old_role?: Database["public"]["Enums"]["user_role"] | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"] | null
+          old_role?: Database["public"]["Enums"]["user_role"] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_logs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
