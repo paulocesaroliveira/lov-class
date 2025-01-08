@@ -27,24 +27,7 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      // Primeiro, verificar se o usuário já existe
-      const { data: existingUser, error: checkError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (existingUser?.user) {
-        toast.error("Este email já está cadastrado", {
-          duration: 4000,
-          action: {
-            label: "Ir para login",
-            onClick: () => navigate('/login')
-          }
-        });
-        return false;
-      }
-
-      // Se não existe, tenta criar
+      // Tentar criar o usuário
       const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -58,7 +41,7 @@ export const useRegistration = () => {
       if (signUpError) {
         console.error('Erro detalhado no cadastro:', signUpError);
         
-        if (signUpError.message.includes('user_already_exists')) {
+        if (signUpError.message.includes('User already registered')) {
           toast.error("Este email já está cadastrado", {
             duration: 4000,
             action: {

@@ -9,7 +9,116 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      advertisement_reviews: {
+        Row: {
+          advertisement_id: string | null
+          block_reason: string | null
+          created_at: string | null
+          id: string
+          review_notes: string | null
+          reviewer_id: string | null
+          status: Database["public"]["Enums"]["ad_status"]
+        }
+        Insert: {
+          advertisement_id?: string | null
+          block_reason?: string | null
+          created_at?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewer_id?: string | null
+          status: Database["public"]["Enums"]["ad_status"]
+        }
+        Update: {
+          advertisement_id?: string | null
+          block_reason?: string | null
+          created_at?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewer_id?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements: {
+        Row: {
+          block_reason: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          profile_id: string | null
+          status: Database["public"]["Enums"]["ad_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          block_reason?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          profile_id?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          block_reason?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          profile_id?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          name: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +127,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      ad_status: "novo" | "aprovado" | "bloqueado" | "pendente"
+      user_role: "cliente" | "anunciante" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
