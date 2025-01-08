@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,6 +31,20 @@ const Login = () => {
     }
   }, [location.state]);
 
+  const getErrorMessage = (error: AuthError) => {
+    if (error instanceof AuthApiError) {
+      switch (error.message) {
+        case "Email not confirmed":
+          return "Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.";
+        case "Invalid login credentials":
+          return "Email ou senha incorretos";
+        default:
+          return error.message;
+      }
+    }
+    return "Erro ao fazer login. Tente novamente mais tarde.";
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
@@ -45,13 +60,7 @@ const Login = () => {
 
       if (authError) {
         console.error("Erro de autenticação:", authError);
-        
-        if (authError.message.includes("Invalid login credentials")) {
-          toast.error("Email ou senha incorretos");
-          return;
-        }
-
-        toast.error("Erro ao fazer login: " + authError.message);
+        toast.error(getErrorMessage(authError));
         return;
       }
 
