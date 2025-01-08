@@ -27,8 +27,8 @@ export const useRegistration = () => {
     setIsLoading(true);
 
     try {
-      // Step 1: Create the user account
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      // Step 1: Sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -56,25 +56,27 @@ export const useRegistration = () => {
         return false;
       }
 
-      // Step 2: Create the user profile
-      if (signUpData.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: signUpData.user.id,
-            name: data.name,
-            role: 'cliente'
-          });
+      if (!authData.user) {
+        toast.error("Erro ao criar usuário");
+        return false;
+      }
 
-        if (profileError) {
-          console.error('Erro ao criar perfil:', profileError);
-          
-          // If profile creation fails, we should clean up by deleting the auth user
-          await supabase.auth.admin.deleteUser(signUpData.user.id);
-          
-          toast.error("Erro ao criar perfil de usuário");
-          return false;
-        }
+      // Step 2: Create the user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          name: data.name,
+          role: 'cliente'
+        });
+
+      if (profileError) {
+        console.error('Erro ao criar perfil:', profileError);
+        
+        // If profile creation fails, we should clean up by deleting the auth user
+        // But we can't since we don't have admin access, so we'll just show an error
+        toast.error("Erro ao criar perfil de usuário");
+        return false;
       }
 
       toast.success("Conta criada com sucesso! Redirecionando para o login...");
