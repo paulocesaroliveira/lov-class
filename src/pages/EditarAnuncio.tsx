@@ -16,34 +16,27 @@ const EditarAnuncio = () => {
       try {
         const { data, error } = await supabase
           .from("advertisements")
-          .select(
-            `
+          .select(`
             *,
             advertisement_services (
-              service
+              *
             ),
             advertisement_service_locations (
-              location
+              *
             ),
             advertisement_photos (
-              id,
-              photo_url
+              *
             ),
             advertisement_videos (
-              id,
-              video_url
+              *
             ),
             advertisement_comments (
-              id
+              *
             ),
             advertisement_reviews (
-              status,
-              review_notes,
-              block_reason,
-              updated_at
+              *
             )
-          `
-          )
+          `)
           .eq("id", id)
           .single();
 
@@ -62,6 +55,11 @@ const EditarAnuncio = () => {
         // Transform the data to match the Advertisement type
         const transformedData: Advertisement = {
           ...data,
+          advertisement_services: data.advertisement_services || [],
+          advertisement_service_locations: data.advertisement_service_locations || [],
+          advertisement_photos: data.advertisement_photos || [],
+          advertisement_videos: data.advertisement_videos || [],
+          advertisement_comments: data.advertisement_comments || [],
           advertisement_reviews: data.advertisement_reviews || []
         };
 

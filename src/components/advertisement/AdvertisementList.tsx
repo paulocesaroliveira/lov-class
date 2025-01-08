@@ -38,27 +38,22 @@ export const AdvertisementList = ({
           .select(`
             *,
             advertisement_services (
-              service
+              *
             ),
             advertisement_service_locations (
-              location
+              *
             ),
             advertisement_photos (
-              id,
-              photo_url
+              *
             ),
             advertisement_videos (
-              id,
-              video_url
+              *
             ),
             advertisement_comments (
-              id
+              *
             ),
             advertisement_reviews (
-              status,
-              review_notes,
-              block_reason,
-              updated_at
+              *
             )
           `)
           .eq('status', 'approved');
@@ -73,17 +68,18 @@ export const AdvertisementList = ({
 
         console.log("Fetched advertisements:", { dataLength: data?.length });
 
-        // Process the data to get only the latest review for each ad
-        const processedData = data?.map(ad => ({
+        // Transform the data to match the Advertisement type
+        const transformedData = data?.map(ad => ({
           ...ad,
-          advertisement_reviews: ad.advertisement_reviews?.length > 0 
-            ? [ad.advertisement_reviews.reduce((latest, current) => 
-                new Date(current.updated_at) > new Date(latest.updated_at) ? current : latest
-              )]
-            : []
+          advertisement_services: ad.advertisement_services || [],
+          advertisement_service_locations: ad.advertisement_service_locations || [],
+          advertisement_photos: ad.advertisement_photos || [],
+          advertisement_videos: ad.advertisement_videos || [],
+          advertisement_comments: ad.advertisement_comments || [],
+          advertisement_reviews: ad.advertisement_reviews || []
         })) as Advertisement[];
 
-        setLocalAdvertisements(processedData || []);
+        setLocalAdvertisements(transformedData || []);
       } catch (error) {
         console.error("Error:", error);
         toast.error("Erro ao carregar anúncios");
