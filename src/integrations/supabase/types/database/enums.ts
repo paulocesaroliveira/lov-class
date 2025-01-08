@@ -28,6 +28,6 @@ export type ServiceLocationType =
 
 export type AdCategory = "mulher" | "trans" | "homem";
 
-export type UserRole = "user" | "admin" | "advertiser";
+export type UserRole = "cliente" | "anunciante" | "admin";
 
-export type BlockReasonType = "spam" | "inappropriate_content" | "harassment" | "other";
+export type AdStatus = "novo" | "aprovado" | "bloqueado" | "pendente";
