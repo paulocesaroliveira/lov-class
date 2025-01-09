@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { DateFilter, EngagementMetric } from "../types/metrics";
 
 interface EngagementMetricsParams {
-  // Add any parameters your RPC function expects
+  start_date?: string;
+  end_date?: string;
 }
 
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
@@ -11,7 +12,10 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc('get_engagement_metrics', {} as EngagementMetricsParams);
+        .rpc('get_engagement_metrics', {
+          start_date: dateFilter?.startDate,
+          end_date: dateFilter?.endDate
+        } as EngagementMetricsParams);
 
       if (error) throw error;
 

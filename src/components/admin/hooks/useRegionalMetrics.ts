@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { RegionalMetric } from "../types/metrics";
 
 interface RegionalMetricsParams {
-  // Add any parameters your RPC function expects
+  start_date?: string;
+  end_date?: string;
 }
 
 export const useRegionalMetrics = () => {
@@ -12,7 +13,10 @@ export const useRegionalMetrics = () => {
     queryFn: async () => {
       console.log("Fetching regional metrics...");
       const { data, error } = await supabase
-        .rpc('get_regional_metrics', {} as RegionalMetricsParams);
+        .rpc('get_regional_metrics', {
+          start_date: null,
+          end_date: null
+        } as RegionalMetricsParams);
 
       if (error) {
         console.error("Error fetching regional metrics:", error);
