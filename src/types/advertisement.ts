@@ -31,35 +31,72 @@ export type ServiceLocationType =
   | "domicilio"
   | "viagens";
 
-export type Advertisement = {
-  id?: string;
+export interface Advertisement {
+  id: string;
   name: string;
-  birthDate: string;
+  description: string | null;
+  block_reason: string | null;
+  created_at: string;
+  updated_at: string;
+  city: string | null;
+  neighborhood: string | null;
+  status: string;
+  profile_id: string;
+  birth_date: string;
   height: number;
   weight: number;
-  category: "mulher" | "trans" | "homem";
   ethnicity: string;
-  hairColor: string;
-  bodyType: string;
+  hair_color: string;
+  body_type: string;
   silicone: string;
   contact_phone: string;
   contact_whatsapp: boolean;
   contact_telegram: boolean;
-  state: string;
-  city: string;
-  neighborhood: string;
-  hourlyRate: number;
-  customRates: Array<{
-    description: string;
-    value: number;
-  }>;
+  hourly_rate: number;
+  custom_rate_description: string | null;
+  custom_rate_value: number | null;
   style: string;
-  services: ServiceType[];
-  serviceLocations: ServiceLocationType[];
-  description: string;
-  acceptTerms: boolean;
-  profilePhoto?: File;
-  photos?: File[];
-  videos?: File[];
-  identityDocument?: File;
-};
+  category: "mulher" | "trans" | "homem";
+  advertisement_services: Array<{
+    id: string;
+    advertisement_id: string;
+    service: ServiceType;
+    created_at: string;
+  }>;
+  advertisement_service_locations: Array<{
+    id: string;
+    advertisement_id: string;
+    location: ServiceLocationType;
+    created_at: string;
+  }>;
+  advertisement_photos: Array<{
+    id: string;
+    advertisement_id: string;
+    photo_url: string;
+    created_at: string;
+  }>;
+  advertisement_videos: Array<{
+    id: string;
+    advertisement_id: string;
+    video_url: string;
+    created_at: string;
+  }>;
+  advertisement_comments: Array<{
+    id: string;
+    advertisement_id: string;
+    user_id: string;
+    comment: string;
+    rating: number | null;
+    created_at: string;
+  }>;
+  advertisement_reviews: Array<{
+    id: string;
+    advertisement_id: string;
+    reviewer_id: string;
+    review_notes: string | null;
+    block_reason: string | null;
+    created_at: string;
+    updated_at: string;
+    status: string;
+  }>;
+}
