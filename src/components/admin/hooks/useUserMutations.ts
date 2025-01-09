@@ -8,7 +8,7 @@ import { useUserDeletion } from "./user-deletion/useUserDeletion";
 export const useUserMutations = () => {
   const queryClient = useQueryClient();
   const { checkRateLimit } = useAdminRateLimit();
-  const { deleteUser } = useUserDeletion();
+  const userDeletion = useUserDeletion();
 
   const roleChangeMutation = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: UserRole }) => {
@@ -36,13 +36,6 @@ export const useUserMutations = () => {
     onError: (error) => {
       console.error("Erro ao atualizar papel do usuário:", error);
       toast.error("Erro ao atualizar papel do usuário");
-    },
-  });
-
-  const deleteUserMutation = useMutation({
-    mutationFn: deleteUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
   });
 
@@ -79,14 +72,7 @@ export const useUserMutations = () => {
         return false;
       }
     },
-    handleDeleteUser: async (userId: string) => {
-      try {
-        const result = await deleteUserMutation.mutateAsync(userId);
-        return result.success;
-      } catch {
-        return false;
-      }
-    },
+    handleDeleteUser: userDeletion.deleteUser,
     handleAddNote: async (userId: string, note: string) => {
       try {
         return await addNoteMutation.mutateAsync({ userId, note });

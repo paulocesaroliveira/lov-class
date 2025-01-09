@@ -7,14 +7,12 @@ type RegionalMetricsParams = {
   end_date: string | null;
 };
 
-type RegionalMetricsResponse = RegionalMetric[];
-
 export const useRegionalMetrics = () => {
-  return useQuery<RegionalMetricsResponse>({
+  return useQuery<RegionalMetric[], Error>({
     queryKey: ["regional-metrics"],
     queryFn: async () => {
       console.log("Fetching regional metrics...");
-      const { data, error } = await supabase.rpc<RegionalMetricsResponse>(
+      const { data, error } = await supabase.rpc<RegionalMetric[], RegionalMetricsParams>(
         'get_regional_metrics',
         {
           start_date: null,

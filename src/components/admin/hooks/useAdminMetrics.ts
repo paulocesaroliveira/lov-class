@@ -7,14 +7,11 @@ type AdminMetricsParams = {
   end_date: string | null;
 };
 
-type AdminMetricsResponse = AdminMetric[];
-type EngagementMetricsResponse = EngagementMetric[];
-
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
-  const { data: engagementMetrics } = useQuery<EngagementMetricsResponse>({
+  const { data: engagementMetrics } = useQuery<EngagementMetric[], Error>({
     queryKey: ["admin-engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc<EngagementMetricsResponse>(
+      const { data, error } = await supabase.rpc<EngagementMetric[], AdminMetricsParams>(
         'get_engagement_metrics',
         {
           start_date: dateFilter?.startDate || null,
@@ -27,10 +24,10 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
     },
   });
 
-  const { data: adminMetrics } = useQuery<AdminMetricsResponse>({
+  const { data: adminMetrics } = useQuery<AdminMetric[], Error>({
     queryKey: ["admin-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc<AdminMetricsResponse>(
+      const { data, error } = await supabase.rpc<AdminMetric[], AdminMetricsParams>(
         'get_admin_metrics',
         {
           start_date: dateFilter?.startDate || null,
