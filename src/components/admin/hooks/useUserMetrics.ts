@@ -1,32 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { UserMetrics, DashboardMetrics } from "../types/history";
+import { toast } from "sonner";
 
-interface DateFilter {
-  startDate: string;
-  endDate: string;
-}
-
-export const useUserMetrics = (dateFilter?: DateFilter) => {
+export const useUserMetrics = () => {
   return useQuery({
-    queryKey: ["user-metrics", dateFilter],
+    queryKey: ["admin-user-metrics"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_user_metrics');
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("role, created_at")
+          .order("created_at", { ascending: false });
 
-      if (error) {
+        if (error) throw error;
+
+        if (!data) {
+          return {
+            totalUsers: 0,
+            advertisers: 0,
+            clients: 0,
+            admins: 0,
+          };
+        }
+
+        return {
+          totalUsers: data.length,
+          advertisers: data.filter(user => user.role === 'anunciante').length,
+          clients: data.filter(user => user.role === 'cliente').length,
+          admins: data.filter(user => user.role === 'admin').length,
+        };
+      } catch (error) {
         console.error("Error fetching user metrics:", error);
+        toast.error("Erro ao carregar métricas de usuários");
         throw error;
       }
-
-      // Transform the RPC response into the expected format
-      const dashboardMetrics: DashboardMetrics = {
-        totalUsers: data?.reduce((sum: number, m: any) => sum + Number(m.total_users), 0) ?? 0,
-        activeUsers: data?.reduce((sum: number, m: any) => sum + Number(m.active_users_7d), 0) ?? 0,
-        inactiveUsers: data?.reduce((sum: number, m: any) => 
-          sum + (Number(m.total_users) - Number(m.active_users_7d)), 0) ?? 0
-      };
-
-      return dashboardMetrics;
     },
   });
 };
