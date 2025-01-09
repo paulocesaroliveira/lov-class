@@ -270,40 +270,82 @@ export type Database = {
       }
       advertisements: {
         Row: {
+          birth_date: string | null
           block_reason: string | null
+          body_type: string | null
           city: string | null
+          contact_phone: string | null
+          contact_telegram: boolean | null
+          contact_whatsapp: boolean | null
           created_at: string
+          custom_rate_description: string | null
+          custom_rate_value: number | null
           description: string | null
+          ethnicity: string | null
+          hair_color: string | null
+          height: number | null
+          hourly_rate: number | null
           id: string
           name: string
           neighborhood: string | null
           profile_id: string | null
+          silicone: string | null
           status: string | null
+          style: string | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
+          birth_date?: string | null
           block_reason?: string | null
+          body_type?: string | null
           city?: string | null
+          contact_phone?: string | null
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
           created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
           description?: string | null
+          ethnicity?: string | null
+          hair_color?: string | null
+          height?: number | null
+          hourly_rate?: number | null
           id?: string
           name: string
           neighborhood?: string | null
           profile_id?: string | null
+          silicone?: string | null
           status?: string | null
+          style?: string | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
+          birth_date?: string | null
           block_reason?: string | null
+          body_type?: string | null
           city?: string | null
+          contact_phone?: string | null
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
           created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
           description?: string | null
+          ethnicity?: string | null
+          hair_color?: string | null
+          height?: number | null
+          hourly_rate?: number | null
           id?: string
           name?: string
           neighborhood?: string | null
           profile_id?: string | null
+          silicone?: string | null
           status?: string | null
+          style?: string | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {

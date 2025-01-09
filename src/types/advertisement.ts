@@ -1,73 +1,37 @@
-import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
+import { z } from "zod";
+import { formSchema } from "@/components/advertisement/advertisementSchema";
 
-export interface Advertisement {
-  id: string;
-  name: string;
-  description: string | null;
-  block_reason: string | null;
-  created_at: string;
-  updated_at: string;
-  city: string | null;
-  neighborhood: string | null;
-  status: string;
-  profile_id: string;
-  advertisement_services: AdvertisementService[];
-  advertisement_service_locations: AdvertisementServiceLocation[];
-  advertisement_photos: AdvertisementPhoto[];
-  advertisement_videos: AdvertisementVideo[];
-  advertisement_comments: AdvertisementComment[];
-  advertisement_reviews: AdvertisementReview[];
-}
+export type FormValues = z.infer<typeof formSchema>;
 
-export interface AdvertisementService {
-  id: string;
-  advertisement_id: string;
-  service: ServiceType;
-  created_at: string;
-}
+export type ServiceType = 
+  | "beijo_na_boca"
+  | "beijo_grego"
+  | "bondage"
+  | "chuva_dourada"
+  | "chuva_marrom"
+  | "dominacao"
+  | "acessorios_eroticos"
+  | "voyeurismo"
+  | "permite_filmagem"
+  | "menage_casal"
+  | "menage_dois_homens"
+  | "roleplay"
+  | "facefuck"
+  | "oral_sem_preservativo"
+  | "oral_com_preservativo"
+  | "massagem"
+  | "sexo_virtual"
+  | "orgia"
+  | "gangbang";
 
-export interface AdvertisementServiceLocation {
-  id: string;
-  advertisement_id: string;
-  location: ServiceLocationType;
-  created_at: string;
-}
+export type ServiceLocationType = 
+  | "com_local"
+  | "motel"
+  | "clube_swing"
+  | "domicilio"
+  | "viagens";
 
-export interface AdvertisementPhoto {
-  id: string;
-  advertisement_id: string;
-  photo_url: string;
-  created_at: string;
-}
-
-export interface AdvertisementVideo {
-  id: string;
-  advertisement_id: string;
-  video_url: string;
-  created_at: string;
-}
-
-export interface AdvertisementComment {
-  id: string;
-  advertisement_id: string;
-  user_id: string;
-  comment: string;
-  rating: number | null;
-  created_at: string;
-}
-
-export interface AdvertisementReview {
-  id: string;
-  advertisement_id: string;
-  reviewer_id: string;
-  review_notes: string | null;
-  block_reason: string | null;
-  created_at: string;
-  updated_at: string;
-  status: string;
-}
-
-export interface FormValues {
+export type Advertisement = {
   id?: string;
   name: string;
   birthDate: string;
@@ -94,8 +58,8 @@ export interface FormValues {
   serviceLocations: ServiceLocationType[];
   description: string;
   acceptTerms: boolean;
-  identityDocument?: File | null;
-  profilePhoto?: File | null;
-  photos?: File[] | null;
-  videos?: File[] | null;
-}
+  profilePhoto?: File;
+  photos?: File[];
+  videos?: File[];
+  identityDocument?: File;
+};
