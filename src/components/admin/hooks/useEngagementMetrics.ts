@@ -1,33 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { DateFilter, EngagementMetric } from "../types/metrics";
+import { supabase } from "@/integrations/supabase/client";
 
-interface EngagementMetricsParams {
-  start_date?: string;
-  end_date?: string;
-}
+type EngagementMetricsParams = {
+  start_date: string | null;
+  end_date: string | null;
+};
+
+type EngagementMetricsResponse = EngagementMetric[];
 
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
-  return useQuery({
+  return useQuery<EngagementMetricsResponse>({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_engagement_metrics', {
-          start_date: dateFilter?.startDate,
-          end_date: dateFilter?.endDate
-        } as EngagementMetricsParams);
+      const { data, error } = await supabase.rpc<EngagementMetricsResponse>(
+        'get_engagement_metrics',
+        {
+          start_date: dateFilter?.startDate || null,
+          end_date: dateFilter?.endDate || null
+        }
+      );
 
       if (error) throw error;
-
-      let filteredData = data as EngagementMetric[];
-      if (dateFilter?.startDate) {
-        filteredData = filteredData.filter(d => d.date >= dateFilter.startDate);
-      }
-      if (dateFilter?.endDate) {
-        filteredData = filteredData.filter(d => d.date <= dateFilter.endDate);
-      }
-
-      return filteredData;
+      return data || [];
     },
   });
 };

@@ -1,30 +1,33 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { RegionalMetric } from "../types/metrics";
+import { supabase } from "@/integrations/supabase/client";
 
-interface RegionalMetricsParams {
-  start_date?: string;
-  end_date?: string;
-}
+type RegionalMetricsParams = {
+  start_date: string | null;
+  end_date: string | null;
+};
+
+type RegionalMetricsResponse = RegionalMetric[];
 
 export const useRegionalMetrics = () => {
-  return useQuery({
+  return useQuery<RegionalMetricsResponse>({
     queryKey: ["regional-metrics"],
     queryFn: async () => {
       console.log("Fetching regional metrics...");
-      const { data, error } = await supabase
-        .rpc('get_regional_metrics', {
+      const { data, error } = await supabase.rpc<RegionalMetricsResponse>(
+        'get_regional_metrics',
+        {
           start_date: null,
           end_date: null
-        } as RegionalMetricsParams);
+        }
+      );
 
       if (error) {
         console.error("Error fetching regional metrics:", error);
         throw error;
       }
 
-      console.log("Regional metrics data:", data);
-      return data as RegionalMetric[];
+      return data || [];
     },
   });
 };
