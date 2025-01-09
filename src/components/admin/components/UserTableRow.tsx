@@ -92,13 +92,13 @@ export const UserTableRow = ({
             )}
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="user">Cliente</SelectItem>
-            <SelectItem value="advertiser">Anunciante</SelectItem>
+            <SelectItem value="cliente">Cliente</SelectItem>
+            <SelectItem value="anunciante">Anunciante</SelectItem>
             <SelectItem value="admin">Admin</SelectItem>
           </SelectContent>
         </Select>
 
-        {user.role === 'advertiser' && (
+        {user.role === "anunciante" && (
           <Dialog>
             <DialogTrigger asChild>
               <Button

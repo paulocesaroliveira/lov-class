@@ -8,9 +8,9 @@ import { UserRole } from "@/types/roles";
 export const ExportActions = () => {
   const getRoleLabel = (role: UserRole) => {
     switch (role) {
-      case "user":
+      case "cliente":
         return "Cliente";
-      case "advertiser":
+      case "anunciante":
         return "Anunciante";
       case "admin":
         return "Admin";
