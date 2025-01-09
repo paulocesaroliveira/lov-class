@@ -12,9 +12,14 @@ const Favoritos = () => {
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!session?.user?.id) return;
+      if (!session?.user?.id) {
+        setLoading(false);
+        return;
+      }
 
       try {
+        console.log("Fetching favorites for user:", session.user.id);
+        
         const { data: favoritesData, error: favoritesError } = await supabase
           .from("favorites")
           .select("advertisement_id")
@@ -26,38 +31,26 @@ const Favoritos = () => {
           return;
         }
 
-        if (favoritesData.length === 0) {
+        if (!favoritesData?.length) {
           setFavorites([]);
           setLoading(false);
           return;
         }
 
         const advertisementIds = favoritesData.map((f) => f.advertisement_id);
+        console.log("Found advertisement IDs:", advertisementIds);
 
         const { data: advertisementsData, error: advertisementsError } = await supabase
           .from("advertisements")
-          .select(
-            `
+          .select(`
             *,
-            advertisement_services (
-              service
-            ),
-            advertisement_service_locations (
-              location
-            ),
-            advertisement_photos (
-              id,
-              photo_url
-            ),
-            advertisement_videos (
-              id,
-              video_url
-            ),
-            advertisement_comments (
-              id
-            )
-          `
-          )
+            advertisement_services!inner (*),
+            advertisement_service_locations!inner (*),
+            advertisement_photos!inner (*),
+            advertisement_videos!inner (*),
+            advertisement_comments!inner (*),
+            advertisement_reviews!inner (*)
+          `)
           .in("id", advertisementIds)
           .eq("status", "approved");
 
@@ -67,9 +60,10 @@ const Favoritos = () => {
           return;
         }
 
+        console.log("Fetched advertisements:", advertisementsData);
         setFavorites(advertisementsData as Advertisement[]);
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error in fetchFavorites:", error);
         toast.error("Erro ao carregar favoritos");
       } finally {
         setLoading(false);
@@ -85,6 +79,7 @@ const Favoritos = () => {
       <AdvertisementList
         advertisements={favorites}
         isLoading={loading}
+        isFavoritesPage={true}
       />
     </div>
   );

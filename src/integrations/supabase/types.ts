@@ -58,7 +58,15 @@ export type Database = {
           rating?: number | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertisement_photos: {
         Row: {
@@ -79,7 +87,15 @@ export type Database = {
           id?: string
           photo_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertisement_reviews: {
         Row: {
@@ -148,7 +164,15 @@ export type Database = {
           id?: string
           location?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertisement_services: {
         Row: {
@@ -169,7 +193,15 @@ export type Database = {
           id?: string
           service?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertisement_videos: {
         Row: {
@@ -190,7 +222,15 @@ export type Database = {
           id?: string
           video_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       advertisement_views: {
         Row: {
