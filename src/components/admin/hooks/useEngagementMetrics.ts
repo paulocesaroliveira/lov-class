@@ -7,7 +7,7 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc('get_engagement_metrics');
+        .rpc('get_engagement_metrics', {});
 
       if (error) throw error;
 

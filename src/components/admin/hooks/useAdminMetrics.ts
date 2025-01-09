@@ -12,8 +12,7 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
   const { data: engagementMetrics } = useQuery({
     queryKey: ["admin-engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_engagement_metrics') as { data: MetricsResponse[] | null, error: any };
+      const { data, error } = await supabase.rpc('get_engagement_metrics', {}) as { data: MetricsResponse[] | null, error: any };
 
       if (error) throw error;
 

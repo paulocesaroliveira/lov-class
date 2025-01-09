@@ -8,7 +8,7 @@ export const useRegionalMetrics = () => {
     queryFn: async () => {
       console.log("Fetching regional metrics...");
       const { data, error } = await supabase
-        .rpc('get_regional_metrics');
+        .rpc('get_regional_metrics', {});
 
       if (error) {
         console.error("Error fetching regional metrics:", error);
