@@ -7,13 +7,11 @@ type EngagementMetricsParams = {
   end_date: string | null;
 };
 
-type EngagementMetricsResponse = EngagementMetric[];
-
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<EngagementMetricsResponse>({
+  return useQuery<EngagementMetric[], Error>({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc<EngagementMetricsResponse>(
+      const { data, error } = await supabase.rpc<EngagementMetric[]>(
         'get_engagement_metrics',
         {
           start_date: dateFilter?.startDate || null,

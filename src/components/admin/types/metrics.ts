@@ -36,3 +36,8 @@ export interface UserMetrics {
     activeUsers: number;
   };
 }
+
+export interface DeleteUserResponse {
+  success: boolean;
+  message: string;
+}

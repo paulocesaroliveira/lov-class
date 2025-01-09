@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DateFilter, AdminMetric, EngagementMetric } from "../types/metrics";
+import { DateFilter, AdminMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
 type AdminMetricsParams = {
@@ -8,26 +8,10 @@ type AdminMetricsParams = {
 };
 
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
-  const { data: engagementMetrics } = useQuery<EngagementMetric[], Error>({
-    queryKey: ["admin-engagement-metrics", dateFilter],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc<EngagementMetric[], AdminMetricsParams>(
-        'get_engagement_metrics',
-        {
-          start_date: dateFilter?.startDate || null,
-          end_date: dateFilter?.endDate || null
-        }
-      );
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const { data: adminMetrics } = useQuery<AdminMetric[], Error>({
+  return useQuery<AdminMetric[], Error>({
     queryKey: ["admin-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc<AdminMetric[], AdminMetricsParams>(
+      const { data, error } = await supabase.rpc<AdminMetric[]>(
         'get_admin_metrics',
         {
           start_date: dateFilter?.startDate || null,
@@ -39,6 +23,4 @@ export const useAdminMetrics = (dateFilter?: DateFilter) => {
       return data || [];
     },
   });
-
-  return { engagementMetrics, adminMetrics };
 };
