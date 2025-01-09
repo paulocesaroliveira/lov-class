@@ -2,16 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DateFilter, EngagementMetric } from "../types/metrics";
 
+interface EngagementMetricsParams {
+  // Add any parameters your RPC function expects
+}
+
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase
-        .rpc('get_engagement_metrics', {});
+        .rpc('get_engagement_metrics', {} as EngagementMetricsParams);
 
       if (error) throw error;
 
-      // Filter data if date range is provided
       let filteredData = data as EngagementMetric[];
       if (dateFilter?.startDate) {
         filteredData = filteredData.filter(d => d.date >= dateFilter.startDate);

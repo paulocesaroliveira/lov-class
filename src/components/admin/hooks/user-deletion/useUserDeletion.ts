@@ -2,6 +2,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { validateDeletion } from "./validations";
 
+interface DeleteUserParams {
+  user_id: string;
+}
+
 export const useUserDeletion = () => {
   const deleteUser = async (userId: string): Promise<{ success: boolean }> => {
     try {
@@ -15,7 +19,7 @@ export const useUserDeletion = () => {
       // Call the database function to delete user and related data
       const { data, error } = await supabase.rpc('delete_user_and_related_data', {
         user_id: userId
-      });
+      } as DeleteUserParams);
 
       if (error) {
         console.error("Error deleting user:", error);

@@ -8,15 +8,19 @@ interface MetricsResponse {
   active_users: number;
 }
 
+interface EngagementMetricsParams {
+  // Add any parameters your RPC function expects
+}
+
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
   const { data: engagementMetrics } = useQuery({
     queryKey: ["admin-engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_engagement_metrics', {}) as { data: MetricsResponse[] | null, error: any };
+      const { data, error } = await supabase.rpc('get_engagement_metrics', {} as EngagementMetricsParams);
 
       if (error) throw error;
 
-      const filteredData = data ?? [];
+      const filteredData = (data as MetricsResponse[]) ?? [];
       
       if (dateFilter?.startDate) {
         return filteredData.filter(d => d.date >= dateFilter.startDate);
