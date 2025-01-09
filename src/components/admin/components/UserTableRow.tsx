@@ -41,7 +41,6 @@ export const UserTableRow = ({
   const handleViewDocument = async () => {
     setIsLoading(true);
     try {
-      // Get the document for this user's advertisement
       const { data: advertiserDocs, error: docsError } = await supabase
         .from('advertiser_documents')
         .select('document_url')
@@ -58,7 +57,6 @@ export const UserTableRow = ({
         return;
       }
 
-      // Get the temporary URL for the document
       const { data } = await supabase
         .storage
         .from('identity_documents')
