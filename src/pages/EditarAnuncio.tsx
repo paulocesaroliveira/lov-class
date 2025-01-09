@@ -1,172 +1,81 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FormContainer } from "@/components/advertisement/form/FormContainer";
-import { ModerationAlert } from "@/components/advertisement/form/ModerationAlert";
-import { formSchema } from "@/components/advertisement/advertisementSchema";
-import { FormValues } from "@/types/advertisement";
-import { useAuthCheck } from "@/components/advertisement/hooks/useAuthCheck";
-import { useFormValidation } from "@/components/advertisement/form/useFormValidation";
-import { useFormSubmission } from "@/components/advertisement/form/useFormSubmission";
 import { supabase } from "@/integrations/supabase/client";
-import { Advertisement, AdvertisementService, AdvertisementServiceLocation, AdvertisementPhoto, AdvertisementVideo } from "@/types/advertisement";
+import { Advertisement } from "@/types/advertisement";
+import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
+import { toast } from "sonner";
 
 const EditarAnuncio = () => {
   const { id } = useParams<{ id: string }>();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showModerationAlert, setShowModerationAlert] = useState(false);
-  const [identityDocument, setIdentityDocument] = useState<File | null>(null);
-  const [advertisementData, setAdvertisementData] = useState<Advertisement | null>(null);
-  const { user } = useAuthCheck();
-  
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      birthDate: "",
-      height: 170,
-      weight: 65,
-      category: "mulher",
-      ethnicity: "branca",
-      hairColor: "morena",
-      bodyType: "magra",
-      silicone: "nao_uso",
-      contact_phone: "",
-      contact_whatsapp: true,
-      contact_telegram: false,
-      state: "",
-      city: "",
-      neighborhood: "",
-      hourlyRate: 200,
-      customRates: [],
-      style: "patricinha",
-      services: [],
-      serviceLocations: [],
-      description: "",
-      acceptTerms: false,
-    },
-    mode: "onBlur",
-  });
+  const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAdvertisementData = async () => {
+    const fetchAdvertisement = async () => {
       if (!id) return;
 
-      const { data, error } = await supabase
-        .from("advertisements")
-        .select(`
-          *,
-          advertisement_services:advertisement_services(
-            id,
-            service::text,
-            created_at
-          ),
-          advertisement_service_locations:advertisement_service_locations(
-            id,
-            location::text,
-            created_at
-          ),
-          advertisement_photos:advertisement_photos(
-            id,
-            photo_url
-          ),
-          advertisement_videos:advertisement_videos(
-            id,
-            video_url
-          ),
-          advertisement_comments:advertisement_comments(
-            id
-          ),
-          advertisement_reviews:advertisement_reviews(
-            status,
-            review_notes,
-            block_reason,
-            updated_at
-          )
-        `)
-        .eq("id", id)
-        .single();
+      try {
+        const { data: advertisementData, error } = await supabase
+          .from("advertisements")
+          .select(`
+            *,
+            advertisement_services (
+              *
+            ),
+            advertisement_service_locations (
+              *
+            ),
+            advertisement_photos (
+              *
+            ),
+            advertisement_videos (
+              *
+            ),
+            advertisement_comments (
+              *
+            ),
+            advertisement_reviews (
+              *
+            )
+          `)
+          .eq("id", id)
+          .single();
 
-      if (error) {
-        console.error("Error fetching advertisement:", error);
-        return;
-      }
+        if (error) {
+          console.error("Error fetching advertisement:", error);
+          toast.error("Erro ao carregar anúncio");
+          return;
+        }
 
-      if (data) {
-        setAdvertisementData(data);
-        // Update form with fetched data
-        form.reset({
-          ...data,
-          services: data.advertisement_services?.map((s: AdvertisementService) => s.service) || [],
-          serviceLocations: data.advertisement_service_locations?.map((l: AdvertisementServiceLocation) => l.location) || [],
-        });
+        if (!advertisementData) {
+          toast.error("Anúncio não encontrado");
+          return;
+        }
+
+        setAdvertisement(advertisementData as Advertisement);
+      } catch (error) {
+        console.error("Error:", error);
+        toast.error("Erro ao carregar anúncio");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchAdvertisementData();
-  }, [id, form]);
+    fetchAdvertisement();
+  }, [id]);
 
-  const { validateStep } = useFormValidation(form);
-  const { handleSubmit } = useFormSubmission(user, setShowModerationAlert, identityDocument, advertisementData);
+  if (loading) {
+    return <div>Carregando...</div>;
+  }
 
-  const onSubmit = async (values: FormValues) => {
-    try {
-      setIsLoading(true);
-      await handleSubmit(values);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleNext = async () => {
-    const isValid = await validateStep(currentStep);
-    if (isValid) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
-    }
-  };
-
-  const handlePrevious = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-  };
+  if (!advertisement) {
+    return <div>Anúncio não encontrado</div>;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <div className="max-w-4xl mx-auto space-y-8 p-4 md:p-8">
-        <div className="space-y-2 animate-fade-in">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Editar Anúncio
-          </h1>
-          <p className="text-muted-foreground text-sm md:text-base">
-            Preencha as informações abaixo para editar seu anúncio
-          </p>
-        </div>
-
-        <div className="relative">
-          <div className="absolute -top-4 -left-4 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
-          
-          <div className="relative backdrop-blur-sm">
-            <FormContainer
-              form={form}
-              currentStep={currentStep}
-              isLoading={isLoading}
-              onSubmit={onSubmit}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              setIdentityDocument={setIdentityDocument}
-            />
-          </div>
-        </div>
-      </div>
-
-      <ModerationAlert 
-        open={showModerationAlert} 
-        onOpenChange={setShowModerationAlert} 
-      />
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-8">Editar Anúncio</h1>
+      <AdvertisementForm advertisement={advertisement} />
     </div>
   );
 };
