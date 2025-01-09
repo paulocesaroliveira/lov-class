@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams } from "react-router-dom";
 import { FormContainer } from "@/components/advertisement/form/FormContainer";
 import { ModerationAlert } from "@/components/advertisement/form/ModerationAlert";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
@@ -9,12 +10,15 @@ import { useAuthCheck } from "@/components/advertisement/hooks/useAuthCheck";
 import { useFormValidation } from "@/components/advertisement/form/useFormValidation";
 import { useFormSubmission } from "@/components/advertisement/form/useFormSubmission";
 import { supabase } from "@/integrations/supabase/client";
+import { Advertisement, AdvertisementService, AdvertisementServiceLocation, AdvertisementPhoto, AdvertisementVideo } from "@/types/advertisement";
 
 const EditarAnuncio = () => {
+  const { id } = useParams<{ id: string }>();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showModerationAlert, setShowModerationAlert] = useState(false);
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
+  const [advertisementData, setAdvertisementData] = useState<Advertisement | null>(null);
   const { user } = useAuthCheck();
   
   const form = useForm<FormValues>({
@@ -46,8 +50,66 @@ const EditarAnuncio = () => {
     mode: "onBlur",
   });
 
+  useEffect(() => {
+    const fetchAdvertisementData = async () => {
+      if (!id) return;
+
+      const { data, error } = await supabase
+        .from("advertisements")
+        .select(`
+          *,
+          advertisement_services:advertisement_services(
+            id,
+            service::text,
+            created_at
+          ),
+          advertisement_service_locations:advertisement_service_locations(
+            id,
+            location::text,
+            created_at
+          ),
+          advertisement_photos:advertisement_photos(
+            id,
+            photo_url
+          ),
+          advertisement_videos:advertisement_videos(
+            id,
+            video_url
+          ),
+          advertisement_comments:advertisement_comments(
+            id
+          ),
+          advertisement_reviews:advertisement_reviews(
+            status,
+            review_notes,
+            block_reason,
+            updated_at
+          )
+        `)
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching advertisement:", error);
+        return;
+      }
+
+      if (data) {
+        setAdvertisementData(data);
+        // Update form with fetched data
+        form.reset({
+          ...data,
+          services: data.advertisement_services?.map((s: AdvertisementService) => s.service) || [],
+          serviceLocations: data.advertisement_service_locations?.map((l: AdvertisementServiceLocation) => l.location) || [],
+        });
+      }
+    };
+
+    fetchAdvertisementData();
+  }, [id, form]);
+
   const { validateStep } = useFormValidation(form);
-  const { handleSubmit } = useFormSubmission(user, setShowModerationAlert, identityDocument);
+  const { handleSubmit } = useFormSubmission(user, setShowModerationAlert, identityDocument, advertisementData);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -70,46 +132,6 @@ const EditarAnuncio = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
-
-  const { data: advertisementData } = await supabase
-    .from("advertisements")
-    .select(`
-      *,
-      advertisement_services:advertisement_services(
-        id,
-        service::text,
-        created_at
-      ),
-      advertisement_service_locations:advertisement_service_locations(
-        id,
-        location::text,
-        created_at
-      ),
-      advertisement_photos:advertisement_photos(
-        id,
-        photo_url
-      ),
-      advertisement_videos:advertisement_videos(
-        id,
-        video_url
-      ),
-      advertisement_comments:advertisement_comments(
-        id
-      ),
-      advertisement_reviews:advertisement_reviews(
-        status,
-        review_notes,
-        block_reason,
-        updated_at
-      )
-    `)
-    .eq("id", id)
-    .single();
-
-  const services = (advertisementData?.advertisement_services || []) as AdvertisementService[];
-  const locations = (advertisementData?.advertisement_service_locations || []) as AdvertisementServiceLocation[];
-  const photos = (advertisementData?.advertisement_photos || []) as AdvertisementPhoto[];
-  const videos = (advertisementData?.advertisement_videos || []) as AdvertisementVideo[];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
