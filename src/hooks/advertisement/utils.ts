@@ -1,6 +1,8 @@
 import { FormValues } from "@/types/advertisement";
 
 export const prepareAdvertisementData = (values: FormValues, userId: string, profilePhotoUrl: string | null) => {
+  const firstCustomRate = values.customRates?.[0];
+  
   return {
     profile_id: userId,
     name: values.name,
@@ -16,8 +18,8 @@ export const prepareAdvertisementData = (values: FormValues, userId: string, pro
     contact_whatsapp: values.contact_whatsapp,
     contact_telegram: values.contact_telegram,
     hourly_rate: values.hourlyRate,
-    custom_rate_description: values.customRateDescription,
-    custom_rate_value: values.customRateValue,
+    custom_rate_description: firstCustomRate?.description || null,
+    custom_rate_value: firstCustomRate?.value || null,
     style: values.style,
     city: values.city,
     neighborhood: values.neighborhood,

@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { formSchema } from "@/components/advertisement/advertisementSchema";
 
-export type FormValues = z.infer<typeof formSchema>;
+export type FormValues = z.infer<typeof formSchema> & {
+  id?: string;
+};
 
 export type ServiceType = 
   | "beijo_na_boca"
