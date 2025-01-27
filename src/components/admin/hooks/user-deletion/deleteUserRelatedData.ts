@@ -1,22 +1,16 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type TableName = 
-  | "favorites"
-  | "advertisement_comments"
-  | "admin_notes"
-  | "user_activity_logs"
-  | "role_change_history"
-  | "profiles";
-
-const TABLES_TO_DELETE_FROM: TableName[] = [
+const TABLES_TO_DELETE_FROM = [
   "favorites",
   "advertisement_comments",
   "admin_notes",
   "user_activity_logs",
   "role_change_history",
   "profiles"
-];
+] as const;
+
+type TableName = typeof TABLES_TO_DELETE_FROM[number];
 
 export const deleteUserRelatedData = async (userId: string): Promise<boolean> => {
   try {

@@ -3,7 +3,7 @@ import { DateFilter, RegionalMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useRegionalMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<RegionalMetric[], Error, RegionalMetric[]>({
+  return useQuery<RegionalMetric[], Error>({
     queryKey: ["regional-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase.rpc<RegionalMetric[]>(

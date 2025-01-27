@@ -3,7 +3,7 @@ import { DateFilter, AdminMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useAdminMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<AdminMetric[], Error, AdminMetric[]>({
+  return useQuery<AdminMetric[], Error>({
     queryKey: ["admin-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase.rpc<AdminMetric[]>(
