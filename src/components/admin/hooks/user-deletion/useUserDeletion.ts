@@ -1,33 +1,23 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { validateDeletion } from "./validations";
-import { DeleteUserResponse } from "../../types/metrics";
 import { toast } from "sonner";
 
 export const useUserDeletion = () => {
-  const queryClient = useQueryClient();
-  
-  const mutation = useMutation<DeleteUserResponse, Error, string, unknown>({
+  const mutation = useMutation<boolean, Error, string>({
     mutationFn: async (userId: string) => {
       const validationResult = await validateDeletion(userId);
       if (!validationResult.success) {
         throw new Error(validationResult.error || "Failed to validate deletion");
       }
 
-      const { data, error } = await supabase.rpc<DeleteUserResponse>(
-        'delete_user',
-        { user_id: userId }
-      );
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
 
       if (error) throw error;
-      if (!data) {
-        throw new Error('Failed to delete user');
-      }
-
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      return true;
     },
   });
 

@@ -1,5 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Advertisement } from "@/types/advertisement";
 
 interface UseAdvertisementListParams {
   filters?: {
@@ -11,8 +12,13 @@ interface UseAdvertisementListParams {
   pageSize?: number;
 }
 
+interface AdvertisementResponse {
+  data: Advertisement[];
+  totalCount: number;
+}
+
 export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisementListParams) => {
-  return useInfiniteQuery({
+  return useInfiniteQuery<AdvertisementResponse>({
     queryKey: ["advertisements", filters],
     queryFn: async ({ pageParam = 0 }) => {
       let query = supabase
@@ -38,7 +44,7 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
         query = query.lte("hourly_rate", filters.maxPrice);
       }
 
-      const from = pageParam * pageSize;
+      const from = Number(pageParam) * pageSize;
       const to = from + pageSize - 1;
 
       const { data, error, count } = await query
@@ -50,9 +56,12 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
       return {
         data: data || [],
         totalCount: count || 0,
-        nextPage: data?.length === pageSize ? pageParam + 1 : undefined
       };
     },
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const nextPage = allPages.length;
+      return nextPage * 10 < lastPage.totalCount ? nextPage : undefined;
+    },
   });
 };

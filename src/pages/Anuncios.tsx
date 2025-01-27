@@ -33,18 +33,15 @@ const Anuncios = () => {
   const { 
     data,
     isLoading,
-    error,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage
   } = useAdvertisementList({ 
     filters: {
-      search: filters.search,
       city: filters.city,
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice
-    },
-    pageSize: 10
+    }
   });
 
   const handleFilterChange = (newFilters: Filters) => {
@@ -54,7 +51,6 @@ const Anuncios = () => {
 
   const allAds = data?.pages.flatMap(page => page.data) || [];
   const totalCount = data?.pages[0]?.totalCount || 0;
-  const canLoadMore = hasNextPage;
 
   return (
     <div className="space-y-8">
@@ -68,7 +64,7 @@ const Anuncios = () => {
         onSelectAd={setSelectedAd}
       />
 
-      {canLoadMore && (
+      {hasNextPage && (
         <div className="flex justify-center">
           <Button
             onClick={() => fetchNextPage()}
