@@ -1,21 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
-import { DateFilter, RegionalMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useRegionalMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<RegionalMetric[], Error>({
-    queryKey: ["regional-metrics", dateFilter],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc<RegionalMetric[]>(
-        'get_regional_metrics',
-        {
-          start_date: dateFilter?.startDate || null,
-          end_date: dateFilter?.endDate || null
-        }
-      );
+interface RegionalMetrics {
+  byState: Record<string, number>;
+  byCity: Record<string, number>;
+}
 
-      if (error) throw error;
-      return data || [];
+export const useRegionalMetrics = () => {
+  return useQuery<RegionalMetrics, Error>({
+    queryKey: ["regional-metrics"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("advertisements")
+        .select(`
+          state,
+          city,
+          count(*) as count
+        `)
+        .group("state, city");
+
+      if (error) {
+        console.error("Error fetching regional metrics:", error);
+        throw error;
+      }
+
+      const byState: Record<string, number> = {};
+      const byCity: Record<string, number> = {};
+
+      data?.forEach((item) => {
+        byState[item.state] = (byState[item.state] || 0) + item.count;
+        byCity[item.city] = (byCity[item.city] || 0) + item.count;
+      });
+
+      return { byState, byCity };
     },
   });
 };

@@ -1,21 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
-import { DateFilter, EngagementMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
-export const useEngagementMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<EngagementMetric[], Error>({
-    queryKey: ["engagement-metrics", dateFilter],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc<EngagementMetric[]>(
-        'get_engagement_metrics',
-        {
-          start_date: dateFilter?.startDate || null,
-          end_date: dateFilter?.endDate || null
-        }
-      );
+interface EngagementMetrics {
+  views: number;
+  clicks: number;
+  favorites: number;
+}
 
-      if (error) throw error;
-      return data || [];
+export const useEngagementMetrics = () => {
+  return useQuery<EngagementMetrics, Error>({
+    queryKey: ["engagement-metrics"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("engagement_metrics")
+        .select("views, clicks, favorites")
+        .single();
+
+      if (error) {
+        console.error("Error fetching engagement metrics:", error);
+        throw error;
+      }
+
+      return data as EngagementMetrics;
     },
   });
 };

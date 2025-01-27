@@ -25,6 +25,12 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
         .from("advertisements")
         .select(`
           *,
+          advertisement_services (*),
+          advertisement_service_locations (*),
+          advertisement_photos (*),
+          advertisement_videos (*),
+          advertisement_comments (*),
+          advertisement_reviews (*),
           profile:profiles(name)
         `, { count: "exact" });
 
@@ -54,7 +60,7 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
       if (error) throw error;
 
       return {
-        data: data || [],
+        data: data as Advertisement[],
         totalCount: count || 0,
       };
     },
