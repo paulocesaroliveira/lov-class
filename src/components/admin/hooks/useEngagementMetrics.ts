@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { EngagementMetrics, DateFilter } from "../types/metrics";
+import { DateFilter, EngagementMetrics } from "../types/metrics";
 
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery<EngagementMetrics>({

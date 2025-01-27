@@ -11,7 +11,10 @@ export const useRegionalMetrics = () => {
       if (error) throw error;
 
       return {
-        metrics: data || []
+        metrics: data.map(metric => ({
+          ...metric,
+          state: metric.state || 'N/A' // Ensure state is always present
+        }))
       };
     },
   });
