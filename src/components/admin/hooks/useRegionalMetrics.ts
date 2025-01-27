@@ -16,9 +16,8 @@ export const useRegionalMetrics = () => {
           active_ads:count()
         `)
         .not('status', 'eq', 'bloqueado')
-        .groupBy('state, city')
-        .order('state', { ascending: true })
-        .order('city', { ascending: true });
+        .order('state')
+        .order('city');
 
       if (error) {
         throw error;

@@ -1,14 +1,3 @@
-export interface Filters {
-  minAge?: number;
-  maxAge?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  services?: string[];
-  locations?: string[];
-  style?: string;
-  category?: string;
-}
-
 export interface Advertisement {
   id: string;
   name: string;
@@ -36,6 +25,9 @@ export interface Advertisement {
     id: string;
     name: string;
   };
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
   advertisement_services: Array<{ service: string }>;
   advertisement_service_locations: Array<{ location: string }>;
   advertisement_photos: Array<{ photo_url: string }>;
@@ -46,6 +38,77 @@ export interface Advertisement {
     rating: number;
     created_at: string;
   }>;
+  advertisement_reviews: Array<{
+    id: string;
+    status: string;
+    review_notes: string | null;
+    updated_at: string;
+  }>;
+}
+
+export interface FormValues {
+  id?: string;
+  name: string;
+  birthDate: string;
+  height: number;
+  weight: number;
+  category: string;
+  ethnicity: string;
+  hairColor: string;
+  bodyType: string;
+  silicone: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
+  state: string;
+  city: string;
+  neighborhood: string;
+  hourlyRate: number;
+  customRates: Array<{
+    description: string;
+    value: number;
+  }>;
+  style: string;
+  services: string[];
+  serviceLocations: string[];
+  description: string;
+  acceptTerms: boolean;
+  identityDocument?: File;
+  profilePhoto?: File;
+  photos?: File[];
+  videos?: File[];
+}
+
+export type ServiceType = 
+  | "beijo_na_boca"
+  | "beijo_grego"
+  | "bondage"
+  | "chuva_dourada"
+  | "chuva_marrom"
+  | "dominacao"
+  | "acessorios_eroticos"
+  | "voyeurismo"
+  | "permite_filmagem"
+  | "menage_casal"
+  | "menage_dois_homens"
+  | "roleplay"
+  | "facefuck"
+  | "oral_sem_preservativo"
+  | "oral_com_preservativo"
+  | "massagem"
+  | "sexo_virtual"
+  | "orgia"
+  | "gangbang";
+
+export interface Filters {
+  search?: string;
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  services?: string[];
+  locations?: string[];
+  style?: string;
+  category?: string;
 }
 
 export interface AdvertisementResponse {
