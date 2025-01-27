@@ -41,6 +41,7 @@ export const RegistrationForm = () => {
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
+      // Sign up the user with Supabase Auth
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -48,10 +49,12 @@ export const RegistrationForm = () => {
           data: {
             name: data.name,
           },
+          emailRedirectTo: `${window.location.origin}/login`,
         },
       });
 
       if (signUpError) {
+        console.error('Signup error:', signUpError);
         if (signUpError.message.includes('User already registered')) {
           toast.error("Este email já está cadastrado", {
             duration: 4000,
@@ -60,33 +63,19 @@ export const RegistrationForm = () => {
               onClick: () => navigate('/login')
             }
           });
-          return;
+        } else {
+          toast.error(signUpError.message);
         }
-        throw signUpError;
+        return;
       }
 
       if (!authData.user) {
         throw new Error("Erro ao criar usuário");
       }
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          name: data.name,
-          role: 'cliente'
-        });
-
-      if (profileError) {
-        console.error('Erro ao criar perfil:', profileError);
-        if (profileError.code === '23505') {
-          console.log("Perfil já existe, ignorando erro de duplicação");
-        } else {
-          throw profileError;
-        }
-      }
-
       toast.success("Conta criada com sucesso! Redirecionando para o login...");
+      
+      // Wait a moment before redirecting to ensure the user sees the success message
       setTimeout(() => {
         navigate('/login');
       }, 2000);
