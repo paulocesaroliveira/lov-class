@@ -61,6 +61,12 @@ export interface FormValues {
   videos?: File[];
 }
 
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
+}
+
 export interface Advertisement {
   id: string;
   name: string;
@@ -98,12 +104,6 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
-}
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
 }
 
 export interface Filters {
