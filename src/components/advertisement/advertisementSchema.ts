@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { ServiceType, ServiceLocationType } from "@/types/advertisement";
 
 export const formSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1, "Nome é obrigatório"),
   birthDate: z.string().min(1, "Data de nascimento é obrigatória"),
   height: z.number().min(0, "Altura deve ser um número positivo"),
@@ -22,12 +24,16 @@ export const formSchema = z.object({
     value: z.number().min(0, "Valor deve ser um número positivo"),
   })).max(5, "Máximo de 5 valores personalizados"),
   style: z.string().min(1, "Estilo é obrigatório"),
-  services: z.array(z.string()),
-  serviceLocations: z.array(z.string()),
+  services: z.array(z.string() as z.ZodType<ServiceType>),
+  serviceLocations: z.array(z.string() as z.ZodType<ServiceLocationType>),
   description: z.string().min(1, "Descrição do atendimento é obrigatória"),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "Você precisa aceitar os termos e condições para continuar",
   }),
+  identityDocument: z.any().optional(),
+  profilePhoto: z.any().optional(),
+  photos: z.array(z.any()).optional(),
+  videos: z.array(z.any()).optional(),
 });
 
 export type FormData = z.infer<typeof formSchema>;

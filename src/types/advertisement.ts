@@ -29,6 +29,7 @@ export type ServiceLocationType =
   | "viagens";
 
 export interface FormValues {
+  id?: string;
   name: string;
   birthDate: string;
   height: number;
@@ -101,6 +102,7 @@ export interface Advertisement {
 export interface AdvertisementListProps {
   advertisements: Advertisement[];
   isLoading: boolean;
+  isFavoritesPage?: boolean;
 }
 
 export interface Filters {
