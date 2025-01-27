@@ -34,6 +34,7 @@ export const formSchema = z.object({
   profilePhoto: z.any().optional(),
   photos: z.array(z.any()).optional(),
   videos: z.array(z.any()).optional(),
+  status: z.enum(["pending", "approved", "blocked"]).optional(),
 });
 
 export type FormData = z.infer<typeof formSchema>;

@@ -35,6 +35,18 @@ export interface FormValues {
   status?: AdStatus;
 }
 
+export interface Filters {
+  category?: AdCategory;
+  city?: string;
+  state?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  services?: ServiceType[];
+  style?: string;
+  minAge?: number;
+  maxAge?: number;
+}
+
 export type ServiceType =
   | "beijo_na_boca"
   | "beijo_grego"
@@ -88,7 +100,7 @@ export interface Advertisement {
   custom_rate_value?: number;
   style: string;
   category: AdCategory;
-  status: string;
+  status: AdStatus;
   created_at: string;
   updated_at: string;
   profile_id: string;
