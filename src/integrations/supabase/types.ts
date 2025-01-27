@@ -58,15 +58,7 @@ export type Database = {
           rating?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
-            columns: ["advertisement_id"]
-            isOneToOne: false
-            referencedRelation: "advertisements"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       advertisement_photos: {
         Row: {
@@ -100,32 +92,29 @@ export type Database = {
       advertisement_reviews: {
         Row: {
           advertisement_id: string | null
-          block_reason: string | null
-          created_at: string
+          created_at: string | null
           id: string
           review_notes: string | null
           reviewer_id: string | null
-          status: string | null
+          status: string
           updated_at: string | null
         }
         Insert: {
           advertisement_id?: string | null
-          block_reason?: string | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
         }
         Update: {
           advertisement_id?: string | null
-          block_reason?: string | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           review_notes?: string | null
           reviewer_id?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
         }
         Relationships: [
@@ -270,88 +259,88 @@ export type Database = {
       }
       advertisements: {
         Row: {
-          birth_date: string | null
-          block_reason: string | null
-          body_type: string | null
-          category: Database["public"]["Enums"]["ad_category"]
-          city: string | null
-          contact_phone: string | null
+          birth_date: string
+          body_type: string
+          category: string
+          city: string
+          contact_phone: string
           contact_telegram: boolean | null
           contact_whatsapp: boolean | null
-          created_at: string
+          created_at: string | null
           custom_rate_description: string | null
           custom_rate_value: number | null
-          description: string | null
-          ethnicity: string | null
-          hair_color: string | null
-          height: number | null
-          hourly_rate: number | null
+          description: string
+          ethnicity: string
+          hair_color: string
+          height: number
+          hourly_rate: number
           id: string
           name: string
-          neighborhood: string | null
-          profile_id: string | null
-          silicone: string | null
+          neighborhood: string
+          profile_id: string
+          profile_photo_url: string | null
+          silicone: string
           state: string
           status: string | null
-          style: string | null
-          updated_at: string
-          weight: number | null
+          style: string
+          updated_at: string | null
+          weight: number
         }
         Insert: {
-          birth_date?: string | null
-          block_reason?: string | null
-          body_type?: string | null
-          category: Database["public"]["Enums"]["ad_category"]
-          city?: string | null
-          contact_phone?: string | null
+          birth_date: string
+          body_type: string
+          category: string
+          city: string
+          contact_phone: string
           contact_telegram?: boolean | null
           contact_whatsapp?: boolean | null
-          created_at?: string
+          created_at?: string | null
           custom_rate_description?: string | null
           custom_rate_value?: number | null
-          description?: string | null
-          ethnicity?: string | null
-          hair_color?: string | null
-          height?: number | null
-          hourly_rate?: number | null
+          description: string
+          ethnicity: string
+          hair_color: string
+          height: number
+          hourly_rate: number
           id?: string
           name: string
-          neighborhood?: string | null
-          profile_id?: string | null
-          silicone?: string | null
+          neighborhood: string
+          profile_id: string
+          profile_photo_url?: string | null
+          silicone: string
           state: string
           status?: string | null
-          style?: string | null
-          updated_at?: string
-          weight?: number | null
+          style: string
+          updated_at?: string | null
+          weight: number
         }
         Update: {
-          birth_date?: string | null
-          block_reason?: string | null
-          body_type?: string | null
-          category?: Database["public"]["Enums"]["ad_category"]
-          city?: string | null
-          contact_phone?: string | null
+          birth_date?: string
+          body_type?: string
+          category?: string
+          city?: string
+          contact_phone?: string
           contact_telegram?: boolean | null
           contact_whatsapp?: boolean | null
-          created_at?: string
+          created_at?: string | null
           custom_rate_description?: string | null
           custom_rate_value?: number | null
-          description?: string | null
-          ethnicity?: string | null
-          hair_color?: string | null
-          height?: number | null
-          hourly_rate?: number | null
+          description?: string
+          ethnicity?: string
+          hair_color?: string
+          height?: number
+          hourly_rate?: number
           id?: string
           name?: string
-          neighborhood?: string | null
-          profile_id?: string | null
-          silicone?: string | null
+          neighborhood?: string
+          profile_id?: string
+          profile_photo_url?: string | null
+          silicone?: string
           state?: string
           status?: string | null
-          style?: string | null
-          updated_at?: string
-          weight?: number | null
+          style?: string
+          updated_at?: string | null
+          weight?: number
         }
         Relationships: [
           {

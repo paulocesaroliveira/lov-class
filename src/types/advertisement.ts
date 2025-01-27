@@ -1,36 +1,38 @@
 export type AdCategory = "mulher" | "trans" | "homem";
+export type AdStatus = "pending" | "approved" | "blocked";
 
 export interface FormValues {
   id?: string;
-  name: string; // Required field
-  birthDate?: string;
-  height?: number;
-  weight?: number;
-  category?: AdCategory;
-  ethnicity?: string;
-  hairColor?: string;
-  bodyType?: string;
-  silicone?: string;
-  contact_phone?: string;
-  contact_whatsapp?: boolean;
-  contact_telegram?: boolean;
-  state?: string;
-  city?: string;
-  neighborhood?: string;
-  hourlyRate?: number;
+  name: string;
+  birthDate: string;
+  height: number;
+  weight: number;
+  category: AdCategory;
+  ethnicity: string;
+  hairColor: string;
+  bodyType: string;
+  silicone: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
+  state: string;
+  city: string;
+  neighborhood: string;
+  hourlyRate: number;
   customRates: Array<{
     description: string;
     value: number;
   }>;
-  style?: string;
-  services?: ServiceType[];
-  serviceLocations?: ServiceLocationType[];
-  description?: string;
-  acceptTerms?: boolean;
+  style: string;
+  services: ServiceType[];
+  serviceLocations: ServiceLocationType[];
+  description: string;
+  acceptTerms: boolean;
   identityDocument?: File;
   profilePhoto?: File;
   photos?: File[];
   videos?: File[];
+  status?: AdStatus;
 }
 
 export type ServiceType =

@@ -36,7 +36,8 @@ export const useAdvertisementCreate = () => {
           custom_rate_value: values.customRates?.[0]?.value || null,
           description: values.description,
           style: values.style,
-          status: 'new'
+          profile_photo_url: profilePhotoUrl,
+          status: 'pending' // Explicitly set status to 'pending'
         })
         .select();
 
