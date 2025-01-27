@@ -76,6 +76,19 @@ export type ServiceLocationType =
   | "domicilio"
   | "viagens";
 
+export interface Filters {
+  search?: string;
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  services?: ServiceType[];
+  locations?: ServiceLocationType[];
+  style?: string;
+  category?: AdCategory;
+  minAge?: number;
+  maxAge?: number;
+}
+
 export interface FormValues {
   id?: string;
   name: string;
@@ -107,17 +120,4 @@ export interface FormValues {
   profilePhoto?: File;
   photos?: File[];
   videos?: File[];
-}
-
-export interface Filters {
-  search?: string;
-  city?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  services?: ServiceType[];
-  locations?: ServiceLocationType[];
-  style?: string;
-  category?: AdCategory;
-  minAge?: number;
-  maxAge?: number;
 }

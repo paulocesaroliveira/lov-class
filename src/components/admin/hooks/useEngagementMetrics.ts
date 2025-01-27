@@ -7,11 +7,11 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery<EngagementMetrics>({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("advertisement_views")
         .select(`
           date:created_at::date,
-          unique_views:id,
+          unique_views:count(distinct id),
           total_views:count(id),
           whatsapp_clicks:count(id) filter (where exists (
             select 1 from advertisement_whatsapp_clicks awc 
@@ -27,6 +27,8 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
       if (dateFilter?.endDate) {
         query = query.lte('created_at', dateFilter.endDate);
       }
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;

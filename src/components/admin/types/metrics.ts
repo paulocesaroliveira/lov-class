@@ -20,8 +20,3 @@ export interface RegionalMetric {
 export interface RegionalMetrics {
   metrics: RegionalMetric[];
 }
-
-export interface DateFilter {
-  startDate?: string;
-  endDate?: string;
-}

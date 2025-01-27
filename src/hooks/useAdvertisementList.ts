@@ -58,7 +58,7 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
       }
 
       return {
-        data: data as Advertisement[],
+        data: data as unknown as Advertisement[],
         totalCount: count || 0,
       };
     },
