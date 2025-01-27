@@ -10,7 +10,6 @@ export interface EngagementMetrics {
 }
 
 export interface RegionalMetric {
-  state: string;
   city: string;
   view_count: number;
   click_count: number;
@@ -19,4 +18,9 @@ export interface RegionalMetric {
 
 export interface RegionalMetrics {
   metrics: RegionalMetric[];
+}
+
+export interface DateFilter {
+  startDate?: string;
+  endDate?: string;
 }

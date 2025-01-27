@@ -1,3 +1,33 @@
+export type AdCategory = "mulher" | "trans" | "homem";
+
+export type ServiceType =
+  | "beijo_na_boca"
+  | "beijo_grego"
+  | "bondage"
+  | "chuva_dourada"
+  | "chuva_marrom"
+  | "dominacao"
+  | "acessorios_eroticos"
+  | "voyeurismo"
+  | "permite_filmagem"
+  | "menage_casal"
+  | "menage_dois_homens"
+  | "roleplay"
+  | "facefuck"
+  | "oral_sem_preservativo"
+  | "oral_com_preservativo"
+  | "massagem"
+  | "sexo_virtual"
+  | "orgia"
+  | "gangbang";
+
+export type ServiceLocationType =
+  | "com_local"
+  | "motel"
+  | "clube_swing"
+  | "domicilio"
+  | "viagens";
+
 export interface Advertisement {
   id: string;
   name: string;
@@ -32,12 +62,6 @@ export interface Advertisement {
   advertisement_service_locations: Array<{ location: ServiceLocationType }>;
   advertisement_photos: Array<{ photo_url: string }>;
   advertisement_videos: Array<{ video_url: string }>;
-  advertisement_comments: Array<{
-    id: string;
-    comment: string;
-    rating: number;
-    created_at: string;
-  }>;
   advertisement_reviews: Array<{
     id: string;
     status: string;
@@ -45,36 +69,6 @@ export interface Advertisement {
     updated_at: string;
   }>;
 }
-
-export type AdCategory = "mulher" | "trans" | "homem";
-
-export type ServiceType =
-  | "beijo_na_boca"
-  | "beijo_grego"
-  | "bondage"
-  | "chuva_dourada"
-  | "chuva_marrom"
-  | "dominacao"
-  | "acessorios_eroticos"
-  | "voyeurismo"
-  | "permite_filmagem"
-  | "menage_casal"
-  | "menage_dois_homens"
-  | "roleplay"
-  | "facefuck"
-  | "oral_sem_preservativo"
-  | "oral_com_preservativo"
-  | "massagem"
-  | "sexo_virtual"
-  | "orgia"
-  | "gangbang";
-
-export type ServiceLocationType =
-  | "com_local"
-  | "motel"
-  | "clube_swing"
-  | "domicilio"
-  | "viagens";
 
 export interface Filters {
   search?: string;
