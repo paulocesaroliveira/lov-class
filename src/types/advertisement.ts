@@ -30,31 +30,31 @@ export type ServiceLocationType =
 
 export interface FormValues {
   id?: string;
-  name: string;
-  birthDate: string;
-  height: number;
-  weight: number;
-  category: AdCategory;
-  ethnicity: string;
-  hairColor: string;
-  bodyType: string;
-  silicone: string;
-  contact_phone: string;
-  contact_whatsapp: boolean;
-  contact_telegram: boolean;
-  state: string;
-  city: string;
-  neighborhood: string;
-  hourlyRate: number;
-  customRates: Array<{
+  name?: string;
+  birthDate?: string;
+  height?: number;
+  weight?: number;
+  category?: AdCategory;
+  ethnicity?: string;
+  hairColor?: string;
+  bodyType?: string;
+  silicone?: string;
+  contact_phone?: string;
+  contact_whatsapp?: boolean;
+  contact_telegram?: boolean;
+  state?: string;
+  city?: string;
+  neighborhood?: string;
+  hourlyRate?: number;
+  customRates?: Array<{
     description: string;
     value: number;
   }>;
-  style: string;
-  services: ServiceType[];
-  serviceLocations: ServiceLocationType[];
-  description: string;
-  acceptTerms: boolean;
+  style?: string;
+  services?: ServiceType[];
+  serviceLocations?: ServiceLocationType[];
+  description?: string;
+  acceptTerms?: boolean;
   identityDocument?: File;
   profilePhoto?: File;
   photos?: File[];

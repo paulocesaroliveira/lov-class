@@ -1,33 +1,33 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
-const TABLES_TO_DELETE_FROM = [
-  "favorites",
-  "advertisement_comments",
-  "admin_notes",
-  "user_activity_logs",
-  "role_change_history",
-  "profiles"
-] as const;
+export const deleteUserRelatedData = async (userId: string) => {
+  const tables = [
+    'advertisement_comments',
+    'advertisement_photos',
+    'advertisement_videos',
+    'advertisement_services',
+    'advertisement_service_locations',
+    'advertisement_reviews',
+    'advertiser_documents',
+    'advertisements',
+    'favorites',
+    'feed_post_media',
+    'feed_posts',
+    'user_blocks',
+    'user_activity_logs',
+    'role_change_history',
+    'admin_notes'
+  ];
 
-export const deleteUserRelatedData = async (userId: string): Promise<boolean> => {
-  try {
-    for (const table of TABLES_TO_DELETE_FROM) {
-      const { error } = await supabase
-        .from(table)
-        .delete()
-        .eq('user_id', userId);
+  for (const table of tables) {
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq('user_id', userId);
 
-      if (error) {
-        console.error(`Error deleting from ${table}:`, error);
-        toast.error(`Erro ao deletar dados de ${table}`);
-        return false;
-      }
+    if (error) {
+      console.error(`Error deleting from ${table}:`, error);
+      throw error;
     }
-    
-    return true;
-  } catch (error) {
-    console.error("Error in deleteUserRelatedData:", error);
-    return false;
   }
 };
