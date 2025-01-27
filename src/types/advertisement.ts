@@ -1,5 +1,38 @@
 export type AdCategory = "mulher" | "trans" | "homem";
 
+export interface FormValues {
+  id?: string;
+  name: string; // Required field
+  birthDate?: string;
+  height?: number;
+  weight?: number;
+  category?: AdCategory;
+  ethnicity?: string;
+  hairColor?: string;
+  bodyType?: string;
+  silicone?: string;
+  contact_phone?: string;
+  contact_whatsapp?: boolean;
+  contact_telegram?: boolean;
+  state?: string;
+  city?: string;
+  neighborhood?: string;
+  hourlyRate?: number;
+  customRates: Array<{
+    description: string;
+    value: number;
+  }>;
+  style?: string;
+  services?: ServiceType[];
+  serviceLocations?: ServiceLocationType[];
+  description?: string;
+  acceptTerms?: boolean;
+  identityDocument?: File;
+  profilePhoto?: File;
+  photos?: File[];
+  videos?: File[];
+}
+
 export type ServiceType =
   | "beijo_na_boca"
   | "beijo_grego"
@@ -27,39 +60,6 @@ export type ServiceLocationType =
   | "clube_swing"
   | "domicilio"
   | "viagens";
-
-export interface FormValues {
-  id?: string;
-  name?: string;
-  birthDate?: string;
-  height?: number;
-  weight?: number;
-  category?: AdCategory;
-  ethnicity?: string;
-  hairColor?: string;
-  bodyType?: string;
-  silicone?: string;
-  contact_phone?: string;
-  contact_whatsapp?: boolean;
-  contact_telegram?: boolean;
-  state?: string;
-  city?: string;
-  neighborhood?: string;
-  hourlyRate?: number;
-  customRates?: Array<{
-    description: string;
-    value: number;
-  }>;
-  style?: string;
-  services?: ServiceType[];
-  serviceLocations?: ServiceLocationType[];
-  description?: string;
-  acceptTerms?: boolean;
-  identityDocument?: File;
-  profilePhoto?: File;
-  photos?: File[];
-  videos?: File[];
-}
 
 export interface AdvertisementListProps {
   advertisements: Advertisement[];
@@ -104,18 +104,4 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
-}
-
-export interface Filters {
-  search?: string;
-  city?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  services?: ServiceType[];
-  locations?: ServiceLocationType[];
-  style?: string;
-  category?: AdCategory;
-  minAge?: number;
-  maxAge?: number;
-  state?: string;
 }

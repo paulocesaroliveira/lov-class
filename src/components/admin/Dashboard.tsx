@@ -1,5 +1,5 @@
 import React from "react";
-import { useRegionalMetrics } from "@/hooks/useRegionalMetrics";
+import { useRegionalMetrics } from "./hooks/useRegionalMetrics";
 
 interface RegionalMetric {
   city: string;
@@ -11,7 +11,6 @@ interface RegionalMetric {
 export const Dashboard = () => {
   const { data: regionalData } = useRegionalMetrics();
   
-  // Update the metrics mapping
   const regionalMetrics: RegionalMetric[] = regionalData || [];
 
   return (
