@@ -9,7 +9,6 @@ interface UseAdvertisementListParams {
     minPrice?: number;
     maxPrice?: number;
   };
-  page?: number;
   pageSize?: number;
 }
 
@@ -18,10 +17,13 @@ interface AdvertisementResponse {
   totalCount: number;
 }
 
-export const useAdvertisementList = ({ filters, page = 1, pageSize = 10 }: UseAdvertisementListParams) => {
+export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisementListParams) => {
   return useInfiniteQuery<AdvertisementResponse>({
     queryKey: ["advertisements", filters],
     queryFn: async ({ pageParam = 1 }) => {
+      const from = (pageParam - 1) * pageSize;
+      const to = from + pageSize - 1;
+
       let query = supabase
         .from("advertisements")
         .select(`
@@ -31,25 +33,22 @@ export const useAdvertisementList = ({ filters, page = 1, pageSize = 10 }: UseAd
           advertisement_service_locations(*),
           advertisement_photos(*),
           advertisement_videos(*),
-          advertisement_reviews(*)
-        `, { count: "exact" })
-        .eq('status', 'aprovado')
-        .range((pageParam - 1) * pageSize, pageParam * pageSize - 1);
-
-      if (filters?.search) {
-        query = query.ilike("name", `%${filters.search}%`);
-      }
+          advertisement_reviews(*),
+          advertisement_comments(*)
+        `, { count: 'exact' })
+        .range(from, to)
+        .eq('status', 'aprovado');
 
       if (filters?.city) {
-        query = query.eq("city", filters.city);
+        query = query.eq('city', filters.city);
       }
 
       if (filters?.minPrice) {
-        query = query.gte("hourly_rate", filters.minPrice);
+        query = query.gte('hourly_rate', filters.minPrice);
       }
 
       if (filters?.maxPrice) {
-        query = query.lte("hourly_rate", filters.maxPrice);
+        query = query.lte('hourly_rate', filters.maxPrice);
       }
 
       const { data, error, count } = await query;
@@ -66,7 +65,8 @@ export const useAdvertisementList = ({ filters, page = 1, pageSize = 10 }: UseAd
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const nextPage = allPages.length + 1;
-      return lastPage.data.length === pageSize ? nextPage : undefined;
+      const totalPages = Math.ceil(lastPage.totalCount / pageSize);
+      return nextPage <= totalPages ? nextPage : undefined;
     },
   });
 };

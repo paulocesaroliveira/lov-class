@@ -12,17 +12,18 @@ export const useRegionalMetrics = () => {
           state,
           city,
           view_count:advertisement_views(count),
-          click_count:advertisement_whatsapp_clicks(count),
-          active_ads:count(*)
+          click_count:advertisement_whatsapp_clicks(count)
         `)
         .not('status', 'eq', 'bloqueado')
-        .groupBy('state, city');
+        .order('state', 'city');
 
       if (error) {
         throw error;
       }
 
-      return { metrics: data || [] };
+      return {
+        metrics: data || []
+      };
     },
   });
 };

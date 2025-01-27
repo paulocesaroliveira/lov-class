@@ -1,42 +1,42 @@
 import { useEffect } from 'react';
-import { Filters } from '../types';
+import { Filters } from '@/types/advertisement';
 
 export interface BasicFiltersProps {
-  filters: Filters;
-  onFilterChange: (newFilters: Partial<Filters>) => void;
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+  city: string;
+  onCityChange: (value: string) => void;
+  minPrice?: number;
+  maxPrice?: number;
+  onPriceChange: (min?: number, max?: number) => void;
 }
 
-export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onFilterChange({ search: event.target.value });
-  };
-
-  const handleCityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ city: event.target.value });
-  };
-
-  const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    onFilterChange({ [name]: value ? parseFloat(value) : undefined });
-  };
-
+export const BasicFilters = ({
+  searchTerm,
+  onSearchChange,
+  city,
+  onCityChange,
+  minPrice,
+  maxPrice,
+  onPriceChange
+}: BasicFiltersProps) => {
   useEffect(() => {
     // Any side effects can be handled here
-  }, [filters]);
+  }, [searchTerm, city, minPrice, maxPrice]);
 
   return (
     <div className="flex flex-col space-y-4">
       <input
         type="text"
         placeholder="Search..."
-        value={filters.search}
-        onChange={handleSearchChange}
-        className="border p-2"
+        value={searchTerm}
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="border p-2 rounded"
       />
       <select
-        value={filters.city}
-        onChange={handleCityChange}
-        className="border p-2"
+        value={city}
+        onChange={(e) => onCityChange(e.target.value)}
+        className="border p-2 rounded"
       >
         <option value="">Select City</option>
         {/* Add city options here */}
@@ -44,19 +44,17 @@ export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => 
       <div className="flex space-x-2">
         <input
           type="number"
-          name="minPrice"
           placeholder="Min Price"
-          value={filters.minPrice || ''}
-          onChange={handlePriceChange}
-          className="border p-2"
+          value={minPrice || ''}
+          onChange={(e) => onPriceChange(e.target.value ? Number(e.target.value) : undefined, maxPrice)}
+          className="border p-2 rounded"
         />
         <input
           type="number"
-          name="maxPrice"
           placeholder="Max Price"
-          value={filters.maxPrice || ''}
-          onChange={handlePriceChange}
-          className="border p-2"
+          value={maxPrice || ''}
+          onChange={(e) => onPriceChange(minPrice, e.target.value ? Number(e.target.value) : undefined)}
+          className="border p-2 rounded"
         />
       </div>
     </div>

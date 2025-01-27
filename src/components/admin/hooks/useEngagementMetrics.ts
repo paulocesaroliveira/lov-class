@@ -10,14 +10,13 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
         .from("advertisement_views")
         .select(`
           date:created_at::date,
-          unique_views:count(distinct id),
-          total_views:count(id),
-          whatsapp_clicks:count(id) filter (where exists (
+          views:count(distinct id),
+          clicks:count(id) filter (where exists (
             select 1 from advertisement_whatsapp_clicks awc 
             where awc.advertisement_id = advertisement_views.advertisement_id
           ))
         `)
-        .group('created_at::date');
+        .order('created_at::date');
 
       if (dateFilter?.startDate) {
         query.gte('created_at', dateFilter.startDate);
@@ -32,7 +31,9 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
         throw error;
       }
 
-      return { metrics: data || [] };
+      return {
+        metrics: data || []
+      };
     },
   });
 };

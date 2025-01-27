@@ -32,6 +32,25 @@ export const useUserDeletion = () => {
         toast.error(error instanceof Error ? error.message : 'Failed to delete user');
         return false;
       }
+    },
+    deleteUserByName: async (name: string) => {
+      try {
+        const { data: user, error: findError } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("name", name)
+          .single();
+
+        if (findError || !user) {
+          throw new Error("User not found");
+        }
+
+        return await mutation.mutateAsync(user.id);
+      } catch (error) {
+        console.error('Error deleting user by name:', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to delete user');
+        return false;
+      }
     }
   };
 };
