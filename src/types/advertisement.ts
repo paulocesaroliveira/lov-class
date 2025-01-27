@@ -16,7 +16,7 @@ export interface Advertisement {
   custom_rate_description?: string;
   custom_rate_value?: number;
   style: string;
-  category: string;
+  category: AdCategory;
   status: string;
   created_at: string;
   updated_at: string;
@@ -46,38 +46,7 @@ export interface Advertisement {
   }>;
 }
 
-export interface FormValues {
-  id?: string;
-  name: string;
-  birthDate: string;
-  height: number;
-  weight: number;
-  category: string;
-  ethnicity: string;
-  hairColor: string;
-  bodyType: string;
-  silicone: string;
-  contact_phone: string;
-  contact_whatsapp: boolean;
-  contact_telegram: boolean;
-  state: string;
-  city: string;
-  neighborhood: string;
-  hourlyRate: number;
-  customRates: Array<{
-    description: string;
-    value: number;
-  }>;
-  style: string;
-  services: ServiceType[];
-  serviceLocations: ServiceLocationType[];
-  description: string;
-  acceptTerms: boolean;
-  identityDocument?: File;
-  profilePhoto?: File;
-  photos?: File[];
-  videos?: File[];
-}
+export type AdCategory = "mulher" | "trans" | "homem";
 
 export type ServiceType =
   | "beijo_na_boca"
@@ -107,6 +76,39 @@ export type ServiceLocationType =
   | "domicilio"
   | "viagens";
 
+export interface FormValues {
+  id?: string;
+  name: string;
+  birthDate: string;
+  height: number;
+  weight: number;
+  category: AdCategory;
+  ethnicity: string;
+  hairColor: string;
+  bodyType: string;
+  silicone: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
+  state: string;
+  city: string;
+  neighborhood: string;
+  hourlyRate: number;
+  customRates: Array<{
+    description: string;
+    value: number;
+  }>;
+  style: string;
+  services: ServiceType[];
+  serviceLocations: ServiceLocationType[];
+  description: string;
+  acceptTerms: boolean;
+  identityDocument?: File;
+  profilePhoto?: File;
+  photos?: File[];
+  videos?: File[];
+}
+
 export interface Filters {
   search?: string;
   city?: string;
@@ -115,10 +117,7 @@ export interface Filters {
   services?: ServiceType[];
   locations?: ServiceLocationType[];
   style?: string;
-  category?: string;
-}
-
-export interface AdvertisementResponse {
-  data: Advertisement[];
-  totalCount: number;
+  category?: AdCategory;
+  minAge?: number;
+  maxAge?: number;
 }

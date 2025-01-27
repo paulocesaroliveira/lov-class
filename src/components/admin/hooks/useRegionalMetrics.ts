@@ -15,7 +15,6 @@ export const useRegionalMetrics = () => {
           active_ads:count()
         `)
         .not('status', 'eq', 'bloqueado')
-        .group('city')
         .order('city');
 
       if (error) {
@@ -23,13 +22,13 @@ export const useRegionalMetrics = () => {
       }
 
       return {
-        metrics: data.map(row => ({
+        metrics: data?.map(row => ({
           state: 'N/A', // Since state is not in the database yet
           city: row.city || 'N/A',
           view_count: Number(row.view_count),
           click_count: Number(row.click_count),
           active_ads: Number(row.active_ads)
-        }))
+        })) || []
       };
     },
   });

@@ -1,8 +1,3 @@
-export interface DateFilter {
-  startDate?: string;
-  endDate?: string;
-}
-
 export interface EngagementMetric {
   date: string;
   unique_views: number;
@@ -26,12 +21,7 @@ export interface RegionalMetrics {
   metrics: RegionalMetric[];
 }
 
-export interface UserMetrics {
-  totalUsers: number;
-  activeUsers: number;
-  inactiveUsers: number;
-  previousPeriod?: {
-    totalUsers: number;
-    activeUsers: number;
-  };
+export interface DateFilter {
+  startDate?: string;
+  endDate?: string;
 }
