@@ -2,13 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { DateFilter, RegionalMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
-type RegionalMetricsParams = {
-  start_date: string | null;
-  end_date: string | null;
-};
-
 export const useRegionalMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<RegionalMetric[], Error>({
+  return useQuery<RegionalMetric[], Error, RegionalMetric[]>({
     queryKey: ["regional-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase.rpc<RegionalMetric[]>(

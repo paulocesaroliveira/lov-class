@@ -39,5 +39,5 @@ export interface UserMetrics {
 
 export interface DeleteUserResponse {
   success: boolean;
-  message: string;
+  error?: string;
 }

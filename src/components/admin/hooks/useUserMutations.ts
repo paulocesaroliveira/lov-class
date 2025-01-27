@@ -3,12 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserRole } from "../types";
 import { toast } from "sonner";
 import { useAdminRateLimit } from "./useAdminRateLimit";
-import { useUserDeletion } from "./user-deletion/useUserDeletion";
 
 export const useUserMutations = () => {
   const queryClient = useQueryClient();
   const { checkRateLimit } = useAdminRateLimit();
-  const userDeletion = useUserDeletion();
 
   const roleChangeMutation = useMutation({
     mutationFn: async ({ userId, newRole }: { userId: string; newRole: UserRole }) => {
@@ -72,7 +70,6 @@ export const useUserMutations = () => {
         return false;
       }
     },
-    handleDeleteUser: userDeletion.deleteUser,
     handleAddNote: async (userId: string, note: string) => {
       try {
         return await addNoteMutation.mutateAsync({ userId, note });
