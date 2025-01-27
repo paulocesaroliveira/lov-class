@@ -6,21 +6,27 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery<EngagementMetrics>({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
-      let query = supabase.rpc('get_engagement_metrics');
-
-      if (dateFilter?.startDate) {
-        query = query.gte('date', dateFilter.startDate);
-      }
-      if (dateFilter?.endDate) {
-        query = query.lte('date', dateFilter.endDate);
-      }
-
-      const { data, error } = await query;
+      const { data, error } = await supabase.rpc('get_engagement_metrics');
 
       if (error) throw error;
 
+      const metrics = data || [];
+      let filteredMetrics = metrics;
+
+      if (dateFilter?.startDate) {
+        filteredMetrics = filteredMetrics.filter(
+          metric => metric.date >= dateFilter.startDate!
+        );
+      }
+
+      if (dateFilter?.endDate) {
+        filteredMetrics = filteredMetrics.filter(
+          metric => metric.date <= dateFilter.endDate!
+        );
+      }
+
       return {
-        metrics: data || []
+        metrics: filteredMetrics
       };
     },
   });

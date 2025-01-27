@@ -1,14 +1,9 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Advertisement } from "@/types/advertisement";
+import { Advertisement, Filters } from "@/types/advertisement";
 
 interface UseAdvertisementListParams {
-  filters?: {
-    search?: string;
-    city?: string;
-    minPrice?: number;
-    maxPrice?: number;
-  };
+  filters?: Filters;
   pageSize?: number;
 }
 
@@ -37,7 +32,7 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
           advertisement_comments(*)
         `, { count: 'exact' })
         .range(from, to)
-        .eq('status', 'aprovado');
+        .eq('status', 'approved');
 
       if (filters?.city) {
         query = query.eq('city', filters.city);

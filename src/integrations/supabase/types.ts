@@ -596,7 +596,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_engagement_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          date: string
+          unique_views: number
+          total_views: number
+          whatsapp_clicks: number
+        }[]
+      }
+      get_regional_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          city: string
+          view_count: number
+          click_count: number
+          active_ads: number
+        }[]
+      }
     }
     Enums: {
       ad_status: "novo" | "aprovado" | "bloqueado" | "pendente"

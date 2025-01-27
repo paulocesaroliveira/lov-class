@@ -81,6 +81,7 @@ export interface Filters {
   category?: AdCategory;
   minAge?: number;
   maxAge?: number;
+  state?: string;
 }
 
 export interface FormValues {
