@@ -17,7 +17,8 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
             where awc.advertisement_id = advertisement_views.advertisement_id
           ))
         `)
-        .order('created_at', { ascending: true });
+        .group('created_at::date')
+        .order('created_at::date', { ascending: true });
 
       if (dateFilter?.startDate) {
         query = query.gte('created_at', dateFilter.startDate);
@@ -33,7 +34,12 @@ export const useEngagementMetrics = (dateFilter?: DateFilter) => {
       }
 
       return {
-        metrics: data || []
+        metrics: data.map(row => ({
+          date: row.date,
+          unique_views: Number(row.unique_views),
+          total_views: Number(row.total_views),
+          whatsapp_clicks: Number(row.whatsapp_clicks)
+        }))
       };
     },
   });
