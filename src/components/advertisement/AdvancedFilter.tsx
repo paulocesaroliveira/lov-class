@@ -17,9 +17,10 @@ import { styles } from "./constants";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { AdCategory, ServiceType } from "@/types/advertisement";
 
 type Filters = {
-  category?: "mulher" | "trans" | "homem";
+  category?: AdCategory;
   state?: string;
   city?: string;
   minPrice?: number;
@@ -33,7 +34,7 @@ type Filters = {
   ethnicity?: string;
   hairColor?: string;
   bodyType?: string;
-  services?: string[];
+  services?: ServiceType[];
   serviceLocations?: string[];
   style?: string;
 };
@@ -110,7 +111,7 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
                     handleTempFilterChange({
                       category: tempFilters.category === category 
                         ? undefined 
-                        : (category as "mulher" | "trans" | "homem")
+                        : (category as AdCategory)
                     })
                   }
                   className="capitalize"

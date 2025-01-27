@@ -87,6 +87,7 @@ export interface Advertisement {
   contact_phone: string;
   contact_whatsapp: boolean;
   contact_telegram: boolean;
+  profile_photo_url?: string;
   advertisement_services: Array<{ service: ServiceType }>;
   advertisement_service_locations: Array<{ location: ServiceLocationType }>;
   advertisement_photos: Array<{ photo_url: string }>;
