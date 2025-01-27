@@ -273,6 +273,7 @@ export type Database = {
           birth_date: string | null
           block_reason: string | null
           body_type: string | null
+          category: Database["public"]["Enums"]["ad_category"]
           city: string | null
           contact_phone: string | null
           contact_telegram: boolean | null
@@ -290,6 +291,7 @@ export type Database = {
           neighborhood: string | null
           profile_id: string | null
           silicone: string | null
+          state: string
           status: string | null
           style: string | null
           updated_at: string
@@ -299,6 +301,7 @@ export type Database = {
           birth_date?: string | null
           block_reason?: string | null
           body_type?: string | null
+          category: Database["public"]["Enums"]["ad_category"]
           city?: string | null
           contact_phone?: string | null
           contact_telegram?: boolean | null
@@ -316,6 +319,7 @@ export type Database = {
           neighborhood?: string | null
           profile_id?: string | null
           silicone?: string | null
+          state: string
           status?: string | null
           style?: string | null
           updated_at?: string
@@ -325,6 +329,7 @@ export type Database = {
           birth_date?: string | null
           block_reason?: string | null
           body_type?: string | null
+          category?: Database["public"]["Enums"]["ad_category"]
           city?: string | null
           contact_phone?: string | null
           contact_telegram?: boolean | null
@@ -342,6 +347,7 @@ export type Database = {
           neighborhood?: string | null
           profile_id?: string | null
           silicone?: string | null
+          state?: string
           status?: string | null
           style?: string | null
           updated_at?: string
@@ -616,6 +622,7 @@ export type Database = {
       }
     }
     Enums: {
+      ad_category: "mulher" | "trans" | "homem"
       ad_status: "novo" | "aprovado" | "bloqueado" | "pendente"
       user_role: "cliente" | "anunciante" | "admin"
     }

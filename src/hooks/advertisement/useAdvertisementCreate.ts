@@ -35,7 +35,6 @@ export const useAdvertisementCreate = () => {
           custom_rate_description: values.customRates?.[0]?.description || null,
           custom_rate_value: values.customRates?.[0]?.value || null,
           description: values.description,
-          profile_photo_url: profilePhotoUrl,
           style: values.style,
           status: 'new'
         })
