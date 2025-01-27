@@ -10,8 +10,8 @@ export interface Advertisement {
   body_type: string;
   silicone: string;
   city: string;
-  neighborhood: string;
   state: string;
+  neighborhood: string;
   hourly_rate: number;
   custom_rate_description?: string;
   custom_rate_value?: number;
@@ -28,8 +28,8 @@ export interface Advertisement {
   contact_phone: string;
   contact_whatsapp: boolean;
   contact_telegram: boolean;
-  advertisement_services: Array<{ service: string }>;
-  advertisement_service_locations: Array<{ location: string }>;
+  advertisement_services: Array<{ service: ServiceType }>;
+  advertisement_service_locations: Array<{ location: ServiceLocationType }>;
   advertisement_photos: Array<{ photo_url: string }>;
   advertisement_videos: Array<{ video_url: string }>;
   advertisement_comments: Array<{
@@ -69,8 +69,8 @@ export interface FormValues {
     value: number;
   }>;
   style: string;
-  services: string[];
-  serviceLocations: string[];
+  services: ServiceType[];
+  serviceLocations: ServiceLocationType[];
   description: string;
   acceptTerms: boolean;
   identityDocument?: File;
@@ -79,7 +79,7 @@ export interface FormValues {
   videos?: File[];
 }
 
-export type ServiceType = 
+export type ServiceType =
   | "beijo_na_boca"
   | "beijo_grego"
   | "bondage"
@@ -100,13 +100,20 @@ export type ServiceType =
   | "orgia"
   | "gangbang";
 
+export type ServiceLocationType =
+  | "com_local"
+  | "motel"
+  | "clube_swing"
+  | "domicilio"
+  | "viagens";
+
 export interface Filters {
   search?: string;
   city?: string;
   minPrice?: number;
   maxPrice?: number;
-  services?: string[];
-  locations?: string[];
+  services?: ServiceType[];
+  locations?: ServiceLocationType[];
   style?: string;
   category?: string;
 }

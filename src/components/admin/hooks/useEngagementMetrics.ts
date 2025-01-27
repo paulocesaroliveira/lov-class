@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { EngagementMetrics } from "../types/metrics";
+import { DateFilter, EngagementMetrics } from "../types/metrics";
 
-export const useEngagementMetrics = () => {
+export const useEngagementMetrics = (dateFilter?: DateFilter) => {
   return useQuery<EngagementMetrics>({
-    queryKey: ["engagement-metrics"],
+    queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("advertisement_views")
         .select(`
           date:created_at::date,
@@ -18,6 +18,15 @@ export const useEngagementMetrics = () => {
           ))
         `)
         .order('created_at', { ascending: true });
+
+      if (dateFilter?.startDate) {
+        query = query.gte('created_at', dateFilter.startDate);
+      }
+      if (dateFilter?.endDate) {
+        query = query.lte('created_at', dateFilter.endDate);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         throw error;
