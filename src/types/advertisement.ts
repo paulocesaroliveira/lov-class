@@ -28,6 +28,38 @@ export type ServiceLocationType =
   | "domicilio"
   | "viagens";
 
+export interface FormValues {
+  name: string;
+  birthDate: string;
+  height: number;
+  weight: number;
+  category: AdCategory;
+  ethnicity: string;
+  hairColor: string;
+  bodyType: string;
+  silicone: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
+  state: string;
+  city: string;
+  neighborhood: string;
+  hourlyRate: number;
+  customRates: Array<{
+    description: string;
+    value: number;
+  }>;
+  style: string;
+  services: ServiceType[];
+  serviceLocations: ServiceLocationType[];
+  description: string;
+  acceptTerms: boolean;
+  identityDocument?: File;
+  profilePhoto?: File;
+  photos?: File[];
+  videos?: File[];
+}
+
 export interface Advertisement {
   id: string;
   name: string;
@@ -66,6 +98,11 @@ export interface Advertisement {
   }>;
 }
 
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+}
+
 export interface Filters {
   search?: string;
   city?: string;
@@ -78,37 +115,4 @@ export interface Filters {
   minAge?: number;
   maxAge?: number;
   state?: string;
-}
-
-export interface FormValues {
-  id?: string;
-  name: string;
-  birthDate: string;
-  height: number;
-  weight: number;
-  category: AdCategory;
-  ethnicity: string;
-  hairColor: string;
-  bodyType: string;
-  silicone: string;
-  contact_phone: string;
-  contact_whatsapp: boolean;
-  contact_telegram: boolean;
-  state: string;
-  city: string;
-  neighborhood: string;
-  hourlyRate: number;
-  customRates: Array<{
-    description: string;
-    value: number;
-  }>;
-  style: string;
-  services: ServiceType[];
-  serviceLocations: ServiceLocationType[];
-  description: string;
-  acceptTerms: boolean;
-  identityDocument?: File;
-  profilePhoto?: File;
-  photos?: File[];
-  videos?: File[];
 }
