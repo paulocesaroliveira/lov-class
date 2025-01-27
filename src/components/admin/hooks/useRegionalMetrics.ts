@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RegionalMetrics } from "../types/metrics";
 
 export const useRegionalMetrics = () => {
-  return useQuery<RegionalMetrics, Error>({
+  return useQuery<RegionalMetrics>({
     queryKey: ["regional-metrics"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -12,10 +12,13 @@ export const useRegionalMetrics = () => {
           state,
           city,
           view_count:advertisement_views(count),
-          click_count:advertisement_whatsapp_clicks(count)
+          click_count:advertisement_whatsapp_clicks(count),
+          active_ads:count()
         `)
         .not('status', 'eq', 'bloqueado')
-        .order('state', 'city');
+        .groupBy('state, city')
+        .order('state', { ascending: true })
+        .order('city', { ascending: true });
 
       if (error) {
         throw error;

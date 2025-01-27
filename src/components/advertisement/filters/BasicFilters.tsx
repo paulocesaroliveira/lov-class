@@ -1,60 +1,80 @@
-import { useEffect } from 'react';
-import { Filters } from '@/types/advertisement';
+import { useEffect } from "react";
+import { Filters } from "@/types/advertisement";
 
 export interface BasicFiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  city: string;
-  onCityChange: (value: string) => void;
-  minPrice?: number;
-  maxPrice?: number;
-  onPriceChange: (min?: number, max?: number) => void;
+  filters: Filters;
+  onFilterChange: (newFilters: Partial<Filters>) => void;
 }
 
-export const BasicFilters = ({
-  searchTerm,
-  onSearchChange,
-  city,
-  onCityChange,
-  minPrice,
-  maxPrice,
-  onPriceChange
-}: BasicFiltersProps) => {
-  useEffect(() => {
-    // Any side effects can be handled here
-  }, [searchTerm, city, minPrice, maxPrice]);
+export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
+  const handleFilterChange = (field: keyof Filters, value: any) => {
+    onFilterChange({ [field]: value });
+  };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => onSearchChange(e.target.value)}
-        className="border p-2 rounded"
-      />
-      <select
-        value={city}
-        onChange={(e) => onCityChange(e.target.value)}
-        className="border p-2 rounded"
-      >
-        <option value="">Select City</option>
-        {/* Add city options here */}
-      </select>
-      <div className="flex space-x-2">
+    <div>
+      <div>
+        <label>Min Age</label>
         <input
           type="number"
-          placeholder="Min Price"
-          value={minPrice || ''}
-          onChange={(e) => onPriceChange(e.target.value ? Number(e.target.value) : undefined, maxPrice)}
-          className="border p-2 rounded"
+          value={filters.minAge || ""}
+          onChange={(e) => handleFilterChange("minAge", Number(e.target.value))}
         />
+      </div>
+      <div>
+        <label>Max Age</label>
         <input
           type="number"
-          placeholder="Max Price"
-          value={maxPrice || ''}
-          onChange={(e) => onPriceChange(minPrice, e.target.value ? Number(e.target.value) : undefined)}
-          className="border p-2 rounded"
+          value={filters.maxAge || ""}
+          onChange={(e) => handleFilterChange("maxAge", Number(e.target.value))}
+        />
+      </div>
+      <div>
+        <label>Min Price</label>
+        <input
+          type="number"
+          value={filters.minPrice || ""}
+          onChange={(e) => handleFilterChange("minPrice", Number(e.target.value))}
+        />
+      </div>
+      <div>
+        <label>Max Price</label>
+        <input
+          type="number"
+          value={filters.maxPrice || ""}
+          onChange={(e) => handleFilterChange("maxPrice", Number(e.target.value))}
+        />
+      </div>
+      <div>
+        <label>Services</label>
+        <input
+          type="text"
+          value={filters.services?.join(", ") || ""}
+          onChange={(e) => handleFilterChange("services", e.target.value.split(", "))}
+        />
+      </div>
+      <div>
+        <label>Locations</label>
+        <input
+          type="text"
+          value={filters.locations?.join(", ") || ""}
+          onChange={(e) => handleFilterChange("locations", e.target.value.split(", "))}
+        />
+      </div>
+      <div>
+        <label>Style</label>
+        <input
+          type="text"
+          value={filters.style || ""}
+          onChange={(e) => handleFilterChange("style", e.target.value)}
+        />
+      </div>
+      <div>
+        <label>Category</label>
+        <input
+          type="text"
+          value={filters.category || ""}
+          onChange={(e) => handleFilterChange("category", e.target.value)}
         />
       </div>
     </div>
