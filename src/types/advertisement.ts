@@ -51,10 +51,6 @@ export interface Advertisement {
   created_at: string;
   updated_at: string;
   profile_id: string;
-  profile: {
-    id: string;
-    name: string;
-  };
   contact_phone: string;
   contact_whatsapp: boolean;
   contact_telegram: boolean;
