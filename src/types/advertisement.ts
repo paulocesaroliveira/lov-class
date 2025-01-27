@@ -42,9 +42,16 @@ export interface Filters {
   minPrice?: number;
   maxPrice?: number;
   services?: ServiceType[];
+  serviceLocations?: ServiceLocationType[];
   style?: string;
   minAge?: number;
   maxAge?: number;
+}
+
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
 }
 
 export type ServiceType =
@@ -74,12 +81,6 @@ export type ServiceLocationType =
   | "clube_swing"
   | "domicilio"
   | "viagens";
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-}
 
 export interface Advertisement {
   id: string;

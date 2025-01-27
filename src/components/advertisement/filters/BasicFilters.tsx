@@ -54,11 +54,11 @@ export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => 
         />
       </div>
       <div>
-        <label>Locations</label>
+        <label>Service Locations</label>
         <input
           type="text"
-          value={filters.locations?.join(", ") || ""}
-          onChange={(e) => handleFilterChange("locations", e.target.value.split(", "))}
+          value={filters.serviceLocations?.join(", ") || ""}
+          onChange={(e) => handleFilterChange("serviceLocations", e.target.value.split(", "))}
         />
       </div>
       <div>

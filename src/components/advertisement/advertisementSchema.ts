@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ServiceType, ServiceLocationType } from "@/types/advertisement";
+import { ServiceType, ServiceLocationType, AdCategory, AdStatus } from "@/types/advertisement";
 
 export const formSchema = z.object({
   id: z.string().optional(),
@@ -7,7 +7,7 @@ export const formSchema = z.object({
   birthDate: z.string().min(1, "Data de nascimento é obrigatória"),
   height: z.number().min(0, "Altura deve ser um número positivo"),
   weight: z.number().min(0, "Peso deve ser um número positivo"),
-  category: z.enum(["mulher", "trans", "homem"]),
+  category: z.enum(["mulher", "trans", "homem"] as const),
   ethnicity: z.string().min(1, "Etnia é obrigatória"),
   hairColor: z.string().min(1, "Cor do cabelo é obrigatória"),
   bodyType: z.string().min(1, "Tipo de corpo é obrigatório"),
@@ -34,7 +34,7 @@ export const formSchema = z.object({
   profilePhoto: z.any().optional(),
   photos: z.array(z.any()).optional(),
   videos: z.array(z.any()).optional(),
-  status: z.enum(["pending", "approved", "blocked"]).optional(),
+  status: z.enum(["pending", "approved", "blocked"] as const).optional(),
 });
 
 export type FormData = z.infer<typeof formSchema>;
