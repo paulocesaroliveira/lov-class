@@ -10,8 +10,6 @@ const TABLES_TO_DELETE_FROM = [
   "profiles"
 ] as const;
 
-type TableName = typeof TABLES_TO_DELETE_FROM[number];
-
 export const deleteUserRelatedData = async (userId: string): Promise<boolean> => {
   try {
     for (const table of TABLES_TO_DELETE_FROM) {

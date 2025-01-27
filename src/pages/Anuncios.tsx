@@ -31,30 +31,30 @@ const Anuncios = () => {
   const [filters, setFilters] = useState<Filters>({});
 
   const { 
-    data, 
+    data,
     isLoading,
     error,
-    isFetchingNextPage, 
-    hasNextPage, 
-    fetchNextPage 
-  } = useAdvertisementList({ filters });
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage
+  } = useAdvertisementList({ 
+    filters: {
+      search: filters.search,
+      city: filters.city,
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice
+    },
+    pageSize: 10
+  });
 
   const handleFilterChange = (newFilters: Filters) => {
     console.log("Applying new filters:", newFilters);
     setFilters(newFilters);
   };
 
-  const allAds = data?.pages?.flatMap(page => page.data) || [];
-  const totalCount = data?.pages?.[0]?.count || 0;
-  const canLoadMore = allAds.length < totalCount;
-
-  console.log("Page render:", {
-    adsCount: allAds.length,
-    totalCount,
-    isLoading,
-    error,
-    hasNextPage
-  });
+  const allAds = data?.pages.flatMap(page => page.data) || [];
+  const totalCount = data?.pages[0]?.totalCount || 0;
+  const canLoadMore = hasNextPage;
 
   return (
     <div className="space-y-8">

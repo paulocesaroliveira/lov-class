@@ -3,7 +3,7 @@ import { DateFilter, EngagementMetric } from "../types/metrics";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useEngagementMetrics = (dateFilter?: DateFilter) => {
-  return useQuery<EngagementMetric[], Error>({
+  return useQuery<EngagementMetric[], Error, EngagementMetric[]>({
     queryKey: ["engagement-metrics", dateFilter],
     queryFn: async () => {
       const { data, error } = await supabase.rpc<EngagementMetric[]>(

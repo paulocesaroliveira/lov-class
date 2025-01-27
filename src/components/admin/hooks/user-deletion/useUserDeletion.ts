@@ -7,7 +7,7 @@ import { toast } from "sonner";
 export const useUserDeletion = () => {
   const queryClient = useQueryClient();
   
-  const mutation = useMutation<DeleteUserResponse, Error, string>({
+  const mutation = useMutation<DeleteUserResponse, Error, string, unknown>({
     mutationFn: async (userId: string) => {
       const validationResult = await validateDeletion(userId);
       if (!validationResult.success) {
@@ -40,26 +40,6 @@ export const useUserDeletion = () => {
       } catch (error) {
         console.error('Error deleting user:', error);
         toast.error(error instanceof Error ? error.message : 'Failed to delete user');
-        return false;
-      }
-    },
-    deleteUserByName: async (name: string) => {
-      try {
-        const { data: user } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('name', name)
-          .single();
-
-        if (!user) {
-          toast.error(`User ${name} not found`);
-          return false;
-        }
-
-        return await mutation.mutateAsync(user.id).then(() => true).catch(() => false);
-      } catch (error) {
-        console.error('Error deleting user by name:', error);
-        toast.error('Failed to delete user by name');
         return false;
       }
     }
