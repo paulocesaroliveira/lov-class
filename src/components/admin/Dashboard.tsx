@@ -20,13 +20,13 @@ export const Dashboard = () => {
   const [isCompact, setIsCompact] = useState(false);
   const dateFilter = startDate || endDate ? { startDate, endDate } : undefined;
 
-  const { data: userMetrics } = useUserMetrics(dateFilter);
+  const { data: userMetrics } = useUserMetrics();
   const { data: adMetricsData } = useAdMetrics(dateFilter);
-  const { data: engagementMetrics } = useEngagementMetrics(dateFilter);
-  const { data: regionalMetrics } = useRegionalMetrics();
+  const { data: engagementMetricsData } = useEngagementMetrics(dateFilter);
+  const { data: regionalMetricsData } = useRegionalMetrics();
 
   const prepareExportData = () => {
-    if (!userMetrics || !adMetricsData || !engagementMetrics || !regionalMetrics) {
+    if (!userMetrics || !adMetricsData || !engagementMetricsData || !regionalMetricsData) {
       toast.error("Não há dados para exportar");
       return null;
     }
@@ -55,7 +55,7 @@ export const Dashboard = () => {
       [],
       ["Métricas de Engajamento"],
       ["Data", "Visualizações Únicas", "Visualizações Totais", "Cliques WhatsApp"],
-      ...(engagementMetrics as EngagementMetric[]).map(metric => [
+      ...(engagementMetricsData?.metrics || []).map(metric => [
         format(new Date(metric.date), 'dd/MM/yyyy'),
         metric.unique_views,
         metric.total_views,
@@ -64,7 +64,7 @@ export const Dashboard = () => {
       [],
       ["Métricas Regionais"],
       ["Estado", "Cidade", "Visualizações", "Cliques", "Anúncios Ativos"],
-      ...(regionalMetrics as RegionalMetric[]).map(metric => [
+      ...(regionalMetricsData?.metrics || []).map(metric => [
         metric.state,
         metric.city,
         metric.view_count,
@@ -140,8 +140,8 @@ export const Dashboard = () => {
       <div className={`grid gap-4 ${isCompact ? 'md:grid-cols-2 lg:grid-cols-4' : 'md:grid-cols-2'}`}>
         <UserDistributionChart userMetrics={userMetrics} isCompact={isCompact} />
         <AdStatusChart adMetrics={adMetricsData?.current} isCompact={isCompact} />
-        <EngagementTrendsChart engagementMetrics={engagementMetrics} isCompact={isCompact} />
-        <RegionalActivityChart regionalMetrics={regionalMetrics} isCompact={isCompact} />
+        <EngagementTrendsChart engagementMetrics={engagementMetricsData?.metrics} isCompact={isCompact} />
+        <RegionalActivityChart regionalMetrics={regionalMetricsData?.metrics} isCompact={isCompact} />
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ interface UseAdvertisementListParams {
     minPrice?: number;
     maxPrice?: number;
   };
+  page?: number;
   pageSize?: number;
 }
 
@@ -17,22 +18,23 @@ interface AdvertisementResponse {
   totalCount: number;
 }
 
-export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisementListParams) => {
+export const useAdvertisementList = ({ filters, page = 1, pageSize = 10 }: UseAdvertisementListParams) => {
   return useInfiniteQuery<AdvertisementResponse>({
     queryKey: ["advertisements", filters],
-    queryFn: async ({ pageParam = 0 }) => {
+    queryFn: async ({ pageParam = 1 }) => {
       let query = supabase
         .from("advertisements")
         .select(`
           *,
-          advertisement_services (*),
-          advertisement_service_locations (*),
-          advertisement_photos (*),
-          advertisement_videos (*),
-          advertisement_comments (*),
-          advertisement_reviews (*),
-          profile:profiles(name)
-        `, { count: "exact" });
+          profile:profiles(*),
+          advertisement_services(*),
+          advertisement_service_locations(*),
+          advertisement_photos(*),
+          advertisement_videos(*),
+          advertisement_reviews(*)
+        `, { count: "exact" })
+        .eq('status', 'aprovado')
+        .range((pageParam - 1) * pageSize, pageParam * pageSize - 1);
 
       if (filters?.search) {
         query = query.ilike("name", `%${filters.search}%`);
@@ -50,24 +52,21 @@ export const useAdvertisementList = ({ filters, pageSize = 10 }: UseAdvertisemen
         query = query.lte("hourly_rate", filters.maxPrice);
       }
 
-      const from = Number(pageParam) * pageSize;
-      const to = from + pageSize - 1;
+      const { data, error, count } = await query;
 
-      const { data, error, count } = await query
-        .range(from, to)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       return {
         data: data as Advertisement[],
         totalCount: count || 0,
       };
     },
-    initialPageParam: 0,
+    initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
-      const nextPage = allPages.length;
-      return nextPage * 10 < lastPage.totalCount ? nextPage : undefined;
+      const nextPage = allPages.length + 1;
+      return lastPage.data.length === pageSize ? nextPage : undefined;
     },
   });
 };

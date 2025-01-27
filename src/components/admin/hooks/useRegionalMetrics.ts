@@ -1,10 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-interface RegionalMetrics {
-  byState: Record<string, number>;
-  byCity: Record<string, number>;
-}
+import { RegionalMetrics } from "../types/metrics";
 
 export const useRegionalMetrics = () => {
   return useQuery<RegionalMetrics, Error>({
@@ -15,24 +11,18 @@ export const useRegionalMetrics = () => {
         .select(`
           state,
           city,
-          count(*) as count
+          view_count:advertisement_views(count),
+          click_count:advertisement_whatsapp_clicks(count),
+          active_ads:count(*)
         `)
-        .group("state, city");
+        .not('status', 'eq', 'bloqueado')
+        .groupBy('state, city');
 
       if (error) {
-        console.error("Error fetching regional metrics:", error);
         throw error;
       }
 
-      const byState: Record<string, number> = {};
-      const byCity: Record<string, number> = {};
-
-      data?.forEach((item) => {
-        byState[item.state] = (byState[item.state] || 0) + item.count;
-        byCity[item.city] = (byCity[item.city] || 0) + item.count;
-      });
-
-      return { byState, byCity };
+      return { metrics: data || [] };
     },
   });
 };

@@ -37,7 +37,10 @@ export interface UserMetrics {
   };
 }
 
-export interface DeleteUserResponse {
-  success: boolean;
-  error?: string;
+export interface EngagementMetrics {
+  metrics: EngagementMetric[];
+}
+
+export interface RegionalMetrics {
+  metrics: RegionalMetric[];
 }
