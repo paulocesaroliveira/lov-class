@@ -3,9 +3,18 @@ import { supabase } from "@/integrations/supabase/client";
 const TABLES = [
   "admin_notes",
   "advertisement_comments",
+  "advertisement_photos",
+  "advertisement_reviews",
+  "advertisement_service_locations",
+  "advertisement_services",
+  "advertisement_videos",
+  "advertisement_views",
+  "advertisement_whatsapp_clicks",
+  "advertisements",
+  "advertiser_documents",
   "favorites",
-  "feed_posts",
   "feed_post_media",
+  "feed_posts",
   "role_change_history",
   "user_activity_logs",
   "user_blocks"
@@ -16,18 +25,30 @@ type TableName = typeof TABLES[number];
 export const deleteUserRelatedData = async (userId: string) => {
   try {
     for (const table of TABLES) {
-      const { error } = await supabase
+      // Delete records where user_id matches
+      const { error: userIdError } = await supabase
         .from(table)
         .delete()
-        .eq("user_id", userId);
+        .eq('user_id', userId);
 
-      if (error) {
-        console.error(`Error deleting from ${table}:`, error);
-        throw error;
+      if (userIdError) {
+        console.error(`Error deleting from ${table} by user_id:`, userIdError);
+      }
+
+      // Delete records where profile_id matches
+      const { error: profileIdError } = await supabase
+        .from(table)
+        .delete()
+        .eq('profile_id', userId);
+
+      if (profileIdError) {
+        console.error(`Error deleting from ${table} by profile_id:`, profileIdError);
       }
     }
+
+    return { success: true };
   } catch (error) {
     console.error("Error in deleteUserRelatedData:", error);
-    throw error;
+    return { success: false, error };
   }
 };
