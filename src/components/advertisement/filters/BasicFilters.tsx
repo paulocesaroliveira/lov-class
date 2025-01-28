@@ -1,80 +1,64 @@
-import { useEffect } from "react";
-import { Filters } from "@/types/advertisement";
+import { FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Filters, ServiceLocationType } from "@/types/advertisement";
 
-export interface BasicFiltersProps {
+interface BasicFiltersProps {
   filters: Filters;
-  onFilterChange: (newFilters: Partial<Filters>) => void;
+  handleFilterChange: (key: keyof Filters, value: any) => void;
 }
 
-export const BasicFilters = ({ filters, onFilterChange }: BasicFiltersProps) => {
-  const handleFilterChange = (field: keyof Filters, value: any) => {
-    onFilterChange({ [field]: value });
-  };
-
+export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps) => {
   return (
-    <div>
+    <div className="space-y-4">
       <div>
-        <label>Min Age</label>
-        <input
-          type="number"
-          value={filters.minAge || ""}
-          onChange={(e) => handleFilterChange("minAge", Number(e.target.value))}
-        />
-      </div>
-      <div>
-        <label>Max Age</label>
-        <input
-          type="number"
-          value={filters.maxAge || ""}
-          onChange={(e) => handleFilterChange("maxAge", Number(e.target.value))}
-        />
-      </div>
-      <div>
-        <label>Min Price</label>
-        <input
-          type="number"
-          value={filters.minPrice || ""}
-          onChange={(e) => handleFilterChange("minPrice", Number(e.target.value))}
-        />
-      </div>
-      <div>
-        <label>Max Price</label>
-        <input
-          type="number"
-          value={filters.maxPrice || ""}
-          onChange={(e) => handleFilterChange("maxPrice", Number(e.target.value))}
-        />
-      </div>
-      <div>
-        <label>Services</label>
-        <input
-          type="text"
-          value={filters.services?.join(", ") || ""}
-          onChange={(e) => handleFilterChange("services", e.target.value.split(", "))}
-        />
-      </div>
-      <div>
-        <label>Service Locations</label>
-        <input
+        <FormLabel>Service Locations</FormLabel>
+        <Input
           type="text"
           value={filters.serviceLocations?.join(", ") || ""}
-          onChange={(e) => handleFilterChange("serviceLocations", e.target.value.split(", "))}
+          onChange={(e) => {
+            const locations = e.target.value.split(", ").filter(Boolean) as ServiceLocationType[];
+            handleFilterChange("serviceLocations", locations);
+          }}
         />
       </div>
       <div>
-        <label>Style</label>
-        <input
-          type="text"
-          value={filters.style || ""}
-          onChange={(e) => handleFilterChange("style", e.target.value)}
-        />
-      </div>
-      <div>
-        <label>Category</label>
-        <input
+        <FormLabel>Category</FormLabel>
+        <Input
           type="text"
           value={filters.category || ""}
           onChange={(e) => handleFilterChange("category", e.target.value)}
+        />
+      </div>
+      <div>
+        <FormLabel>City</FormLabel>
+        <Input
+          type="text"
+          value={filters.city || ""}
+          onChange={(e) => handleFilterChange("city", e.target.value)}
+        />
+      </div>
+      <div>
+        <FormLabel>State</FormLabel>
+        <Input
+          type="text"
+          value={filters.state || ""}
+          onChange={(e) => handleFilterChange("state", e.target.value)}
+        />
+      </div>
+      <div>
+        <FormLabel>Min Price</FormLabel>
+        <Input
+          type="number"
+          value={filters.minPrice || ""}
+          onChange={(e) => handleFilterChange("minPrice", parseFloat(e.target.value))}
+        />
+      </div>
+      <div>
+        <FormLabel>Max Price</FormLabel>
+        <Input
+          type="number"
+          value={filters.maxPrice || ""}
+          onChange={(e) => handleFilterChange("maxPrice", parseFloat(e.target.value))}
         />
       </div>
     </div>
