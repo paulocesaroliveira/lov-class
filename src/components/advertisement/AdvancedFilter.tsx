@@ -17,7 +17,7 @@ import { styles } from "./constants";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { AdCategory, ServiceType } from "@/types/advertisement";
+import { AdCategory, ServiceType, ServiceLocationType } from "@/types/advertisement";
 
 type Filters = {
   category?: AdCategory;
@@ -35,7 +35,7 @@ type Filters = {
   hairColor?: string;
   bodyType?: string;
   services?: ServiceType[];
-  serviceLocations?: string[];
+  serviceLocations?: ServiceLocationType[];
   style?: string;
 };
 
@@ -63,7 +63,7 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
     });
   };
 
-  const handleLocationToggle = (locationId: string) => {
+  const handleLocationToggle = (locationId: ServiceLocationType) => {
     const currentLocations = tempFilters.serviceLocations || [];
     const updatedLocations = currentLocations.includes(locationId)
       ? currentLocations.filter((id) => id !== locationId)
@@ -129,7 +129,7 @@ export const AdvancedFilter = ({ onFilterChange }: AdvancedFilterProps) => {
           <AgeFilter ageRange={ageRange} onAgeChange={handleAgeChange} />
 
           {/* Características Físicas e outros filtros */}
-          <BasicFilters filters={tempFilters} onFilterChange={handleTempFilterChange} />
+          <BasicFilters filters={tempFilters} handleFilterChange={handleTempFilterChange} />
 
           {/* Estilo */}
           <div className="space-y-4">

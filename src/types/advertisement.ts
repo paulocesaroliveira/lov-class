@@ -76,6 +76,13 @@ export interface Filters {
   maxAge?: number;
 }
 
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
+  onSelectAd?: (ad: Advertisement) => void;
+}
+
 export interface Advertisement {
   id: string;
   name: string;
@@ -113,11 +120,4 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
-}
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-  onSelectAd?: (ad: Advertisement) => void;
 }

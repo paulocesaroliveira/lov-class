@@ -1,22 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-type TableName = 
-  | "advertisements" 
-  | "advertisement_photos" 
-  | "advertisement_videos" 
-  | "advertisement_services" 
-  | "advertisement_service_locations" 
-  | "advertisement_reviews" 
-  | "advertiser_documents"
-  | "feed_posts"
-  | "feed_post_media"
-  | "favorites"
-  | "user_blocks"
-  | "user_activity_logs"
-  | "role_change_history"
-  | "admin_notes";
-
-const deleteFromTable = async (tableName: TableName, userId: string) => {
+const deleteFromTable = async (tableName: string, userId: string) => {
   const { error } = await supabase
     .from(tableName)
     .delete()
@@ -30,11 +14,11 @@ const deleteFromTable = async (tableName: TableName, userId: string) => {
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
-    // Delete data from all related tables
-    const tables: TableName[] = [
+    // Delete data from all related tables in order
+    const tables = [
       "advertisements",
       "advertisement_photos",
-      "advertisement_videos",
+      "advertisement_videos", 
       "advertisement_services",
       "advertisement_service_locations",
       "advertisement_reviews",
