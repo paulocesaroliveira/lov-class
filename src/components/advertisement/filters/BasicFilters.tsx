@@ -4,7 +4,7 @@ import { Filters, ServiceLocationType } from "@/types/advertisement";
 
 interface BasicFiltersProps {
   filters: Filters;
-  handleFilterChange: (key: keyof Filters, value: any) => void;
+  handleFilterChange: (newFilters: Partial<Filters>) => void;
 }
 
 export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps) => {
@@ -17,7 +17,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
           value={filters.serviceLocations?.join(", ") || ""}
           onChange={(e) => {
             const locations = e.target.value.split(", ").filter(Boolean) as ServiceLocationType[];
-            handleFilterChange("serviceLocations", locations);
+            handleFilterChange({ serviceLocations: locations });
           }}
         />
       </div>
@@ -26,7 +26,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <Input
           type="text"
           value={filters.category || ""}
-          onChange={(e) => handleFilterChange("category", e.target.value)}
+          onChange={(e) => handleFilterChange({ category: e.target.value as any })}
         />
       </div>
       <div>
@@ -34,7 +34,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <Input
           type="text"
           value={filters.city || ""}
-          onChange={(e) => handleFilterChange("city", e.target.value)}
+          onChange={(e) => handleFilterChange({ city: e.target.value })}
         />
       </div>
       <div>
@@ -42,7 +42,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <Input
           type="text"
           value={filters.state || ""}
-          onChange={(e) => handleFilterChange("state", e.target.value)}
+          onChange={(e) => handleFilterChange({ state: e.target.value })}
         />
       </div>
       <div>
@@ -50,7 +50,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <Input
           type="number"
           value={filters.minPrice || ""}
-          onChange={(e) => handleFilterChange("minPrice", parseFloat(e.target.value))}
+          onChange={(e) => handleFilterChange({ minPrice: parseFloat(e.target.value) })}
         />
       </div>
       <div>
@@ -58,7 +58,7 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <Input
           type="number"
           value={filters.maxPrice || ""}
-          onChange={(e) => handleFilterChange("maxPrice", parseFloat(e.target.value))}
+          onChange={(e) => handleFilterChange({ maxPrice: parseFloat(e.target.value) })}
         />
       </div>
     </div>
