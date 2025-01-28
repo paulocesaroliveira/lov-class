@@ -20,14 +20,17 @@ const TABLES = [
 type TableName = typeof TABLES[number];
 
 const deleteFromTable = async (tableName: TableName, userId: string) => {
-  const { error } = await supabase
-    .from(tableName)
-    .delete()
-    .eq('profile_id', userId);
+  try {
+    const { error } = await supabase
+      .from(tableName)
+      .delete()
+      .eq('user_id', userId);
 
-  if (error) {
-    console.error(`Error deleting from ${tableName}:`, error);
-    throw error;
+    if (error) {
+      console.error(`Error deleting from ${tableName}:`, error);
+    }
+  } catch (error) {
+    console.error(`Error in deleteFromTable for ${tableName}:`, error);
   }
 };
 
@@ -39,6 +42,6 @@ export const deleteUserRelatedData = async (userId: string) => {
     return true;
   } catch (error) {
     console.error("Error deleting user related data:", error);
-    throw error;
+    return false;
   }
 };
