@@ -1,6 +1,28 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const TABLES = [
+// Define a literal union type for table names
+type TableName = 
+  | "admin_notes"
+  | "advertisement_comments"
+  | "advertisement_photos"
+  | "advertisement_reviews"
+  | "advertisement_service_locations"
+  | "advertisement_services"
+  | "advertisement_videos"
+  | "advertisement_views"
+  | "advertisement_whatsapp_clicks"
+  | "advertisements"
+  | "advertiser_documents"
+  | "favorites"
+  | "feed_post_media"
+  | "feed_posts"
+  | "profiles"
+  | "role_change_history"
+  | "user_activity_logs"
+  | "user_blocks";
+
+// Define the tables array with the explicit type
+const TABLES: TableName[] = [
   "admin_notes",
   "advertisement_comments",
   "advertisement_photos",
@@ -19,9 +41,7 @@ const TABLES = [
   "role_change_history",
   "user_activity_logs",
   "user_blocks"
-] as const;
-
-type TableName = (typeof TABLES)[number];
+];
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
