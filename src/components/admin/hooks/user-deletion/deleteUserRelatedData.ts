@@ -11,7 +11,7 @@ const TABLES = [
   "user_blocks"
 ] as const;
 
-type TableName = (typeof TABLES)[number];
+type TableName = typeof TABLES[number];
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
