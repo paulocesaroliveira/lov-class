@@ -21,10 +21,10 @@ const TABLES = [
   'user_blocks'
 ] as const;
 
-type TableName = typeof TABLES[number];
+type TableName = (typeof TABLES)[number];
 
-const deleteFromTable = async (tableName: TableName, userId: string) => {
-  try {
+export const deleteUserRelatedData = async (userId: string) => {
+  for (const tableName of TABLES) {
     const { error } = await supabase
       .from(tableName)
       .delete()
@@ -33,19 +33,5 @@ const deleteFromTable = async (tableName: TableName, userId: string) => {
     if (error) {
       console.error(`Error deleting from ${tableName}:`, error);
     }
-  } catch (error) {
-    console.error(`Error in deleteFromTable for ${tableName}:`, error);
-  }
-};
-
-export const deleteUserRelatedData = async (userId: string) => {
-  try {
-    for (const table of TABLES) {
-      await deleteFromTable(table, userId);
-    }
-    return true;
-  } catch (error) {
-    console.error("Error deleting user related data:", error);
-    return false;
   }
 };

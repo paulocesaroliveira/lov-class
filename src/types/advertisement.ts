@@ -63,33 +63,6 @@ export interface FormValues {
   status?: AdStatus;
 }
 
-export interface Filters {
-  category?: AdCategory;
-  city?: string;
-  state?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minAge?: number;
-  maxAge?: number;
-  minHeight?: number;
-  maxHeight?: number;
-  minWeight?: number;
-  maxWeight?: number;
-  ethnicity?: string;
-  hairColor?: string;
-  bodyType?: string;
-  services?: ServiceType[];
-  serviceLocations?: ServiceLocationType[];
-  style?: string;
-}
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-  onSelectAd?: (ad: Advertisement) => void;
-}
-
 export interface Advertisement {
   id: string;
   name: string;
@@ -127,4 +100,31 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
+}
+
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
+  onSelectAd?: (ad: Advertisement) => void;
+}
+
+export interface Filters {
+  category?: AdCategory;
+  city?: string;
+  state?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minAge?: number;
+  maxAge?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  minWeight?: number;
+  maxWeight?: number;
+  ethnicity?: string;
+  hairColor?: string;
+  bodyType?: string;
+  services?: ServiceType[];
+  serviceLocations?: ServiceLocationType[];
+  style?: string;
 }
