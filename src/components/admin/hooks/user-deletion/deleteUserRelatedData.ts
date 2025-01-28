@@ -1,28 +1,60 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const tables = [
-  "advertisement_comments",
-  "advertisement_photos",
-  "advertisement_videos",
-  "advertisement_services",
-  "advertisement_service_locations",
-  "advertisement_reviews",
-  "advertiser_documents",
-  "advertisement_views",
-  "advertisement_whatsapp_clicks",
-  "favorites",
-  "feed_post_media",
-  "feed_posts",
-  "user_blocks",
-  "user_activity_logs",
-  "role_change_history",
-  "admin_notes"
-] as const;
+type TableName = 
+  | "advertisements" 
+  | "advertisement_photos" 
+  | "advertisement_videos" 
+  | "advertisement_services" 
+  | "advertisement_service_locations" 
+  | "advertisement_reviews" 
+  | "advertiser_documents"
+  | "feed_posts"
+  | "feed_post_media"
+  | "favorites"
+  | "user_blocks"
+  | "user_activity_logs"
+  | "role_change_history"
+  | "admin_notes";
 
-type TableName = typeof tables[number];
+const deleteFromTable = async (tableName: TableName, userId: string) => {
+  const { error } = await supabase
+    .from(tableName)
+    .delete()
+    .eq('profile_id', userId);
+
+  if (error) {
+    console.error(`Error deleting from ${tableName}:`, error);
+    throw error;
+  }
+};
 
 export const deleteUserRelatedData = async (userId: string) => {
-  for (const table of tables) {
-    await supabase.from(table).delete().eq('user_id', userId);
+  try {
+    // Delete data from all related tables
+    const tables: TableName[] = [
+      "advertisements",
+      "advertisement_photos",
+      "advertisement_videos",
+      "advertisement_services",
+      "advertisement_service_locations",
+      "advertisement_reviews",
+      "advertiser_documents",
+      "feed_posts",
+      "feed_post_media",
+      "favorites",
+      "user_blocks",
+      "user_activity_logs",
+      "role_change_history",
+      "admin_notes"
+    ];
+
+    for (const table of tables) {
+      await deleteFromTable(table, userId);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting user related data:", error);
+    throw error;
   }
 };
