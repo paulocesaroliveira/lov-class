@@ -10,7 +10,7 @@ const TABLES = [
   "user_blocks"
 ] as const;
 
-type TableName = typeof TABLES[number];
+type TableName = (typeof TABLES)[number];
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
@@ -22,10 +22,11 @@ export const deleteUserRelatedData = async (userId: string) => {
 
       if (error) {
         console.error(`Error deleting from ${table}:`, error);
+        throw error;
       }
     }
   } catch (error) {
-    console.error('Error in deleteUserRelatedData:', error);
+    console.error("Error in deleteUserRelatedData:", error);
     throw error;
   }
 };
