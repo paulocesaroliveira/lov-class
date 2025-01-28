@@ -15,6 +15,7 @@ const TABLES = [
   "favorites",
   "feed_post_media",
   "feed_posts",
+  "profiles",
   "role_change_history",
   "user_activity_logs",
   "user_blocks"
@@ -24,6 +25,8 @@ type TableName = typeof TABLES[number];
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
+    console.log("Starting deletion of user related data");
+
     for (const table of TABLES) {
       // Delete records where user_id matches
       const { error: userIdError } = await supabase
@@ -46,9 +49,9 @@ export const deleteUserRelatedData = async (userId: string) => {
       }
     }
 
-    return { success: true };
+    console.log("Completed deletion of user related data");
   } catch (error) {
     console.error("Error in deleteUserRelatedData:", error);
-    return { success: false, error };
+    throw error;
   }
 };
