@@ -72,6 +72,8 @@ export interface Filters {
   services?: ServiceType[];
   serviceLocations?: ServiceLocationType[];
   style?: string;
+  minAge?: number;
+  maxAge?: number;
 }
 
 export interface Advertisement {
@@ -117,4 +119,5 @@ export interface AdvertisementListProps {
   advertisements: Advertisement[];
   isLoading: boolean;
   isFavoritesPage?: boolean;
+  onSelectAd?: (ad: Advertisement) => void;
 }
