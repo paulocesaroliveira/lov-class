@@ -1,6 +1,34 @@
 export type AdCategory = "mulher" | "trans" | "homem";
 export type AdStatus = "pending" | "approved" | "blocked";
 
+export type ServiceType =
+  | "beijo_na_boca"
+  | "beijo_grego"
+  | "bondage"
+  | "chuva_dourada"
+  | "chuva_marrom"
+  | "dominacao"
+  | "acessorios_eroticos"
+  | "voyeurismo"
+  | "permite_filmagem"
+  | "menage_casal"
+  | "menage_dois_homens"
+  | "roleplay"
+  | "facefuck"
+  | "oral_sem_preservativo"
+  | "oral_com_preservativo"
+  | "massagem"
+  | "sexo_virtual"
+  | "orgia"
+  | "gangbang";
+
+export type ServiceLocationType =
+  | "com_local"
+  | "motel"
+  | "clube_swing"
+  | "domicilio"
+  | "viagens";
+
 export interface FormValues {
   id?: string;
   name: string;
@@ -44,43 +72,7 @@ export interface Filters {
   services?: ServiceType[];
   serviceLocations?: ServiceLocationType[];
   style?: string;
-  minAge?: number;
-  maxAge?: number;
 }
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-}
-
-export type ServiceType =
-  | "beijo_na_boca"
-  | "beijo_grego"
-  | "bondage"
-  | "chuva_dourada"
-  | "chuva_marrom"
-  | "dominacao"
-  | "acessorios_eroticos"
-  | "voyeurismo"
-  | "permite_filmagem"
-  | "menage_casal"
-  | "menage_dois_homens"
-  | "roleplay"
-  | "facefuck"
-  | "oral_sem_preservativo"
-  | "oral_com_preservativo"
-  | "massagem"
-  | "sexo_virtual"
-  | "orgia"
-  | "gangbang";
-
-export type ServiceLocationType =
-  | "com_local"
-  | "motel"
-  | "clube_swing"
-  | "domicilio"
-  | "viagens";
 
 export interface Advertisement {
   id: string;
@@ -119,4 +111,10 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
+}
+
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
 }
