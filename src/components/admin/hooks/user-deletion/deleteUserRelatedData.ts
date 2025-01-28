@@ -1,15 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-type TableName = 
-  | "admin_notes"
-  | "advertisement_comments"
-  | "advertisement_reviews"
-  | "favorites"
-  | "feed_posts"
-  | "user_activity_logs"
-  | "user_blocks";
-
-const TABLES: TableName[] = [
+const TABLES = [
   "admin_notes",
   "advertisement_comments",
   "advertisement_reviews",
@@ -18,6 +9,8 @@ const TABLES: TableName[] = [
   "user_activity_logs",
   "user_blocks"
 ] as const;
+
+type TableName = typeof TABLES[number];
 
 export const deleteUserRelatedData = async (userId: string) => {
   try {
