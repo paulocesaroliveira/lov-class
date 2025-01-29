@@ -120,6 +120,11 @@ export interface AdvertisementCardProps {
   isFavorite?: boolean;
 }
 
+export interface AdvertisementDialogProps {
+  advertisement: Advertisement;
+  onClose: () => void;
+}
+
 export interface Filters {
   category?: AdCategory;
   city?: string;

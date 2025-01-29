@@ -18,7 +18,7 @@ import { IdentityDocument } from "./IdentityDocument";
 import { ContactOptions } from "./ContactOptions";
 import { TermsAndConditions } from "./TermsAndConditions";
 import { formSchema } from "./advertisementSchema";
-import { FormValues } from "@/types/advertisement";
+import { FormValues, Advertisement } from "@/types/advertisement";
 import { useAuthCheck } from "./hooks/useAuthCheck";
 import { useFormValidation } from "./form/useFormValidation";
 import { useFormSubmission } from "./form/useFormSubmission";
@@ -34,7 +34,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 type AdvertisementFormProps = {
-  advertisement?: any;
+  advertisement?: Advertisement;
 };
 
 export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
@@ -44,33 +44,42 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const [identityDocument, setIdentityDocument] = useState<File | null>(null);
   const [showModerationAlert, setShowModerationAlert] = useState(false);
   const { user } = useAuthCheck();
+
+  const defaultValues: FormValues = {
+    name: "",
+    birthDate: "",
+    height: 170,
+    weight: 65,
+    category: "mulher",
+    ethnicity: "branca",
+    hairColor: "morena",
+    bodyType: "magra",
+    silicone: "nao_uso",
+    contact_phone: "",
+    contact_whatsapp: true,
+    contact_telegram: false,
+    state: "",
+    city: "",
+    neighborhood: "",
+    hourlyRate: 200,
+    customRates: [],
+    style: "patricinha",
+    services: [],
+    serviceLocations: [],
+    description: "",
+    acceptTerms: false,
+  };
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: advertisement || {
-      name: "",
-      birthDate: "",
-      height: 170,
-      weight: 65,
-      category: "mulher",
-      ethnicity: "branca",
-      hairColor: "morena",
-      bodyType: "magra",
-      silicone: "nao_uso",
-      contact_phone: "",
-      contact_whatsapp: true,
-      contact_telegram: false,
-      state: "",
-      city: "",
-      neighborhood: "",
-      hourlyRate: 200,
-      customRates: [],
-      style: "patricinha",
-      services: [],
-      serviceLocations: [],
-      description: "",
-      acceptTerms: false,
-    },
+    defaultValues: advertisement ? {
+      ...defaultValues,
+      ...advertisement,
+      birthDate: advertisement.birth_date,
+      hourlyRate: advertisement.hourly_rate,
+      services: advertisement.advertisement_services.map(s => s.service),
+      serviceLocations: advertisement.advertisement_service_locations.map(l => l.location),
+    } : defaultValues,
     mode: "onBlur",
   });
 
