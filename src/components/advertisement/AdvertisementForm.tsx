@@ -3,20 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
 import { FormProgress } from "./form/FormProgress";
-import { FormStep } from "./form/FormStep";
+import { FormSteps } from "./form/FormSteps";
 import { StepNavigation } from "./form/StepNavigation";
-import { BasicInformation } from "./BasicInformation";
-import { Appearance } from "./Appearance";
-import { ContactLocation } from "./ContactLocation";
-import { CustomRates } from "./CustomRates";
-import { ServicesSelection } from "./ServicesSelection";
-import { StyleSelection } from "./StyleSelection";
-import { Description } from "./Description";
-import { MediaUpload } from "./MediaUpload";
-import { ServiceLocations } from "./ServiceLocations";
-import { IdentityDocument } from "./IdentityDocument";
-import { ContactOptions } from "./ContactOptions";
-import { TermsAndConditions } from "./TermsAndConditions";
 import { formSchema } from "./advertisementSchema";
 import { FormValues, Advertisement } from "@/types/advertisement";
 import { useAuthCheck } from "./hooks/useAuthCheck";
@@ -113,38 +101,13 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormProgress currentStep={currentStep} totalSteps={4} />
-
-          <FormStep isActive={currentStep === 1}>
-            <BasicInformation form={form} />
-            <Appearance form={form} />
-            <ContactOptions form={form} />
-            <ContactLocation form={form} />
-          </FormStep>
-
-          <FormStep isActive={currentStep === 2}>
-            <CustomRates form={form} />
-            <StyleSelection form={form} />
-            <ServicesSelection form={form} />
-            <ServiceLocations form={form} />
-            <Description form={form} />
-          </FormStep>
-
-          <FormStep isActive={currentStep === 3}>
-            <MediaUpload
-              setProfilePhoto={form.setValue}
-              setPhotos={form.setValue}
-              setVideos={form.setValue}
-            />
-            <IdentityDocument 
-              form={form} 
-              setIdentityDocument={setIdentityDocument} 
-            />
-          </FormStep>
-
-          <FormStep isActive={currentStep === 4}>
-            <TermsAndConditions form={form} />
-          </FormStep>
-
+          
+          <FormSteps 
+            currentStep={currentStep} 
+            form={form} 
+            setIdentityDocument={setIdentityDocument}
+          />
+          
           <StepNavigation
             currentStep={currentStep}
             totalSteps={4}

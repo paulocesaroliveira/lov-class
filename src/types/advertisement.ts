@@ -121,8 +121,8 @@ export interface AdvertisementCardProps {
 }
 
 export interface AdvertisementDialogProps {
-  advertisement: Advertisement;
-  onClose: () => void;
+  advertisement: Advertisement | null;
+  onOpenChange: (open: boolean) => void;
 }
 
 export interface Filters {
