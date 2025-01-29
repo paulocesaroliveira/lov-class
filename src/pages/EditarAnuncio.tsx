@@ -15,34 +15,35 @@ const EditarAnuncio = () => {
       if (!id) return;
 
       try {
-        const { data: advertisementData, error } = await supabase
+        // First fetch the main advertisement data with its direct relationships
+        const { data: advertisementData, error: adError } = await supabase
           .from("advertisements")
           .select(`
             *,
             advertisement_services (
-              *
+              service
             ),
             advertisement_service_locations (
-              *
+              location
             ),
             advertisement_photos (
-              *
+              photo_url
             ),
             advertisement_videos (
-              *
-            ),
-            advertisement_comments (
-              *
+              video_url
             ),
             advertisement_reviews (
-              *
+              id,
+              status,
+              review_notes,
+              updated_at
             )
           `)
           .eq("id", id)
           .single();
 
-        if (error) {
-          console.error("Error fetching advertisement:", error);
+        if (adError) {
+          console.error("Error fetching advertisement:", adError);
           toast.error("Erro ao carregar anúncio");
           return;
         }
@@ -52,7 +53,24 @@ const EditarAnuncio = () => {
           return;
         }
 
-        setAdvertisement(advertisementData as Advertisement);
+        // Then fetch comments separately
+        const { data: commentsData, error: commentsError } = await supabase
+          .from("advertisement_comments")
+          .select("*")
+          .eq("advertisement_id", id);
+
+        if (commentsError) {
+          console.error("Error fetching comments:", commentsError);
+          // Don't return here, we can still show the ad without comments
+        }
+
+        // Combine the data
+        const fullAdvertisement = {
+          ...advertisementData,
+          advertisement_comments: commentsData || []
+        };
+
+        setAdvertisement(fullAdvertisement as Advertisement);
       } catch (error) {
         console.error("Error:", error);
         toast.error("Erro ao carregar anúncio");
