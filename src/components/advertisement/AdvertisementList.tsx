@@ -1,15 +1,13 @@
-import { Advertisement } from "@/types/advertisement";
+import { Advertisement, AdvertisementListProps } from "@/types/advertisement";
 import { Card } from "@/components/ui/card";
 import { AdvertisementCard } from "./AdvertisementCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-}
-
-export const AdvertisementList = ({ advertisements, isLoading, isFavoritesPage }: AdvertisementListProps) => {
+export const AdvertisementList = ({ 
+  advertisements, 
+  isLoading, 
+  isFavoritesPage 
+}: AdvertisementListProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -45,7 +43,6 @@ export const AdvertisementList = ({ advertisements, isLoading, isFavoritesPage }
         <AdvertisementCard
           key={advertisement.id}
           advertisement={advertisement}
-          isFavoritesPage={isFavoritesPage}
         />
       ))}
     </div>

@@ -106,25 +106,9 @@ export interface AdvertisementListProps {
   advertisements: Advertisement[];
   isLoading: boolean;
   isFavoritesPage?: boolean;
-  onSelectAd?: (ad: Advertisement) => void;
 }
 
-export interface Filters {
-  category?: AdCategory;
-  city?: string;
-  state?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minAge?: number;
-  maxAge?: number;
-  minHeight?: number;
-  maxHeight?: number;
-  minWeight?: number;
-  maxWeight?: number;
-  ethnicity?: string;
-  hairColor?: string;
-  bodyType?: string;
-  services?: ServiceType[];
-  serviceLocations?: ServiceLocationType[];
-  style?: string;
+export interface AdvertisementCardProps {
+  advertisement: Advertisement;
+  isFavorite?: boolean;
 }

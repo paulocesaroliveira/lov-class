@@ -50,7 +50,6 @@ const Anuncios = () => {
   };
 
   const allAds = data?.pages.flatMap(page => page.data) || [];
-  const totalCount = data?.pages[0]?.totalCount || 0;
 
   return (
     <div className="space-y-8">
@@ -61,7 +60,6 @@ const Anuncios = () => {
       <AdvertisementList 
         advertisements={allAds}
         isLoading={isLoading}
-        onSelectAd={setSelectedAd}
       />
 
       {hasNextPage && (
