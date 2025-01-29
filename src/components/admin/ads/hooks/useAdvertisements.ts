@@ -18,7 +18,6 @@ export const useAdvertisements = () => {
           advertisement_reviews (
             status,
             review_notes,
-            block_reason,
             updated_at
           )
         `)

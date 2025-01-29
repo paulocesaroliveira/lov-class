@@ -40,9 +40,9 @@ export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsP
 
       <FormStep isActive={currentStep === 3}>
         <MediaUpload
-          setProfilePhoto={(file: File) => form.setValue('profilePhoto', file)}
-          setPhotos={(files: File[]) => form.setValue('photos', files)}
-          setVideos={(files: File[]) => form.setValue('videos', files)}
+          setProfilePhoto={(file) => form.setValue('profilePhoto', file)}
+          setPhotos={(files) => form.setValue('photos', files)}
+          setVideos={(files) => form.setValue('videos', files)}
         />
         <IdentityDocument 
           form={form} 

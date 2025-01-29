@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { AuthError } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,17 +32,16 @@ const Login = () => {
   }, [location.state]);
 
   const getErrorMessage = (error: AuthError) => {
-    if (error instanceof AuthApiError) {
-      switch (error.message) {
-        case "Email not confirmed":
-          return "Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.";
-        case "Invalid login credentials":
-          return "Email ou senha incorretos";
-        default:
-          return error.message;
-      }
+    switch (error.message) {
+      case "Email not confirmed":
+        return "Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.";
+      case "Invalid login credentials":
+        return "Email ou senha incorretos";
+      case "Invalid Refresh Token: Refresh Token Not Found":
+        return "Sua sessão expirou. Por favor, faça login novamente.";
+      default:
+        return error.message;
     }
-    return "Erro ao fazer login. Tente novamente mais tarde.";
   };
 
   const handleLogin = async (e: React.FormEvent) => {
