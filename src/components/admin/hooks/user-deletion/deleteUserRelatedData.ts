@@ -23,35 +23,17 @@ const TABLES = [
 
 type TableName = typeof TABLES[number];
 
-export const deleteUserRelatedData = async (userId: string) => {
-  try {
-    console.log("Starting deletion of user related data");
-
-    for (const table of TABLES) {
-      // Delete records where user_id matches
-      const { error: userIdError } = await supabase
-        .from(table)
-        .delete()
-        .eq('user_id', userId);
-
-      if (userIdError) {
-        console.error(`Error deleting from ${table} by user_id:`, userIdError);
-      }
-
-      // Delete records where profile_id matches
-      const { error: profileIdError } = await supabase
-        .from(table)
-        .delete()
-        .eq('profile_id', userId);
-
-      if (profileIdError) {
-        console.error(`Error deleting from ${table} by profile_id:`, profileIdError);
-      }
-    }
-
-    console.log("Completed deletion of user related data");
-  } catch (error) {
-    console.error("Error in deleteUserRelatedData:", error);
-    throw error;
+export const deleteUserRelatedData = async (
+  userId: string,
+  logStep: (step: string, success: boolean, error?: string) => void
+) => {
+  for (const table of TABLES) {
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq("user_id", userId);
+    
+    logStep(`Delete ${table}`, !error, error?.message);
+    if (error) throw new Error(`Failed to delete ${table}: ${error.message}`);
   }
 };
