@@ -100,6 +100,12 @@ export interface Advertisement {
     review_notes: string | null;
     updated_at: string;
   }>;
+  advertisement_comments?: Array<{
+    id: string;
+    comment: string;
+    rating?: number;
+    created_at: string;
+  }>;
 }
 
 export interface AdvertisementListProps {
@@ -110,5 +116,18 @@ export interface AdvertisementListProps {
 
 export interface AdvertisementCardProps {
   advertisement: Advertisement;
+  onClick: (ad: Advertisement) => void;
   isFavorite?: boolean;
+}
+
+export interface Filters {
+  category?: AdCategory;
+  city?: string;
+  state?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minAge?: number;
+  maxAge?: number;
+  services?: ServiceType[];
+  serviceLocations?: ServiceLocationType[];
 }

@@ -1,25 +1,23 @@
 import { Advertisement, AdvertisementListProps } from "@/types/advertisement";
-import { Card } from "@/components/ui/card";
 import { AdvertisementCard } from "./AdvertisementCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { AdvertisementDialog } from "./AdvertisementDialog";
+import { useState } from "react";
 
 export const AdvertisementList = ({ 
   advertisements, 
-  isLoading, 
+  isLoading,
   isFavoritesPage 
 }: AdvertisementListProps) => {
+  const [selectedAd, setSelectedAd] = useState<Advertisement | null>(null);
+
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, index) => (
-          <Card key={index} className="p-4">
-            <Skeleton className="h-[200px] w-full rounded-lg" />
-            <div className="space-y-2 mt-4">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <div
+            key={i}
+            className="h-[400px] rounded-lg bg-muted animate-pulse"
+          />
         ))}
       </div>
     );
@@ -27,10 +25,10 @@ export const AdvertisementList = ({
 
   if (!advertisements.length) {
     return (
-      <div className="text-center py-8">
-        <p className="text-lg text-muted-foreground">
-          {isFavoritesPage
-            ? "Você ainda não adicionou nenhum anúncio aos favoritos"
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">
+          {isFavoritesPage 
+            ? "Você ainda não tem anúncios favoritos" 
             : "Nenhum anúncio encontrado"}
         </p>
       </div>
@@ -38,13 +36,21 @@ export const AdvertisementList = ({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {advertisements.map((advertisement) => (
-        <AdvertisementCard
-          key={advertisement.id}
-          advertisement={advertisement}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {advertisements.map((advertisement) => (
+          <AdvertisementCard
+            key={advertisement.id}
+            advertisement={advertisement}
+            onClick={() => setSelectedAd(advertisement)}
+          />
+        ))}
+      </div>
+
+      <AdvertisementDialog
+        advertisement={selectedAd}
+        onClose={() => setSelectedAd(null)}
+      />
+    </>
   );
 };
