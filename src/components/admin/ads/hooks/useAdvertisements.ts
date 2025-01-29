@@ -5,6 +5,8 @@ export const useAdvertisements = () => {
   return useQuery({
     queryKey: ["admin-advertisements"],
     queryFn: async () => {
+      console.log("Fetching advertisements...");
+      
       const { data, error } = await supabase
         .from("advertisements")
         .select(`
@@ -16,15 +18,18 @@ export const useAdvertisements = () => {
           advertisement_reviews (
             status,
             review_notes,
+            block_reason,
             updated_at
           )
         `)
-        .order("updated_at", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("Error fetching advertisements:", error);
         throw error;
       }
+
+      console.log("Fetched advertisements:", data);
 
       // Process the data to get only the latest review for each ad
       return data?.map(ad => ({

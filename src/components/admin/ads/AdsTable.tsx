@@ -39,12 +39,11 @@ export const AdsTable = ({
   const handleViewDocument = async (adId: string) => {
     setLoadingDoc(adId);
     try {
-      // Primeiro, buscar o registro do documento
       const { data: advertiserDocs, error: docsError } = await supabase
         .from('advertiser_documents')
         .select('document_url')
         .eq('advertisement_id', adId)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (docsError) {
         console.error("Error fetching document:", docsError);
@@ -57,7 +56,6 @@ export const AdsTable = ({
         return;
       }
 
-      // Agora, obter a URL pública do documento
       const { data: publicUrlData } = await supabase
         .storage
         .from('identity_documents')
@@ -99,7 +97,7 @@ export const AdsTable = ({
               <TableCell className="capitalize">{ad.category}</TableCell>
               <TableCell>
                 <StatusBadge 
-                  status={ad.advertisement_reviews?.[0]?.status || "pending"} 
+                  status={ad.status || "pending"} 
                   blocked={ad.blocked}
                 />
               </TableCell>
