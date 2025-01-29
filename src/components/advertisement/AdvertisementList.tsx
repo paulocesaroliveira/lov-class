@@ -49,7 +49,7 @@ export const AdvertisementList = ({
 
       <AdvertisementDialog
         advertisement={selectedAd}
-        onClose={() => setSelectedAd(null)}
+        onOpenChange={(open) => !open && setSelectedAd(null)}
       />
     </>
   );
