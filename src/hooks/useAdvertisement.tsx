@@ -33,8 +33,8 @@ export const useAdvertisement = (id: string | undefined) => {
       return advertisement;
     },
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // Cache por 5 minutos
-    gcTime: 10 * 60 * 1000, // Manter no cache por 10 minutos
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -73,7 +73,7 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
         .from("advertisement_views")
         .select("*", { count: "exact", head: true })
         .eq("advertisement_id", advertisementId)
-        .gte("viewed_at", getFirstDayOfCurrentMonth());
+        .gte("created_at", getFirstDayOfCurrentMonth()); // Changed from viewed_at to created_at
       
       return count || 0;
     },
@@ -110,7 +110,7 @@ export const useAdvertisementStats = (advertisementId: string | null) => {
         .from("advertisement_whatsapp_clicks")
         .select("*", { count: "exact", head: true })
         .eq("advertisement_id", advertisementId)
-        .gte("clicked_at", getFirstDayOfCurrentMonth());
+        .gte("created_at", getFirstDayOfCurrentMonth()); // Changed from clicked_at to created_at
       
       return count || 0;
     },
