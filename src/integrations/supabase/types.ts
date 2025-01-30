@@ -9,6 +9,97 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_comments: {
+        Row: {
+          advertisement_id: string | null
+          comment: string
+          created_at: string
+          id: string
+          rating: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          comment: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          comment?: string
+          created_at?: string
+          id?: string
+          rating?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       advertisement_photos: {
         Row: {
           advertisement_id: string | null
@@ -408,6 +499,113 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_post_media: {
+        Row: {
+          created_at: string
+          id: string
+          media_type: string
+          media_url: string
+          post_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_type: string
+          media_url: string
+          post_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          post_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "feed_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feed_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          profile_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          profile_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feed_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -431,6 +629,51 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      role_change_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_role: Database["public"]["Enums"]["user_role"]
+          old_role: Database["public"]["Enums"]["user_role"]
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_role: Database["public"]["Enums"]["user_role"]
+          old_role: Database["public"]["Enums"]["user_role"]
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["user_role"]
+          old_role?: Database["public"]["Enums"]["user_role"]
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_change_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_change_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_activity_logs: {
         Row: {
@@ -461,6 +704,45 @@ export type Database = {
           {
             foreignKeyName: "user_activity_logs_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_blocks: {
+        Row: {
+          blocked_by_id: string | null
+          blocked_user_id: string | null
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_by_id?: string | null
+          blocked_user_id?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_blocks_blocked_by_id_fkey"
+            columns: ["blocked_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_blocks_blocked_user_id_fkey"
+            columns: ["blocked_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

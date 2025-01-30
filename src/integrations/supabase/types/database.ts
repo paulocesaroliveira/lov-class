@@ -1,8 +1,115 @@
-import { ServiceType, ServiceLocationType, AdCategory, UserRole } from './enums';
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export interface Database {
   public: {
     Tables: {
+      advertisements: {
+        Row: {
+          id: string
+          profile_id: string
+          name: string
+          description: string
+          birth_date: string
+          height: number
+          weight: number
+          category: 'mulher' | 'trans' | 'homem'
+          ethnicity: string
+          hair_color: string
+          body_type: string
+          silicone: string
+          contact_phone: string
+          contact_whatsapp: boolean
+          contact_telegram: boolean
+          state: string
+          city: string
+          neighborhood: string
+          hourly_rate: number
+          custom_rate_description?: string
+          custom_rate_value?: number
+          style: string
+          profile_photo_url?: string
+          moderation_status: 'pending_review' | 'approved' | 'rejected' | 'blocked'
+          blocked: boolean
+          block_reason?: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          name: string
+          description: string
+          birth_date: string
+          height: number
+          weight: number
+          category: 'mulher' | 'trans' | 'homem'
+          ethnicity: string
+          hair_color: string
+          body_type: string
+          silicone: string
+          contact_phone: string
+          contact_whatsapp?: boolean
+          contact_telegram?: boolean
+          state: string
+          city: string
+          neighborhood: string
+          hourly_rate: number
+          custom_rate_description?: string
+          custom_rate_value?: number
+          style: string
+          profile_photo_url?: string
+          moderation_status?: 'pending_review' | 'approved' | 'rejected' | 'blocked'
+          blocked?: boolean
+          block_reason?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          name?: string
+          description?: string
+          birth_date?: string
+          height?: number
+          weight?: number
+          category?: 'mulher' | 'trans' | 'homem'
+          ethnicity?: string
+          hair_color?: string
+          body_type?: string
+          silicone?: string
+          contact_phone?: string
+          contact_whatsapp?: boolean
+          contact_telegram?: boolean
+          state?: string
+          city?: string
+          neighborhood?: string
+          hourly_rate?: number
+          custom_rate_description?: string
+          custom_rate_value?: number
+          style?: string
+          profile_photo_url?: string
+          moderation_status?: 'pending_review' | 'approved' | 'rejected' | 'blocked'
+          blocked?: boolean
+          block_reason?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       advertisement_comments: {
         Row: {
           advertisement_id: string;
@@ -259,184 +366,6 @@ export interface Database {
           }
         ];
       };
-      advertisements: {
-        Row: {
-          birth_date: string;
-          block_reason: string | null;
-          blocked: boolean | null;
-          body_type: string;
-          category: Database["public"]["Enums"]["ad_category"];
-          city: string;
-          created_at: string;
-          custom_rate_description: string | null;
-          custom_rate_value: number | null;
-          description: string;
-          ethnicity: string;
-          hair_color: string;
-          height: number;
-          hourly_rate: number;
-          id: string;
-          name: string;
-          neighborhood: string;
-          profile_id: string;
-          profile_photo_url: string | null;
-          silicone: string;
-          state: string;
-          style: string;
-          updated_at: string;
-          weight: number;
-          whatsapp: string;
-        };
-        Insert: {
-          birth_date: string;
-          block_reason?: string | null;
-          blocked?: boolean | null;
-          body_type?: string;
-          category: Database["public"]["Enums"]["ad_category"];
-          city: string;
-          created_at?: string;
-          custom_rate_description?: string | null;
-          custom_rate_value?: number | null;
-          description: string;
-          ethnicity?: string;
-          hair_color?: string;
-          height: number;
-          hourly_rate: number;
-          id?: string;
-          name: string;
-          neighborhood: string;
-          profile_id: string;
-          profile_photo_url?: string | null;
-          silicone?: string;
-          state: string;
-          style: string;
-          updated_at?: string;
-          weight: number;
-          whatsapp: string;
-        };
-        Update: {
-          birth_date?: string;
-          block_reason?: string | null;
-          blocked?: boolean | null;
-          body_type?: string;
-          category?: Database["public"]["Enums"]["ad_category"];
-          city?: string;
-          created_at?: string;
-          custom_rate_description?: string | null;
-          custom_rate_value?: number | null;
-          description?: string;
-          ethnicity?: string;
-          hair_color?: string;
-          height?: number;
-          hourly_rate?: number;
-          id?: string;
-          name?: string;
-          neighborhood?: string;
-          profile_id?: string;
-          profile_photo_url?: string | null;
-          silicone?: string;
-          state?: string;
-          style?: string;
-          updated_at?: string;
-          weight?: number;
-          whatsapp?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "advertisements_profile_id_fkey";
-            columns: ["profile_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      advertiser_documents: {
-        Row: {
-          advertisement_id: string;
-          created_at: string;
-          document_url: string;
-          id: string;
-          verified: boolean | null;
-        };
-        Insert: {
-          advertisement_id: string;
-          created_at?: string;
-          document_url: string;
-          id?: string;
-          verified?: boolean | null;
-        };
-        Update: {
-          advertisement_id?: string;
-          created_at?: string;
-          document_url?: string;
-          id?: string;
-          verified?: boolean | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "advertiser_documents_advertisement_id_fkey";
-            columns: ["advertisement_id"];
-            isOneToOne: true;
-            referencedRelation: "advertisements";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      conversation_participants: {
-        Row: {
-          advertisement_id: string | null;
-          conversation_id: string;
-          created_at: string;
-          user_id: string;
-        };
-        Insert: {
-          advertisement_id?: string | null;
-          conversation_id: string;
-          created_at?: string;
-          user_id: string;
-        };
-        Update: {
-          advertisement_id?: string | null;
-          conversation_id?: string;
-          created_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "conversation_participants_advertisement_id_fkey";
-            columns: ["advertisement_id"];
-            isOneToOne: false;
-            referencedRelation: "advertisements";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "conversation_participants_conversation_id_fkey";
-            columns: ["conversation_id"];
-            isOneToOne: false;
-            referencedRelation: "conversations";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      conversations: {
-        Row: {
-          created_at: string;
-          id: string;
-          updated_at: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          updated_at?: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       favorites: {
         Row: {
           advertisement_id: string;
@@ -466,105 +395,6 @@ export interface Database {
           }
         ];
       };
-      feed_post_media: {
-        Row: {
-          created_at: string;
-          id: string;
-          media_type: string;
-          media_url: string;
-          post_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          media_type: string;
-          media_url: string;
-          post_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          media_type?: string;
-          media_url?: string;
-          post_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "feed_post_media_post_id_fkey";
-            columns: ["post_id"];
-            isOneToOne: false;
-            referencedRelation: "feed_posts";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      feed_posts: {
-        Row: {
-          content: string;
-          created_at: string;
-          id: string;
-          profile_id: string;
-          updated_at: string;
-        };
-        Insert: {
-          content: string;
-          created_at?: string;
-          id?: string;
-          profile_id: string;
-          updated_at?: string;
-        };
-        Update: {
-          content?: string;
-          created_at?: string;
-          id?: string;
-          profile_id?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "feed_posts_profile_id_fkey";
-            columns: ["profile_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      messages: {
-        Row: {
-          content: string;
-          conversation_id: string;
-          created_at: string;
-          id: string;
-          read_at: string | null;
-          sender_id: string;
-        };
-        Insert: {
-          content: string;
-          conversation_id: string;
-          created_at?: string;
-          id?: string;
-          read_at?: string | null;
-          sender_id: string;
-        };
-        Update: {
-          content?: string;
-          conversation_id?: string;
-          created_at?: string;
-          id?: string;
-          read_at?: string | null;
-          sender_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey";
-            columns: ["conversation_id"];
-            isOneToOne: false;
-            referencedRelation: "conversations";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
       profiles: {
         Row: {
           created_at: string;
@@ -589,41 +419,18 @@ export interface Database {
         };
         Relationships: [];
       };
-      user_typing_status: {
-        Row: {
-          conversation_id: string;
-          user_id: string;
-          is_typing: boolean | null;
-          updated_at: string | null;
-        };
-        Insert: {
-          conversation_id: string;
-          user_id: string;
-          is_typing?: boolean | null;
-          updated_at?: string | null;
-        };
-        Update: {
-          conversation_id?: string;
-          user_id?: string;
-          is_typing?: boolean | null;
-          updated_at?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "user_typing_status_conversation_id_fkey";
-            columns: ["conversation_id"];
-            isOneToOne: false;
-            referencedRelation: "conversations";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-    };
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
     Enums: {
-      service_type: ServiceType;
-      service_location_type: ServiceLocationType;
-      ad_category: AdCategory;
-      user_role: UserRole;
-    };
-  };
+      user_role: 'cliente' | 'anunciante' | 'admin'
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
 }
