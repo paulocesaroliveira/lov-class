@@ -98,9 +98,6 @@ export interface AdvertisementComment {
   rating?: number;
   created_at: string;
   updated_at: string;
-  user?: {
-    name: string;
-  };
 }
 
 export interface AdvertisementReview {
@@ -133,14 +130,24 @@ export interface FormValues {
   city: string;
   neighborhood: string;
   hourly_rate: number;
+  custom_rates?: Array<{
+    description: string;
+    value: number;
+  }>;
   style: string;
   services: ServiceType[];
   service_locations: ServiceLocationType[];
+  profile_photo?: File;
   photos?: File[];
   videos?: File[];
-  profile_photo?: File;
   identity_document?: File;
   accept_terms: boolean;
+}
+
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
 }
 
 export interface Filters {

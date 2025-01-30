@@ -40,9 +40,9 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
 
       // Calculate metrics
       const total = reviews?.length || 0;
-      const approved = reviews?.filter(r => r.status === 'approved').length || 0;
-      const pending = reviews?.filter(r => r.status === 'pending').length || 0;
-      const rejected = reviews?.filter(r => r.status === 'rejected').length || 0;
+      const approved = reviews?.filter(r => r.moderation_status === 'approved').length || 0;
+      const pending = reviews?.filter(r => r.moderation_status === 'pending_review').length || 0;
+      const rejected = reviews?.filter(r => r.moderation_status === 'rejected').length || 0;
       const approvalRate = total > 0 ? (approved / total) * 100 : 0;
 
       // Get previous period metrics if date filter is provided
@@ -67,9 +67,9 @@ export const useAdMetrics = (dateFilter?: DateFilter) => {
       }
 
       const prevTotal = previousData.length;
-      const prevApproved = previousData.filter((r: any) => r.status === 'approved').length;
-      const prevPending = previousData.filter((r: any) => r.status === 'pending').length;
-      const prevRejected = previousData.filter((r: any) => r.status === 'rejected').length;
+      const prevApproved = previousData.filter((r: any) => r.moderation_status === 'approved').length;
+      const prevPending = previousData.filter((r: any) => r.moderation_status === 'pending_review').length;
+      const prevRejected = previousData.filter((r: any) => r.moderation_status === 'rejected').length;
       const prevApprovalRate = prevTotal > 0 ? (prevApproved / prevTotal) * 100 : 0;
 
       return {
