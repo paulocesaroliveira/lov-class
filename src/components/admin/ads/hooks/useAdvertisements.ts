@@ -16,7 +16,7 @@ export const useAdvertisements = () => {
             role
           ),
           advertisement_reviews (
-            status,
+            moderation_status,
             review_notes,
             updated_at
           )

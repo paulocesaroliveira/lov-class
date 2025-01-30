@@ -40,7 +40,7 @@ export const AdsManagement = () => {
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: 'approved'
+          moderation_status: 'approved'
         })
         .eq("id", ad.id);
 
@@ -58,7 +58,7 @@ export const AdsManagement = () => {
         .from("advertisement_reviews")
         .insert({
           advertisement_id: ad.id,
-          status: 'approved',
+          moderation_status: 'approved',
           reviewer_id: currentUser,
           review_notes: "Anúncio aprovado pela administração",
           block_reason: null

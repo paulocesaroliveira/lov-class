@@ -16,7 +16,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
       const { error: adError } = await supabase
         .from("advertisements")
         .update({ 
-          status: status === 'approved' ? 'approved' : 'blocked'
+          moderation_status: status === 'approved' ? 'approved' : 'blocked'
         })
         .eq("id", selectedAd.id);
 
@@ -34,7 +34,7 @@ export const useAdvertisementReview = (refetch: () => Promise<void>) => {
         .from("advertisement_reviews")
         .insert({
           advertisement_id: selectedAd.id,
-          status: status,
+          moderation_status: status,
           reviewer_id: currentUser,
           review_notes: reviewNotes || `Anúncio ${status === 'approved' ? 'aprovado' : 'rejeitado'} pela administração`,
           block_reason: status === 'rejected' ? reviewNotes : null

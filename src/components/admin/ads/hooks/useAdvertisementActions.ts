@@ -70,7 +70,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
       const { error: blockError } = await supabase
         .from("advertisements")
         .update({ 
-          status: 'blocked'
+          moderation_status: 'blocked'
         })
         .eq("id", id);
 
@@ -88,7 +88,7 @@ export const useAdvertisementActions = (refetch: () => Promise<void>) => {
         .from("advertisement_reviews")
         .insert({
           advertisement_id: id,
-          status: 'rejected',
+          moderation_status: 'rejected',
           reviewer_id: currentUser,
           review_notes: reason,
           block_reason: reason
