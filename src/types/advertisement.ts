@@ -1,3 +1,18 @@
+export type AdStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
+export type AdCategory = 'mulher' | 'trans' | 'homem';
+export type ServiceType = 
+  | 'massagem' 
+  | 'dominacao' 
+  | 'fetiches' 
+  | 'acompanhante';
+
+export type ServiceLocationType = 
+  | 'com_local'
+  | 'motel'
+  | 'clube_swing'
+  | 'domicilio'
+  | 'viagens';
+
 export interface Advertisement {
   id: string;
   profile_id: string;
@@ -6,7 +21,7 @@ export interface Advertisement {
   birth_date: string;
   height: number;
   weight: number;
-  category: 'mulher' | 'trans' | 'homem';
+  category: AdCategory;
   ethnicity: string;
   hair_color: string;
   body_type: string;
@@ -22,7 +37,7 @@ export interface Advertisement {
   custom_rate_value?: number;
   style: string;
   profile_photo_url?: string;
-  moderation_status: 'pending_review' | 'approved' | 'rejected' | 'blocked';
+  moderation_status: AdStatus;
   blocked?: boolean;
   block_reason?: string;
   created_at: string;
@@ -51,12 +66,12 @@ export interface AdvertisementVideo {
 
 export interface AdvertisementService {
   advertisement_id: string;
-  service: string;
+  service: ServiceType;
 }
 
 export interface AdvertisementServiceLocation {
   advertisement_id: string;
-  location: string;
+  location: ServiceLocationType;
 }
 
 export interface AdvertisementComment {
@@ -76,22 +91,46 @@ export interface AdvertisementReview {
   id: string;
   advertisement_id: string;
   reviewer_id?: string;
-  moderation_status: 'pending_review' | 'approved' | 'rejected' | 'blocked';
+  moderation_status: AdStatus;
   review_notes?: string;
   block_reason?: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-}
-
-export interface FormValues extends Omit<Advertisement, 'id' | 'created_at' | 'updated_at'> {
+export interface FormValues {
+  id?: string;
+  name: string;
+  description: string;
+  birth_date: string;
+  height: number;
+  weight: number;
+  category: AdCategory;
+  ethnicity: string;
+  hair_color: string;
+  body_type: string;
+  silicone: string;
+  contact_phone: string;
+  contact_whatsapp: boolean;
+  contact_telegram: boolean;
+  state: string;
+  city: string;
+  neighborhood: string;
+  hourly_rate: number;
+  style: string;
+  services: ServiceType[];
+  service_locations: ServiceLocationType[];
   photos?: File[];
   videos?: File[];
-  services: string[];
-  service_locations: string[];
+  profile_photo?: File;
+  identity_document?: File;
+  accept_terms: boolean;
+}
+
+export interface Filters {
+  city?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  services?: ServiceType[];
+  locations?: ServiceLocationType[];
 }
