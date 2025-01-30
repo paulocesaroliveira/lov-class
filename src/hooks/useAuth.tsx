@@ -29,7 +29,7 @@ export const useAuth = () => {
         setSession(initialSession);
         setLoading(false);
 
-        // If we have a session, ensure the user has a profile
+        // Se temos uma sessão, garantimos que o usuário tem um perfil
         if (initialSession?.user) {
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
@@ -49,11 +49,11 @@ export const useAuth = () => {
                 .insert({
                   id: initialSession.user.id,
                   name: initialSession.user.email?.split('@')[0] || 'User',
-                  role: 'user'
+                  role: 'cliente'
                 });
 
               if (insertError) {
-                if (insertError.code === '23505') { // Unique violation
+                if (insertError.code === '23505') { // Violação de unicidade
                   console.log("Perfil já existe, ignorando erro de duplicação");
                 } else {
                   console.error("Erro ao criar perfil:", insertError);

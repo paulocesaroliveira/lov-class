@@ -9,12 +9,521 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      advertisement_photos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+          photo_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_reviews: {
+        Row: {
+          advertisement_id: string
+          block_reason: string | null
+          created_at: string
+          id: string
+          moderation_status: Database["public"]["Enums"]["moderation_status"]
+          review_notes: string | null
+          reviewer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          advertisement_id: string
+          block_reason?: string | null
+          created_at?: string
+          id?: string
+          moderation_status: Database["public"]["Enums"]["moderation_status"]
+          review_notes?: string | null
+          reviewer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          advertisement_id?: string
+          block_reason?: string | null
+          created_at?: string
+          id?: string
+          moderation_status?: Database["public"]["Enums"]["moderation_status"]
+          review_notes?: string | null
+          reviewer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_service_locations: {
+        Row: {
+          advertisement_id: string
+          location: Database["public"]["Enums"]["service_location_type"]
+        }
+        Insert: {
+          advertisement_id: string
+          location: Database["public"]["Enums"]["service_location_type"]
+        }
+        Update: {
+          advertisement_id?: string
+          location?: Database["public"]["Enums"]["service_location_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_services: {
+        Row: {
+          advertisement_id: string
+          service: Database["public"]["Enums"]["service_type"]
+        }
+        Insert: {
+          advertisement_id: string
+          service: Database["public"]["Enums"]["service_type"]
+        }
+        Update: {
+          advertisement_id?: string
+          service?: Database["public"]["Enums"]["service_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_videos: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+          video_url: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          video_url: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_views: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_views_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_views_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisement_whatsapp_clicks: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          id: string
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements: {
+        Row: {
+          birth_date: string
+          block_reason: string | null
+          blocked: boolean | null
+          body_type: string
+          category: Database["public"]["Enums"]["ad_category"]
+          city: string
+          contact_phone: string
+          contact_telegram: boolean | null
+          contact_whatsapp: boolean | null
+          created_at: string
+          custom_rate_description: string | null
+          custom_rate_value: number | null
+          description: string
+          ethnicity: string
+          hair_color: string
+          height: number
+          hourly_rate: number
+          id: string
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name: string
+          neighborhood: string
+          profile_id: string
+          profile_photo_url: string | null
+          silicone: string
+          state: string
+          style: string
+          updated_at: string
+          weight: number
+        }
+        Insert: {
+          birth_date: string
+          block_reason?: string | null
+          blocked?: boolean | null
+          body_type: string
+          category: Database["public"]["Enums"]["ad_category"]
+          city: string
+          contact_phone: string
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
+          created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description: string
+          ethnicity: string
+          hair_color: string
+          height: number
+          hourly_rate: number
+          id?: string
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name: string
+          neighborhood: string
+          profile_id: string
+          profile_photo_url?: string | null
+          silicone: string
+          state: string
+          style: string
+          updated_at?: string
+          weight: number
+        }
+        Update: {
+          birth_date?: string
+          block_reason?: string | null
+          blocked?: boolean | null
+          body_type?: string
+          category?: Database["public"]["Enums"]["ad_category"]
+          city?: string
+          contact_phone?: string
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
+          created_at?: string
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description?: string
+          ethnicity?: string
+          hair_color?: string
+          height?: number
+          hourly_rate?: number
+          id?: string
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name?: string
+          neighborhood?: string
+          profile_id?: string
+          profile_photo_url?: string | null
+          silicone?: string
+          state?: string
+          style?: string
+          updated_at?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertiser_documents: {
+        Row: {
+          advertisement_id: string | null
+          created_at: string
+          document_url: string
+          id: string
+          verified: boolean | null
+        }
+        Insert: {
+          advertisement_id?: string | null
+          created_at?: string
+          document_url: string
+          id?: string
+          verified?: boolean | null
+        }
+        Update: {
+          advertisement_id?: string | null
+          created_at?: string
+          document_url?: string
+          id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertiser_documents_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: true
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertiser_documents_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: true
+            referencedRelation: "pending_review_ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
-      [_ in never]: never
+      pending_review_ads: {
+        Row: {
+          advertiser_name: string | null
+          advertiser_role: Database["public"]["Enums"]["user_role"] | null
+          birth_date: string | null
+          block_reason: string | null
+          blocked: boolean | null
+          body_type: string | null
+          category: Database["public"]["Enums"]["ad_category"] | null
+          city: string | null
+          contact_phone: string | null
+          contact_telegram: boolean | null
+          contact_whatsapp: boolean | null
+          created_at: string | null
+          custom_rate_description: string | null
+          custom_rate_value: number | null
+          description: string | null
+          ethnicity: string | null
+          hair_color: string | null
+          height: number | null
+          hourly_rate: number | null
+          id: string | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name: string | null
+          neighborhood: string | null
+          profile_id: string | null
+          profile_photo_url: string | null
+          review_count: number | null
+          silicone: string | null
+          state: string | null
+          style: string | null
+          updated_at: string | null
+          weight: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      create_enum_if_not_exists: {
+        Args: {
+          enum_name: string
+          enum_values: string[]
+        }
+        Returns: undefined
+      }
       get_engagement_metrics: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -37,6 +546,7 @@ export type Database = {
     Enums: {
       ad_category: "mulher" | "trans" | "homem"
       ad_status: "pending" | "approved" | "blocked"
+      moderation_status: "pending_review" | "approved" | "rejected" | "blocked"
       service_location_type:
         | "com_local"
         | "motel"

@@ -73,9 +73,23 @@ export const RegistrationForm = () => {
         throw new Error("Erro ao criar usuário");
       }
 
+      // Create profile with role 'cliente'
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          name: data.name,
+          role: 'cliente'
+        });
+
+      if (profileError) {
+        console.error('Erro ao criar perfil:', profileError);
+        toast.error("Erro ao criar perfil de usuário");
+        return;
+      }
+
       toast.success("Conta criada com sucesso! Redirecionando para o login...");
       
-      // Wait a moment before redirecting to ensure the user sees the success message
       setTimeout(() => {
         navigate('/login');
       }, 2000);
