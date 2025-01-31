@@ -1,4 +1,4 @@
-import { ServiceLocationType, ServiceType, ModerationStatus } from "@/integrations/supabase/types/enums";
+import { ModerationStatus } from "@/integrations/supabase/types/enums";
 
 export type AdCategory = 'mulher' | 'trans' | 'homem';
 
@@ -7,13 +7,13 @@ export interface Advertisement {
   profile_id: string;
   name: string;
   description: string;
-  birth_date: string;
+  birthDate: string;
   height: number;
   weight: number;
   category: AdCategory;
   ethnicity: string;
-  hair_color: string;
-  body_type: string;
+  hairColor: string;
+  bodyType: string;
   silicone: string;
   contact_phone: string;
   contact_whatsapp: boolean;
@@ -41,13 +41,13 @@ export interface FormValues {
   id?: string;
   name: string;
   description: string;
-  birth_date: string;
+  birthDate: string;
   height: number;
   weight: number;
   category: AdCategory;
   ethnicity: string;
-  hair_color: string;
-  body_type: string;
+  hairColor: string;
+  bodyType: string;
   silicone: string;
   contact_phone: string;
   contact_whatsapp: boolean;
@@ -131,4 +131,4 @@ export interface Filters {
   category?: AdCategory;
 }
 
-export { ServiceType, ServiceLocationType };
+export type { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";
