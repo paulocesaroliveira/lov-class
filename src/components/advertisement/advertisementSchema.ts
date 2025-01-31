@@ -4,6 +4,7 @@ import { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/
 export const formSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Nome é obrigatório"),
+  description: z.string().min(1, "Descrição do atendimento é obrigatória"),
   birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
   height: z.number().min(0, "Altura deve ser um número positivo"),
   weight: z.number().min(0, "Peso deve ser um número positivo"),
@@ -26,14 +27,13 @@ export const formSchema = z.object({
   style: z.string().min(1, "Estilo é obrigatório"),
   services: z.array(z.string() as z.ZodType<ServiceType>),
   serviceLocations: z.array(z.string() as z.ZodType<ServiceLocationType>),
-  description: z.string().min(1, "Descrição do atendimento é obrigatória"),
-  acceptTerms: z.boolean().refine((val) => val === true, {
-    message: "Você precisa aceitar os termos e condições para continuar",
-  }),
   profile_photo: z.any().optional(),
   photos: z.array(z.any()).optional(),
   videos: z.array(z.any()).optional(),
   identityDocument: z.any().optional(),
+  acceptTerms: z.boolean().refine((val) => val === true, {
+    message: "Você precisa aceitar os termos e condições para continuar",
+  }),
 });
 
 export type FormData = z.infer<typeof formSchema>;
