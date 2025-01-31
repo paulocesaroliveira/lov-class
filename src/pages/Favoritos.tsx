@@ -24,10 +24,16 @@ const Favoritos = () => {
                 location
               ),
               advertisement_photos (
-                photo_url
+                id,
+                advertisement_id,
+                photo_url,
+                created_at
               ),
               advertisement_videos (
-                video_url
+                id,
+                advertisement_id,
+                video_url,
+                created_at
               ),
               advertisement_reviews (
                 id,
@@ -46,14 +52,7 @@ const Favoritos = () => {
 
         const ads = favorites
           .map(f => f.advertisements)
-          .filter(Boolean)
-          .map(ad => ({
-            ...ad,
-            birth_date: ad.birth_date,
-            hair_color: ad.hair_color,
-            body_type: ad.body_type,
-            hourly_rate: ad.hourly_rate,
-          })) as Advertisement[];
+          .filter(Boolean) as Advertisement[];
 
         setAdvertisements(ads);
       } catch (error) {

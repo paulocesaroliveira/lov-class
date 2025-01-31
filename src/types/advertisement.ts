@@ -1,5 +1,7 @@
 import { ServiceType, ServiceLocationType, AdCategory, ModerationStatus } from "@/integrations/supabase/types/database/enums";
 
+export type { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };
+
 export interface Advertisement {
   id: string;
   profile_id: string;
@@ -39,13 +41,13 @@ export interface FormValues {
   id?: string;
   name: string;
   description: string;
-  birthDate: string;
+  birth_date: string;
   height: number;
   weight: number;
   category: AdCategory;
   ethnicity: string;
-  hairColor: string;
-  bodyType: string;
+  hair_color: string;
+  body_type: string;
   silicone: string;
   contact_phone: string;
   contact_whatsapp: boolean;
@@ -53,15 +55,15 @@ export interface FormValues {
   state: string;
   city: string;
   neighborhood: string;
-  hourlyRate: number;
-  customRates: Array<{
+  hourly_rate: number;
+  custom_rates: Array<{
     description: string;
     value: number;
   }>;
   style: string;
   services: ServiceType[];
   serviceLocations: ServiceLocationType[];
-  profilePhoto?: File;
+  profile_photo?: File;
   photos?: File[];
   videos?: File[];
   identityDocument?: File;
