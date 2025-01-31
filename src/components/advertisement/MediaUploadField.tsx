@@ -1,17 +1,18 @@
 import { useState, useCallback } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MediaPreview } from "@/types/advertisement";
-import { MediaPreview as MediaPreviewComponent } from "./MediaPreview";
+import { MediaPreview as MediaPreviewType } from "@/types/advertisement";
+import { MediaPreview } from "./MediaPreview";
+import { useImageCompression } from "./hooks/useImageCompression";
+import { toast } from "sonner";
 
 interface MediaUploadFieldProps {
   label: string;
   accept: string;
   multiple?: boolean;
   maxFiles?: number;
-  maxSize?: number; // in MB
-  name: string;
-  value?: File | File[];
+  maxSize?: number;
+  value: any;
   onChange: (files: File | File[]) => void;
 }
 
@@ -19,19 +20,19 @@ export const MediaUploadField = ({
   label,
   accept,
   multiple = false,
-  maxFiles = 15,
-  maxSize = 5,
-  name,
+  maxFiles = 1,
+  maxSize = 10,
   value,
   onChange,
 }: MediaUploadFieldProps) => {
-  const [previews, setPreviews] = useState<MediaPreview[]>([]);
+  const [previews, setPreviews] = useState<MediaPreviewType[]>([]);
+  const { compressImage, compressImages } = useImageCompression();
 
   const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    if (multiple && files.length > maxFiles) {
-      toast.error(`Máximo de ${maxFiles} arquivos permitido`);
+    if (multiple && files.length + previews.length > maxFiles) {
+      toast.error(`Máximo de ${maxFiles} arquivos permitidos`);
       return;
     }
 
@@ -45,23 +46,31 @@ export const MediaUploadField = ({
 
     if (validFiles.length === 0) return;
 
-    const newPreviews = validFiles.map(file => ({
-      id: crypto.randomUUID(),
-      file,
-      url: URL.createObjectURL(file),
-      type: file.type.startsWith('image/') ? 'image' as const : 'video' as const
-    }));
+    try {
+      const compressedFiles = accept.includes('image') 
+        ? await compressImages(validFiles)
+        : validFiles;
 
-    setPreviews(prev => multiple ? [...prev, ...newPreviews] : newPreviews);
-    onChange(multiple ? validFiles : validFiles[0]);
-  }, [multiple, maxFiles, maxSize, onChange]);
+      const newPreviews = compressedFiles.map(file => ({
+        id: crypto.randomUUID(),
+        file,
+        url: URL.createObjectURL(file),
+        type: file.type.startsWith('image/') ? 'image' : 'video'
+      } as MediaPreviewType));
+
+      setPreviews(prev => multiple ? [...prev, ...newPreviews] : newPreviews);
+      onChange(multiple ? compressedFiles : compressedFiles[0]);
+    } catch (error) {
+      console.error('Error processing files:', error);
+      toast.error('Erro ao processar arquivos');
+    }
+  }, [accept, maxFiles, maxSize, multiple, onChange, previews.length]);
 
   const handleDelete = useCallback((id: string) => {
     setPreviews(prev => {
-      const newPreviews = prev.filter(p => p.id !== id);
-      const newFiles = newPreviews.map(p => p.file);
-      onChange(multiple ? newFiles : newFiles[0]);
-      return newPreviews;
+      const filtered = prev.filter(p => p.id !== id);
+      onChange(multiple ? filtered.map(p => p.file) : undefined);
+      return filtered;
     });
   }, [multiple, onChange]);
 
@@ -74,12 +83,13 @@ export const MediaUploadField = ({
           accept={accept}
           multiple={multiple}
           onChange={handleFileChange}
+          className="cursor-pointer"
         />
       </FormControl>
       <FormMessage />
       {previews.length > 0 && (
         <div className="mt-4">
-          <MediaPreviewComponent media={previews} onDelete={handleDelete} />
+          <MediaPreview media={previews} onDelete={handleDelete} />
         </div>
       )}
     </FormItem>
