@@ -33,6 +33,13 @@ export interface FormValues {
   acceptTerms: boolean;
 }
 
+export interface MediaPreview {
+  id: string;
+  file: File;
+  url: string;
+  type: "image" | "video";
+}
+
 export interface Advertisement {
   id: string;
   profile_id: string;
