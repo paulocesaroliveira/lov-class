@@ -9,14 +9,17 @@ interface MobileMenuProps {
   onClose: () => void;
   onThemeToggle: () => void;
   theme?: string;
+  onLogout: () => Promise<void>;
 }
 
-export const MobileMenu = ({ menuItems, isOpen, onClose, onThemeToggle, theme }: MobileMenuProps) => {
+export const MobileMenu = ({ menuItems, isOpen, onClose, onThemeToggle, theme, onLogout }: MobileMenuProps) => {
   if (!isOpen) return null;
 
-  const handleItemClick = (onClick?: () => void) => {
-    if (onClick) {
-      onClick();
+  const handleItemClick = (item: MenuItem) => {
+    if (item.label === "Sair") {
+      onLogout();
+    } else if (item.onClick) {
+      item.onClick();
     }
     onClose();
   };
@@ -30,7 +33,7 @@ export const MobileMenu = ({ menuItems, isOpen, onClose, onThemeToggle, theme }:
               key={item.href}
               to={item.href}
               className="flex items-center gap-2 p-2 rounded-lg text-foreground/60 hover:text-foreground hover:bg-primary/10 transition-colors"
-              onClick={() => handleItemClick(item.onClick)}
+              onClick={() => handleItemClick(item)}
             >
               <item.icon className="h-4 w-4" />
               {item.label}

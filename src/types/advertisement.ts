@@ -33,10 +33,10 @@ export interface FormValues {
   style: string;
   services: ServiceType[];
   serviceLocations: ServiceLocationType[];
-  profile_photo?: File;
+  profile_photo?: File | null;
   photos?: File[];
   videos?: File[];
-  identityDocument?: File;
+  identityDocument?: File | null;
   acceptTerms: boolean;
 }
 
