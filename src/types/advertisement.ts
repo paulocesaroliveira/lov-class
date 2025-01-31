@@ -100,3 +100,5 @@ export interface Filters {
   serviceLocations?: ServiceLocationType[];
   style?: string;
 }
+
+export type { ServiceType, ServiceLocationType, AdCategory };
