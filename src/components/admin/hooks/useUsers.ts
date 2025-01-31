@@ -63,10 +63,18 @@ export const useUsers = (params: UsersQueryParams) => {
           .select("*")
           .in("user_id", profileIds);
 
-        // Get activity logs
+        // Get activity logs with created_by field
         const { data: logs } = await supabase
           .from("user_activity_logs")
-          .select("*")
+          .select(`
+            id,
+            user_id,
+            action_type,
+            description,
+            created_by,
+            created_at,
+            metadata
+          `)
           .in("user_id", profileIds);
 
         // Merge the data
