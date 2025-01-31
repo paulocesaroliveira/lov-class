@@ -14,6 +14,8 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
       const from = pageParam * 10;
       const to = from + 9;
 
+      console.log("Fetching advertisements with filters:", filters);
+
       let query = supabase
         .from("advertisements")
         .select(`
@@ -38,12 +40,12 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
           ),
           advertisement_reviews (
             id,
-            status,
+            moderation_status,
             review_notes,
             updated_at
           )
         `, { count: 'exact' })
-        .eq('moderation_status', 'approved')
+        .eq('blocked', false)
         .range(from, to);
 
       if (filters?.city) {
@@ -58,12 +60,16 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
         query = query.lte('hourly_rate', filters.maxPrice);
       }
 
+      console.log("Executing query...");
       const { data, error, count } = await query;
 
       if (error) {
+        console.error("Error fetching advertisements:", error);
         throw error;
       }
 
+      console.log("Fetched advertisements:", data);
+      
       return {
         data: data as unknown as Advertisement[],
         totalCount: count || 0
