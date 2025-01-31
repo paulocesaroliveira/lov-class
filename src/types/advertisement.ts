@@ -75,6 +75,8 @@ export interface Advertisement {
   advertisement_videos?: { id: string; video_url: string }[];
 }
 
+export type { ServiceType, ServiceLocationType, AdCategory };
+
 export interface AdvertisementListProps {
   advertisements: Advertisement[];
   isLoading?: boolean;
@@ -100,5 +102,3 @@ export interface Filters {
   serviceLocations?: ServiceLocationType[];
   style?: string;
 }
-
-export type { ServiceType, ServiceLocationType, AdCategory };
