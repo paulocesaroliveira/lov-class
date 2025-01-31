@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AuthContextType {
   session: Session | null;
@@ -32,13 +33,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
-          setIsAdmin(profile?.role === 'admin');
+          if (error) {
+            console.error('Error fetching profile:', error);
+            toast.error('Erro ao carregar perfil do usuário');
+          } else {
+            setIsAdmin(profile?.role === 'admin');
+          }
         }
 
         setIsLoading(false);
@@ -55,13 +61,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
-        setIsAdmin(profile?.role === 'admin');
+        if (error) {
+          console.error('Error fetching profile:', error);
+          toast.error('Erro ao carregar perfil do usuário');
+        } else {
+          setIsAdmin(profile?.role === 'admin');
+        }
       } else {
         setIsAdmin(false);
       }
