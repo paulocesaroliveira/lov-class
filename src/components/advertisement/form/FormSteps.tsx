@@ -60,7 +60,8 @@ export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsP
                   label="Foto de Perfil"
                   accept="image/*"
                   maxFiles={1}
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
@@ -74,7 +75,8 @@ export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsP
                   accept="image/*"
                   multiple
                   maxFiles={15}
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
@@ -89,7 +91,8 @@ export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsP
                   multiple
                   maxFiles={8}
                   maxSize={50}
-                  {...field}
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               )}
             />
