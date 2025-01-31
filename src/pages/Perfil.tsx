@@ -31,7 +31,7 @@ const Perfil = () => {
       if (!user) {
         console.log("Usuário não autenticado, redirecionando para login");
         toast.error("Você precisa estar logado para acessar seu perfil");
-        navigate("/login", { state: { returnTo: "/perfil" } });
+        navigate("/login");
         return;
       }
 

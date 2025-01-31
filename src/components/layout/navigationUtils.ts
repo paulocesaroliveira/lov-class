@@ -17,12 +17,18 @@ export const useNavigation = () => {
 
   const handleLogout = async () => {
     try {
+      console.log("Iniciando processo de logout...");
       const { error } = await supabase.auth.signOut();
-      if (error) throw error;
       
+      if (error) {
+        console.error("Erro ao fazer logout:", error);
+        throw error;
+      }
+      
+      console.log("Logout realizado com sucesso");
       toast.success("Logout realizado com sucesso");
       navigate("/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer logout:", error);
       toast.error("Erro ao fazer logout");
     }
