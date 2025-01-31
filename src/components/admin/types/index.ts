@@ -1,3 +1,5 @@
+export type UserRole = 'admin' | 'cliente' | 'anunciante';
+
 export interface UserActivityLog {
   id: string;
   user_id: string;
@@ -26,4 +28,7 @@ export interface AdminNote {
   created_at: string;
 }
 
-export type UserRole = 'admin' | 'cliente' | 'anunciante' | 'moderador';
+export interface DateFilter {
+  startDate: string;
+  endDate: string;
+}
