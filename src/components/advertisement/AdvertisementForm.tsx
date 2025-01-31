@@ -39,8 +39,12 @@ export const AdvertisementForm = ({ advertisement, defaultValues }: Advertisemen
     defaultValues: advertisement ? {
       ...defaultValues,
       ...advertisement,
+      birthDate: advertisement.birth_date,
+      hairColor: advertisement.hair_color,
+      bodyType: advertisement.body_type,
+      hourlyRate: advertisement.hourly_rate,
       services: advertisement.advertisement_services?.map(s => s.service) || [],
-      service_locations: advertisement.advertisement_service_locations?.map(l => l.location) || [],
+      serviceLocations: advertisement.advertisement_service_locations?.map(l => l.location) || [],
     } : defaultValues,
     mode: "onBlur",
   });

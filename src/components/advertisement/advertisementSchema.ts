@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ServiceType, ServiceLocationType, AdCategory, AdStatus } from "@/types/advertisement";
+import { ServiceType, ServiceLocationType, AdCategory } from "@/integrations/supabase/types/database/enums";
 
 export const formSchema = z.object({
   id: z.string().optional(),
@@ -30,11 +30,10 @@ export const formSchema = z.object({
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: "Você precisa aceitar os termos e condições para continuar",
   }),
-  identityDocument: z.any().optional(),
   profilePhoto: z.any().optional(),
   photos: z.array(z.any()).optional(),
   videos: z.array(z.any()).optional(),
-  status: z.enum(["pending", "approved", "blocked"] as const).optional(),
+  identityDocument: z.any().optional(),
 });
 
 export type FormData = z.infer<typeof formSchema>;
