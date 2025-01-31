@@ -38,6 +38,27 @@ export const useFormSubmission = (
         return;
       }
 
+      // Check if user already has an advertisement
+      if (!advertisement) {
+        const { data: existingAd, error: checkError } = await supabase
+          .from('advertisements')
+          .select('id')
+          .eq('profile_id', user.id)
+          .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error("Error checking existing advertisement:", checkError);
+          toast.error("Erro ao verificar anúncios existentes");
+          return;
+        }
+
+        if (existingAd) {
+          toast.error("Você já possui um anúncio ativo. Você pode editar seu anúncio existente.");
+          navigate("/perfil");
+          return;
+        }
+      }
+
       if (!identityDocument && !advertisement) {
         console.error("Identity document missing");
         toast.error("Por favor, envie uma foto do seu documento de identidade");
@@ -118,7 +139,8 @@ export const useFormSubmission = (
       console.log("All data saved successfully");
 
       if (!advertisement) {
-        setShowModerationAlert(true);
+        toast.success("Anúncio criado com sucesso!");
+        navigate("/anuncios");
       } else {
         toast.success("Anúncio atualizado com sucesso!");
         navigate("/anuncios");
