@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MenuItem } from "./navigationUtils";
 
 export interface DesktopMenuProps {
@@ -11,7 +12,7 @@ export const DesktopMenu = ({ menuItems, onLogout }: DesktopMenuProps) => {
       <ul>
         {menuItems.map((item) => (
           <li key={item.label}>
-            <a href={item.path}>{item.label}</a>
+            <Link to={item.href}>{item.label}</Link>
           </li>
         ))}
         <li>

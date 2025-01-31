@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { MenuItem } from "./navigationUtils";
 
 export interface MobileMenuProps {
@@ -21,7 +22,7 @@ export const MobileMenu = ({ menuItems, isOpen, onClose, onThemeToggle, theme, o
       <ul>
         {menuItems.map(item => (
           <li key={item.label}>
-            <a href={item.link} onClick={onClose}>{item.label}</a>
+            <Link to={item.href} onClick={onClose}>{item.label}</Link>
           </li>
         ))}
       </ul>
