@@ -2,6 +2,8 @@ import { ModerationStatus } from "@/integrations/supabase/types/enums";
 
 export type AdCategory = 'mulher' | 'trans' | 'homem';
 
+export type AdStatus = 'pending' | 'approved' | 'blocked';
+
 export type ServiceType = 
   | 'beijo_na_boca'
   | 'beijo_grego'
@@ -92,7 +94,7 @@ export interface FormValues {
   }>;
   style: string;
   services: ServiceType[];
-  service_locations: ServiceLocationType[];
+  serviceLocations: ServiceLocationType[];
   profilePhoto?: File;
   photos?: File[];
   videos?: File[];
@@ -145,12 +147,18 @@ export interface AdvertisementReview {
   updated_at: string;
 }
 
+export interface AdvertisementListProps {
+  advertisements: Advertisement[];
+  isLoading: boolean;
+  isFavoritesPage?: boolean;
+}
+
 export interface Filters {
   city?: string;
   state?: string;
   minPrice?: number;
   maxPrice?: number;
   services?: ServiceType[];
-  service_locations?: ServiceLocationType[];
+  serviceLocations?: ServiceLocationType[];
   category?: AdCategory;
 }

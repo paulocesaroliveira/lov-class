@@ -1,11 +1,6 @@
-export type UserRole = 'cliente' | 'anunciante' | 'admin';
+export type ModerationStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
 
-export type ServiceLocationType = 
-  | 'com_local'
-  | 'motel'
-  | 'clube_swing'
-  | 'domicilio'
-  | 'viagens';
+export type UserRole = 'cliente' | 'anunciante' | 'admin';
 
 export type ServiceType = 
   | 'beijo_na_boca'
@@ -28,13 +23,9 @@ export type ServiceType =
   | 'orgia'
   | 'gangbang';
 
-export type ModerationStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
-
-export type BlockReasonType = 
-  | 'inappropriate_content'
-  | 'spam'
-  | 'harassment'
-  | 'fake_account'
-  | 'other';
-
-export type AdCategory = 'mulher' | 'trans' | 'homem';
+export type ServiceLocationType = 
+  | 'com_local'
+  | 'motel'
+  | 'clube_swing'
+  | 'domicilio'
+  | 'viagens';

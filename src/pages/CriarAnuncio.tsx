@@ -18,12 +18,12 @@ const defaultValues: Partial<FormValues> = {
   city: "",
   neighborhood: "",
   hourlyRate: 200,
-  custom_rates: [],
+  customRates: [],
   style: "patricinha",
   services: [],
-  service_locations: [],
+  serviceLocations: [],
   description: "",
-  accept_terms: false,
+  acceptTerms: false,
 };
 
 const CriarAnuncio = () => {
