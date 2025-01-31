@@ -100,8 +100,8 @@ export const useFormSubmission = (
       await saveServices(ad.id, values.services);
       
       // Save service locations
-      console.log("Saving service locations:", values.serviceLocations);
-      await saveServiceLocations(ad.id, values.serviceLocations);
+      console.log("Saving service locations:", values.service_locations);
+      await saveServiceLocations(ad.id, values.service_locations);
 
       // Upload and save photos
       const photoUrls = await uploadPhotos(ad.id);

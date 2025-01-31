@@ -144,12 +144,6 @@ export interface FormValues {
   accept_terms: boolean;
 }
 
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
-}
-
 export interface Filters {
   city?: string;
   state?: string;

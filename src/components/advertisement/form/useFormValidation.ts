@@ -10,13 +10,13 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
       case 1:
         fieldsToValidate = [
           "name",
-          "birthDate",
+          "birth_date",
           "height",
           "weight",
           "category",
           "ethnicity",
-          "hairColor",
-          "bodyType",
+          "hair_color",
+          "body_type",
           "silicone",
           "contact_phone",
           "state",
@@ -26,10 +26,10 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         break;
       case 2:
         fieldsToValidate = [
-          "hourlyRate",
+          "hourly_rate",
           "style",
           "services",
-          "serviceLocations",
+          "service_locations",
           "description",
         ];
         break;
@@ -39,7 +39,7 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         const isEditing = Boolean(values.id); // Check if we're editing by looking for an id
 
         // Check profile photo
-        if (!values.profilePhoto && !isEditing) {
+        if (!values.profile_photo && !isEditing) {
           toast.error("Foto de perfil é obrigatória");
           return false;
         }
@@ -51,13 +51,13 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         }
 
         // Check identity document
-        if (!values.identityDocument && !isEditing) {
+        if (!values.identity_document && !isEditing) {
           toast.error("Documento de identidade é obrigatório");
           return false;
         }
         return true;
       case 4:
-        fieldsToValidate = ["acceptTerms"];
+        fieldsToValidate = ["accept_terms"];
         break;
     }
 
