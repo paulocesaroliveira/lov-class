@@ -4,20 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Advertisement } from "@/types/advertisement";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { toast } from "sonner";
-
-const transformDatabaseToFormData = (data: any): Advertisement => {
-  return {
-    ...data,
-    birthDate: data.birth_date,
-    hairColor: data.hair_color,
-    bodyType: data.body_type,
-    hourlyRate: data.hourly_rate,
-    customRates: data.custom_rate_description ? [{
-      description: data.custom_rate_description,
-      value: data.custom_rate_value
-    }] : [],
-  };
-};
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EditarAnuncio = () => {
   const { id } = useParams<{ id: string }>();
@@ -44,12 +31,6 @@ const EditarAnuncio = () => {
             ),
             advertisement_videos (
               video_url
-            ),
-            advertisement_reviews (
-              id,
-              status,
-              review_notes,
-              updated_at
             )
           `)
           .eq("id", id)
@@ -66,21 +47,7 @@ const EditarAnuncio = () => {
           return;
         }
 
-        const { data: commentsData, error: commentsError } = await supabase
-          .from("advertisement_comments")
-          .select("*")
-          .eq("advertisement_id", id);
-
-        if (commentsError) {
-          console.error("Error fetching comments:", commentsError);
-        }
-
-        const fullAdvertisement = {
-          ...advertisementData,
-          advertisement_comments: commentsData || []
-        };
-
-        setAdvertisement(transformDatabaseToFormData(fullAdvertisement) as Advertisement);
+        setAdvertisement(advertisementData);
       } catch (error) {
         console.error("Error:", error);
         toast.error("Erro ao carregar anúncio");
@@ -93,11 +60,28 @@ const EditarAnuncio = () => {
   }, [id]);
 
   if (loading) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="container mx-auto py-8 space-y-4">
+        <Skeleton className="h-10 w-64" />
+        <div className="space-y-6">
+          <Skeleton className="h-[200px] w-full" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      </div>
+    );
   }
 
   if (!advertisement) {
-    return <div>Anúncio não encontrado</div>;
+    return (
+      <div className="container mx-auto py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Anúncio não encontrado</h2>
+          <p className="text-muted-foreground mt-2">
+            O anúncio que você está procurando não existe ou foi removido.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
