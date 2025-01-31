@@ -2,10 +2,10 @@ import { ChartBar, MessageSquareMore } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface ProfileStatsProps {
-  totalViews: number | undefined;
-  monthlyViews: number | undefined;
-  totalWhatsappClicks: number | undefined;
-  monthlyWhatsappClicks: number | undefined;
+  totalViews: number;
+  monthlyViews: number;
+  totalWhatsappClicks: number;
+  monthlyWhatsappClicks: number;
 }
 
 export const ProfileStats = ({
@@ -19,7 +19,7 @@ export const ProfileStats = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <ChartBar className="w-5 h-5 text-primary" />
-          Estatísticas
+          Statistics
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -29,8 +29,8 @@ export const ProfileStats = ({
               <ChartBar className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Visualizações do mês</p>
-              <p className="text-2xl font-bold">{monthlyViews || 0}</p>
+              <p className="text-sm text-muted-foreground">Monthly Views</p>
+              <p className="text-2xl font-bold">{monthlyViews}</p>
             </div>
           </div>
 
@@ -39,8 +39,8 @@ export const ProfileStats = ({
               <ChartBar className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Visualizações total</p>
-              <p className="text-2xl font-bold">{totalViews || 0}</p>
+              <p className="text-sm text-muted-foreground">Total Views</p>
+              <p className="text-2xl font-bold">{totalViews}</p>
             </div>
           </div>
           
@@ -49,8 +49,8 @@ export const ProfileStats = ({
               <MessageSquareMore className="h-4 w-4 text-whatsapp" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Cliques WhatsApp do mês</p>
-              <p className="text-2xl font-bold">{monthlyWhatsappClicks || 0}</p>
+              <p className="text-sm text-muted-foreground">Monthly WhatsApp Clicks</p>
+              <p className="text-2xl font-bold">{monthlyWhatsappClicks}</p>
             </div>
           </div>
 
@@ -59,8 +59,8 @@ export const ProfileStats = ({
               <MessageSquareMore className="h-4 w-4 text-whatsapp" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Cliques WhatsApp total</p>
-              <p className="text-2xl font-bold">{totalWhatsappClicks || 0}</p>
+              <p className="text-sm text-muted-foreground">Total WhatsApp Clicks</p>
+              <p className="text-2xl font-bold">{totalWhatsappClicks}</p>
             </div>
           </div>
         </div>

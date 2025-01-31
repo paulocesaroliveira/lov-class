@@ -9,6 +9,7 @@ import { PasswordChangeSection } from "@/components/profile/PasswordChangeSectio
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Advertisement {
   id: string;
@@ -17,8 +18,29 @@ interface Advertisement {
 const Perfil = () => {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading: authLoading } = useAuthContext();
-  const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const { data: advertisement, isLoading } = useQuery({
+    queryKey: ['advertisement', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("advertisements")
+        .select("id")
+        .eq("profile_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching advertisement:", error);
+        toast.error("Error loading advertisement data");
+        return null;
+      }
+
+      return data as Advertisement | null;
+    },
+    enabled: !!user?.id,
+  });
 
   const {
     totalViews,
@@ -28,40 +50,21 @@ const Perfil = () => {
   } = useAdvertisementStats(advertisement?.id || null);
 
   useEffect(() => {
-    const loadProfileData = async () => {
-      try {
-        if (authLoading) return;
+    if (authLoading) return;
 
-        if (!user) {
-          console.log("Usuário não autenticado, redirecionando para login");
-          toast.error("Você precisa estar logado para acessar seu perfil");
-          navigate("/login");
-          return;
-        }
-
-        console.log("Carregando dados do anúncio para o usuário:", user.id);
-        const { data: advertisementData, error: adError } = await supabase
-          .from("advertisements")
-          .select("id")
-          .eq("profile_id", user.id)
-          .maybeSingle();
-
-        if (adError) {
-          console.error("Erro ao carregar anúncio:", adError);
-          throw adError;
-        }
-
-        setAdvertisement(advertisementData);
-      } catch (error: any) {
-        console.error("Erro ao carregar dados do perfil:", error);
-        toast.error("Erro ao carregar informações do perfil");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfileData();
+    if (!user) {
+      console.log("User not authenticated, redirecting to login");
+      toast.error("You need to be logged in to access your profile");
+      navigate("/login");
+    }
   }, [user, authLoading, navigate]);
+
+  // Refresh data when component mounts or when user changes
+  useEffect(() => {
+    if (user?.id) {
+      queryClient.invalidateQueries({ queryKey: ['advertisement', user.id] });
+    }
+  }, [user?.id, queryClient]);
 
   if (authLoading || isLoading) {
     return (
@@ -77,9 +80,9 @@ const Perfil = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Meu Perfil</h1>
+          <h1 className="text-3xl font-bold">My Profile</h1>
           <p className="text-muted-foreground mt-2">
-            Gerencie seus anúncios e informações pessoais
+            Manage your ads and personal information
           </p>
         </div>
         
@@ -90,7 +93,7 @@ const Perfil = () => {
             className="gap-2"
           >
             <LayoutDashboard className="h-4 w-4" />
-            Painel Administrativo
+            Admin Panel
           </Button>
         )}
       </div>
