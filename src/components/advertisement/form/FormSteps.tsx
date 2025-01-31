@@ -55,7 +55,7 @@ export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsP
           <div className="space-y-6">
             <FormField
               control={form.control}
-              name="profile_photo"
+              name="profile_photo_url"
               render={({ field }) => (
                 <MediaUploadField
                   label="Foto de Perfil"

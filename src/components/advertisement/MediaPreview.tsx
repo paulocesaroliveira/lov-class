@@ -12,7 +12,7 @@ export const MediaPreview = ({ media, onDelete }: MediaPreviewProps) => {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {media.map((item) => (
         <div key={item.id} className="relative group">
-          {item.type === 'image' ? (
+          {item.type === 'photo' ? (
             <img
               src={item.url}
               alt="Preview"
