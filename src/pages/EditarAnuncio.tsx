@@ -5,6 +5,20 @@ import { Advertisement } from "@/types/advertisement";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { toast } from "sonner";
 
+const transformDatabaseToFormData = (data: any): Advertisement => {
+  return {
+    ...data,
+    birthDate: data.birth_date,
+    hairColor: data.hair_color,
+    bodyType: data.body_type,
+    hourlyRate: data.hourly_rate,
+    customRates: data.custom_rate_description ? [{
+      description: data.custom_rate_description,
+      value: data.custom_rate_value
+    }] : [],
+  };
+};
+
 const EditarAnuncio = () => {
   const { id } = useParams<{ id: string }>();
   const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
@@ -15,7 +29,6 @@ const EditarAnuncio = () => {
       if (!id) return;
 
       try {
-        // First fetch the main advertisement data with its direct relationships
         const { data: advertisementData, error: adError } = await supabase
           .from("advertisements")
           .select(`
@@ -53,7 +66,6 @@ const EditarAnuncio = () => {
           return;
         }
 
-        // Then fetch comments separately
         const { data: commentsData, error: commentsError } = await supabase
           .from("advertisement_comments")
           .select("*")
@@ -61,16 +73,14 @@ const EditarAnuncio = () => {
 
         if (commentsError) {
           console.error("Error fetching comments:", commentsError);
-          // Don't return here, we can still show the ad without comments
         }
 
-        // Combine the data
         const fullAdvertisement = {
           ...advertisementData,
           advertisement_comments: commentsData || []
         };
 
-        setAdvertisement(fullAdvertisement as Advertisement);
+        setAdvertisement(transformDatabaseToFormData(fullAdvertisement) as Advertisement);
       } catch (error) {
         console.error("Error:", error);
         toast.error("Erro ao carregar anúncio");

@@ -50,8 +50,10 @@ export interface Advertisement {
   city: string;
   neighborhood: string;
   hourlyRate: number;
-  custom_rate_description?: string;
-  custom_rate_value?: number;
+  customRates?: Array<{
+    description: string;
+    value: number;
+  }>;
   style: string;
   profile_photo_url?: string;
   moderation_status: ModerationStatus;
@@ -84,18 +86,18 @@ export interface FormValues {
   city: string;
   neighborhood: string;
   hourlyRate: number;
-  custom_rates?: Array<{
+  customRates?: Array<{
     description: string;
     value: number;
   }>;
   style: string;
   services: ServiceType[];
   service_locations: ServiceLocationType[];
-  profile_photo?: File;
+  profilePhoto?: File;
   photos?: File[];
   videos?: File[];
-  identity_document?: File;
-  accept_terms: boolean;
+  identityDocument?: File;
+  acceptTerms: boolean;
 }
 
 export interface AdvertisementPhoto {
@@ -141,12 +143,6 @@ export interface AdvertisementReview {
   block_reason?: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface AdvertisementListProps {
-  advertisements: Advertisement[];
-  isLoading: boolean;
-  isFavoritesPage?: boolean;
 }
 
 export interface Filters {
