@@ -905,15 +905,77 @@ export type Database = {
             | null
           name: string | null
           neighborhood: string | null
-          photos: Json | null
           profile_id: string | null
           profile_photo_url: string | null
           silicone: string | null
           state: string | null
           style: string | null
           updated_at: string | null
-          videos: Json | null
           weight: number | null
+        }
+        Insert: {
+          birth_date?: string | null
+          block_reason?: string | null
+          blocked?: boolean | null
+          body_type?: string | null
+          category?: Database["public"]["Enums"]["ad_category"] | null
+          city?: string | null
+          contact_phone?: string | null
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
+          created_at?: string | null
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description?: string | null
+          ethnicity?: string | null
+          hair_color?: string | null
+          height?: number | null
+          hourly_rate?: number | null
+          id?: string | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name?: string | null
+          neighborhood?: string | null
+          profile_id?: string | null
+          profile_photo_url?: string | null
+          silicone?: string | null
+          state?: string | null
+          style?: string | null
+          updated_at?: string | null
+          weight?: number | null
+        }
+        Update: {
+          birth_date?: string | null
+          block_reason?: string | null
+          blocked?: boolean | null
+          body_type?: string | null
+          category?: Database["public"]["Enums"]["ad_category"] | null
+          city?: string | null
+          contact_phone?: string | null
+          contact_telegram?: boolean | null
+          contact_whatsapp?: boolean | null
+          created_at?: string | null
+          custom_rate_description?: string | null
+          custom_rate_value?: number | null
+          description?: string | null
+          ethnicity?: string | null
+          hair_color?: string | null
+          height?: number | null
+          hourly_rate?: number | null
+          id?: string | null
+          moderation_status?:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name?: string | null
+          neighborhood?: string | null
+          profile_id?: string | null
+          profile_photo_url?: string | null
+          silicone?: string | null
+          state?: string | null
+          style?: string | null
+          updated_at?: string | null
+          weight?: number | null
         }
         Relationships: [
           {
