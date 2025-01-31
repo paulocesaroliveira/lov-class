@@ -17,13 +17,13 @@ export const useAdvertisementCreate = () => {
         .insert({
           profile_id: userId,
           name: values.name,
-          birth_date: values.birthDate,
+          birth_date: values.birth_date,
           height: values.height,
           weight: values.weight,
           category: values.category,
           ethnicity: values.ethnicity,
-          hair_color: values.hairColor,
-          body_type: values.bodyType,
+          hair_color: values.hair_color,
+          body_type: values.body_type,
           silicone: values.silicone,
           contact_phone: values.contact_phone,
           contact_whatsapp: values.contact_whatsapp,
@@ -31,9 +31,9 @@ export const useAdvertisementCreate = () => {
           state: values.state,
           city: values.city,
           neighborhood: values.neighborhood,
-          hourly_rate: values.hourlyRate,
-          custom_rate_description: values.customRates?.[0]?.description || null,
-          custom_rate_value: values.customRates?.[0]?.value || null,
+          hourly_rate: values.hourly_rate,
+          custom_rate_description: values.custom_rates?.[0]?.description || null,
+          custom_rate_value: values.custom_rates?.[0]?.value || null,
           description: values.description,
           style: values.style,
           profile_photo_url: profilePhotoUrl,
@@ -52,25 +52,6 @@ export const useAdvertisementCreate = () => {
 
       const newAd = advertisement[0];
       console.log("Advertisement created:", newAd);
-
-      // Now create the review
-      const { error: reviewError } = await supabase
-        .from("advertisement_reviews")
-        .insert({
-          advertisement_id: newAd.id,
-          moderation_status: 'pending_review',
-          review_notes: 'Novo anúncio aguardando revisão'
-        });
-
-      if (reviewError) {
-        console.error("Error creating review:", reviewError);
-        // If review creation fails, we should delete the advertisement
-        await supabase
-          .from("advertisements")
-          .delete()
-          .eq('id', newAd.id);
-        throw reviewError;
-      }
 
       return newAd;
     } catch (error) {
