@@ -1,4 +1,4 @@
-import { FormField } from "@/components/ui/form";
+import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "@/types/advertisement";
 import { BasicInformation } from "../BasicInformation";
@@ -14,11 +14,11 @@ import { MediaUploadField } from "../MediaUploadField";
 import { IdentityDocument } from "../IdentityDocument";
 import { TermsAndConditions } from "../TermsAndConditions";
 
-type FormStepsProps = {
+interface FormStepsProps {
   currentStep: number;
   form: UseFormReturn<FormValues>;
   setIdentityDocument: (file: File | null) => void;
-};
+}
 
 interface StepProps {
   isActive: boolean;
