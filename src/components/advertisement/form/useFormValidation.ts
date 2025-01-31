@@ -10,13 +10,13 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
       case 1:
         fieldsToValidate = [
           "name",
-          "birthDate",
+          "birth_date",
           "height",
           "weight",
           "category",
           "ethnicity",
-          "hairColor",
-          "bodyType",
+          "hair_color",
+          "body_type",
           "silicone",
           "contact_phone",
           "state",
@@ -26,7 +26,7 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         break;
       case 2:
         fieldsToValidate = [
-          "hourlyRate",
+          "hourly_rate",
           "style",
           "services",
           "serviceLocations",
@@ -39,7 +39,7 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         const isEditing = Boolean(values.id);
 
         // Check profile photo
-        if (!values.profilePhoto && !isEditing) {
+        if (!values.profile_photo && !isEditing) {
           toast.error("Foto de perfil é obrigatória");
           return false;
         }
