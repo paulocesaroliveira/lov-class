@@ -30,7 +30,7 @@ export const BasicInformation = ({ form }: BasicInformationProps) => {
 
       <FormField
         control={form.control}
-        name="birthDate"
+        name="birth_date"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Data de Nascimento</FormLabel>

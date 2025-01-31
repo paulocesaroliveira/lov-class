@@ -11,11 +11,11 @@ type CustomRatesProps = {
 };
 
 export const CustomRates = ({ form }: CustomRatesProps) => {
-  const customRates = form.watch("customRates");
+  const customRates = form.watch("custom_rates");
 
   const addCustomRate = () => {
     if (customRates.length < 5) {
-      form.setValue("customRates", [
+      form.setValue("custom_rates", [
         ...customRates,
         { description: "", value: 0 },
       ]);
@@ -24,7 +24,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
 
   const removeCustomRate = (index: number) => {
     const newRates = customRates.filter((_, i) => i !== index);
-    form.setValue("customRates", newRates);
+    form.setValue("custom_rates", newRates);
   };
 
   return (
@@ -33,7 +33,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
 
       <FormField
         control={form.control}
-        name="hourlyRate"
+        name="hourly_rate"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Valor da Hora</FormLabel>
@@ -70,7 +70,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
           <div key={index} className="flex gap-4 items-start">
             <FormField
               control={form.control}
-              name={`customRates.${index}.description`}
+              name={`custom_rates.${index}.description`}
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormLabel>Descrição</FormLabel>
@@ -84,7 +84,7 @@ export const CustomRates = ({ form }: CustomRatesProps) => {
 
             <FormField
               control={form.control}
-              name={`customRates.${index}.value`}
+              name={`custom_rates.${index}.value`}
               render={({ field }) => (
                 <FormItem className="flex-1">
                   <FormLabel>Valor</FormLabel>

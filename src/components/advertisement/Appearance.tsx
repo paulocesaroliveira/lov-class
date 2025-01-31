@@ -38,7 +38,7 @@ export const Appearance = ({ form }: AppearanceProps) => {
 
       <FormField
         control={form.control}
-        name="hairColor"
+        name="hair_color"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Cabelo</FormLabel>
@@ -62,7 +62,7 @@ export const Appearance = ({ form }: AppearanceProps) => {
 
       <FormField
         control={form.control}
-        name="bodyType"
+        name="body_type"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Corpo</FormLabel>
