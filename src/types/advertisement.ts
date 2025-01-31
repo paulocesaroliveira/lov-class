@@ -1,5 +1,12 @@
 import { ServiceType, ServiceLocationType, AdCategory } from "@/integrations/supabase/types/database/enums";
 
+export interface MediaPreview {
+  id: string;
+  file: File;
+  url: string;
+  type: "image" | "video";
+}
+
 export interface FormValues {
   id?: string;
   name: string;
@@ -31,13 +38,6 @@ export interface FormValues {
   videos?: File[];
   identityDocument?: File;
   acceptTerms: boolean;
-}
-
-export interface MediaPreview {
-  id: string;
-  file: File;
-  url: string;
-  type: "image" | "video";
 }
 
 export interface Advertisement {
