@@ -101,5 +101,4 @@ export interface Filters {
   style?: string;
 }
 
-// Re-export types using 'export type'
 export type { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };
