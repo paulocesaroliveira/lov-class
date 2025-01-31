@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { useState, ReactNode } from "react";
 import { DesktopMenu } from "./layout/DesktopMenu";
 import { MobileMenu } from "./layout/MobileMenu";
 import { useNavigation } from "./layout/navigationUtils";
@@ -7,7 +6,11 @@ import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import { Menu } from "lucide-react";
 
-export const Layout = () => {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export const Layout = ({ children }: LayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { menuItems, handleLogout } = useNavigation();
   const { theme, setTheme } = useTheme();
@@ -22,9 +25,7 @@ export const Layout = () => {
         <div className="container flex h-14 items-center">
           <div className="mr-4 hidden md:flex">
             <DesktopMenu 
-              menuItems={menuItems} 
-              onThemeToggle={toggleTheme} 
-              theme={theme || "light"}
+              menuItems={menuItems}
               onLogout={handleLogout}
             />
           </div>
@@ -49,7 +50,7 @@ export const Layout = () => {
       />
 
       <main className="container py-6">
-        <Outlet />
+        {children}
       </main>
     </div>
   );
