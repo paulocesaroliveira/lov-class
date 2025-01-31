@@ -6,15 +6,13 @@ import { useAdvertisementStats } from "@/hooks/useAdvertisement";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import { AdvertisementSection } from "@/components/profile/AdvertisementSection";
 import { PasswordChangeSection } from "@/components/profile/PasswordChangeSection";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 
 const Perfil = () => {
   const navigate = useNavigate();
-  const { session, loading: authLoading } = useAuth();
-  const { isAdmin } = useAuthContext();
+  const { user, isAdmin, isLoading: authLoading } = useAuthContext();
   const [hasAd, setHasAd] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [advertisementId, setAdvertisementId] = useState<string | null>(null);
@@ -27,52 +25,48 @@ const Perfil = () => {
   } = useAdvertisementStats(advertisementId);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadProfileData = async () => {
       if (authLoading) return;
 
-      if (!session?.user) {
+      if (!user) {
+        console.log("Usuário não autenticado, redirecionando para login");
         toast.error("Você precisa estar logado para acessar seu perfil");
         navigate("/login", { state: { returnTo: "/perfil" } });
         return;
       }
 
       try {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("id")
-          .eq("id", session.user.id)
-          .maybeSingle();
-
-        if (profileError) throw profileError;
-
-        if (!profile) {
-          toast.error("Perfil não encontrado");
-          await supabase.auth.signOut();
-          navigate("/login");
-          return;
-        }
-
+        console.log("Carregando dados do anúncio para o usuário:", user.id);
         const { data: advertisements, error: adError } = await supabase
           .from("advertisements")
           .select("id")
-          .eq("profile_id", profile.id);
+          .eq("profile_id", user.id)
+          .maybeSingle();
 
-        if (adError) throw adError;
+        if (adError) {
+          console.error("Erro ao carregar anúncio:", adError);
+          throw adError;
+        }
 
-        if (advertisements && advertisements.length > 0) {
+        if (advertisements) {
+          console.log("Anúncio encontrado:", advertisements.id);
           setHasAd(true);
-          setAdvertisementId(advertisements[0].id);
+          setAdvertisementId(advertisements.id);
+        } else {
+          console.log("Nenhum anúncio encontrado para o usuário");
+          setHasAd(false);
+          setAdvertisementId(null);
         }
       } catch (error: any) {
-        console.error("Error checking profile:", error);
+        console.error("Erro ao carregar dados do perfil:", error);
         toast.error("Erro ao carregar informações do perfil");
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuth();
-  }, [session, authLoading, navigate]);
+    loadProfileData();
+  }, [user, authLoading, navigate]);
 
   if (authLoading || isLoading) {
     return (
@@ -82,7 +76,7 @@ const Perfil = () => {
     );
   }
 
-  if (!session) return null;
+  if (!user) return null;
 
   return (
     <div className="space-y-8">
