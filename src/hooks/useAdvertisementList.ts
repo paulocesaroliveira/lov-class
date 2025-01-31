@@ -25,10 +25,16 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
             location
           ),
           advertisement_photos (
-            photo_url
+            id,
+            advertisement_id,
+            photo_url,
+            created_at
           ),
           advertisement_videos (
-            video_url
+            id,
+            advertisement_id,
+            video_url,
+            created_at
           ),
           advertisement_reviews (
             id,
@@ -37,7 +43,7 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
             updated_at
           )
         `, { count: 'exact' })
-        .eq('status', 'approved')
+        .eq('moderation_status', 'approved')
         .range(from, to);
 
       if (filters?.city) {
@@ -59,7 +65,7 @@ export const useAdvertisementList = ({ filters }: { filters?: Filters }) => {
       }
 
       return {
-        data: data as Advertisement[],
+        data: data as unknown as Advertisement[],
         totalCount: count || 0
       } as FetchAdvertisementsResponse;
     },
