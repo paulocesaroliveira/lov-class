@@ -1,4 +1,5 @@
 export type AdCategory = 'mulher' | 'trans' | 'homem';
+
 export type ServiceType = 
   | 'beijo_na_boca'
   | 'beijo_grego'
@@ -27,6 +28,11 @@ export type ServiceLocationType =
   | 'domicilio'
   | 'viagens';
 
+export interface CustomRate {
+  description: string;
+  value: number;
+}
+
 export interface FormValues {
   id?: string;
   name: string;
@@ -48,8 +54,7 @@ export interface FormValues {
   silicone: string;
   state: string;
   style: string;
-  custom_rate_description?: string;
-  custom_rate_value?: number;
+  custom_rates: CustomRate[];
   services: ServiceType[];
   serviceLocations: ServiceLocationType[];
   photos?: File[];
@@ -83,22 +88,27 @@ export interface Advertisement {
   profile_photo_url?: string;
   created_at: string;
   updated_at: string;
+  advertisement_services?: { service: ServiceType }[];
+  advertisement_service_locations?: { location: ServiceLocationType }[];
 }
 
 export interface Filters {
   city?: string;
+  state?: string;
+  category?: AdCategory;
   minPrice?: number;
   maxPrice?: number;
-  services?: ServiceType[];
-  locations?: ServiceLocationType[];
+  serviceLocations?: ServiceLocationType[];
 }
 
 export interface AdvertisementListProps {
   advertisements: Advertisement[];
   isLoading?: boolean;
+  isFavoritesPage?: boolean;
 }
 
 export interface MediaPreview {
+  id: string;
   url: string;
   type: 'photo' | 'video';
   file: File;

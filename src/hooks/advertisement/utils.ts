@@ -23,5 +23,6 @@ export const prepareAdvertisementData = (values: FormValues, userId: string, pro
     neighborhood: values.neighborhood,
     category: values.category,
     profile_photo_url: profilePhotoUrl,
+    state: values.state,
   };
 };

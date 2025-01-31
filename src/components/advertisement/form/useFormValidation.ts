@@ -38,12 +38,6 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
         const values = form.getValues();
         const isEditing = Boolean(values.id);
 
-        // Check profile photo
-        if (!values.profile_photo && !isEditing) {
-          toast.error("Foto de perfil é obrigatória");
-          return false;
-        }
-
         // Check photos
         if (!values.photos?.length && !isEditing) {
           toast.error("Pelo menos uma foto é obrigatória");
