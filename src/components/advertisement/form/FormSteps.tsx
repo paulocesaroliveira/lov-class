@@ -1,6 +1,7 @@
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
-import { FormValues } from "@/types/advertisement";
-import { FormStep } from "./FormStep";
+import { z } from "zod";
+import { formSchema } from "../advertisementSchema";
 import { BasicInformation } from "../BasicInformation";
 import { Appearance } from "../Appearance";
 import { ContactOptions } from "../ContactOptions";
@@ -14,11 +15,11 @@ import { MediaUploadField } from "../MediaUploadField";
 import { IdentityDocument } from "../IdentityDocument";
 import { TermsAndConditions } from "../TermsAndConditions";
 
-interface FormStepsProps {
+type FormStepsProps = {
   currentStep: number;
-  form: UseFormReturn<FormValues>;
+  form: UseFormReturn<z.infer<typeof formSchema>>;
   setIdentityDocument: (file: File | null) => void;
-}
+};
 
 export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsProps) => {
   return (
