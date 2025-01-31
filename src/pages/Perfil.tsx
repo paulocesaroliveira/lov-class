@@ -10,34 +10,37 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 
+interface Advertisement {
+  id: string;
+}
+
 const Perfil = () => {
   const navigate = useNavigate();
   const { user, isAdmin, isLoading: authLoading } = useAuthContext();
-  const [hasAd, setHasAd] = useState(false);
+  const [advertisement, setAdvertisement] = useState<Advertisement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [advertisementId, setAdvertisementId] = useState<string | null>(null);
 
   const {
     totalViews,
     monthlyViews,
     totalWhatsappClicks,
     monthlyWhatsappClicks,
-  } = useAdvertisementStats(advertisementId);
+  } = useAdvertisementStats(advertisement?.id || null);
 
   useEffect(() => {
     const loadProfileData = async () => {
-      if (authLoading) return;
-
-      if (!user) {
-        console.log("Usuário não autenticado, redirecionando para login");
-        toast.error("Você precisa estar logado para acessar seu perfil");
-        navigate("/login");
-        return;
-      }
-
       try {
+        if (authLoading) return;
+
+        if (!user) {
+          console.log("Usuário não autenticado, redirecionando para login");
+          toast.error("Você precisa estar logado para acessar seu perfil");
+          navigate("/login");
+          return;
+        }
+
         console.log("Carregando dados do anúncio para o usuário:", user.id);
-        const { data: advertisements, error: adError } = await supabase
+        const { data: advertisementData, error: adError } = await supabase
           .from("advertisements")
           .select("id")
           .eq("profile_id", user.id)
@@ -48,15 +51,7 @@ const Perfil = () => {
           throw adError;
         }
 
-        if (advertisements) {
-          console.log("Anúncio encontrado:", advertisements.id);
-          setHasAd(true);
-          setAdvertisementId(advertisements.id);
-        } else {
-          console.log("Nenhum anúncio encontrado para o usuário");
-          setHasAd(false);
-          setAdvertisementId(null);
-        }
+        setAdvertisement(advertisementData);
       } catch (error: any) {
         console.error("Erro ao carregar dados do perfil:", error);
         toast.error("Erro ao carregar informações do perfil");
@@ -100,7 +95,7 @@ const Perfil = () => {
         )}
       </div>
 
-      {hasAd && (
+      {advertisement && (
         <ProfileStats
           totalViews={totalViews}
           monthlyViews={monthlyViews}
@@ -109,7 +104,10 @@ const Perfil = () => {
         />
       )}
 
-      <AdvertisementSection hasAd={hasAd} advertisementId={advertisementId} />
+      <AdvertisementSection 
+        hasAd={!!advertisement} 
+        advertisementId={advertisement?.id || null} 
+      />
       
       <PasswordChangeSection />
     </div>

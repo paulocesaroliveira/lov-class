@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export const useAuthCheck = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,7 +38,10 @@ export const useAuthCheck = () => {
     checkAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
         navigate("/login");
       }
     });
