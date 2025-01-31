@@ -41,13 +41,13 @@ export const AdvertisementForm = ({ advertisement, defaultValues }: Advertisemen
       id: advertisement.id,
       name: advertisement.name,
       description: advertisement.description,
-      birthDate: advertisement.birth_date,
+      birth_date: advertisement.birth_date,
       height: advertisement.height,
       weight: advertisement.weight,
       category: advertisement.category,
       ethnicity: advertisement.ethnicity,
-      hairColor: advertisement.hair_color,
-      bodyType: advertisement.body_type,
+      hair_color: advertisement.hair_color,
+      body_type: advertisement.body_type,
       silicone: advertisement.silicone,
       contact_phone: advertisement.contact_phone,
       contact_whatsapp: advertisement.contact_whatsapp,
@@ -55,8 +55,8 @@ export const AdvertisementForm = ({ advertisement, defaultValues }: Advertisemen
       state: advertisement.state,
       city: advertisement.city,
       neighborhood: advertisement.neighborhood,
-      hourlyRate: advertisement.hourly_rate,
-      customRates: advertisement.custom_rate_description ? [{
+      hourly_rate: advertisement.hourly_rate,
+      custom_rates: advertisement.custom_rate_description ? [{
         description: advertisement.custom_rate_description,
         value: advertisement.custom_rate_value || 0
       }] : [],
