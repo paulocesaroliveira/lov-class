@@ -6,6 +6,9 @@ import { MobileMenu } from './layout/MobileMenu';
 import { useNavigation } from './layout/navigationUtils';
 import { useTheme } from 'next-themes';
 import { Button } from './ui/button';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -18,6 +21,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { menuItems } = useNavigation();
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      toast.success('Logout realizado com sucesso');
+      navigate('/login');
+    } catch (error: any) {
+      console.error('Erro ao fazer logout:', error);
+      toast.error('Erro ao fazer logout');
+    }
+  };
 
   // Move all hooks to the top level and combine them into a single useCallback
   const handlers = React.useMemo(() => ({
@@ -36,7 +52,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Link>
 
             <div className="flex items-center gap-4">
-              <MemoizedDesktopMenu menuItems={menuItems} />
+              <MemoizedDesktopMenu 
+                menuItems={menuItems} 
+                onLogout={handleLogout}
+              />
               
               <Button
                 variant="ghost"
@@ -65,6 +84,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           onClose={handlers.closeMenu}
           onThemeToggle={handlers.toggleTheme}
           theme={theme}
+          onLogout={handleLogout}
         />
       </nav>
 
