@@ -676,27 +676,86 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      profile_statistics: {
         Row: {
-          created_at: string
           id: string
-          name: string
-          role: Database["public"]["Enums"]["user_role"] | null
-          updated_at: string
+          last_updated: string | null
+          monthly_views: number | null
+          monthly_whatsapp_clicks: number | null
+          profile_id: string | null
+          total_views: number | null
+          total_whatsapp_clicks: number | null
         }
         Insert: {
-          created_at?: string
-          id: string
-          name: string
-          role?: Database["public"]["Enums"]["user_role"] | null
-          updated_at?: string
+          id?: string
+          last_updated?: string | null
+          monthly_views?: number | null
+          monthly_whatsapp_clicks?: number | null
+          profile_id?: string | null
+          total_views?: number | null
+          total_whatsapp_clicks?: number | null
         }
         Update: {
+          id?: string
+          last_updated?: string | null
+          monthly_views?: number | null
+          monthly_whatsapp_clicks?: number | null
+          profile_id?: string | null
+          total_views?: number | null
+          total_whatsapp_clicks?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_statistics_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          preferences: Json | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          telegram: boolean | null
+          updated_at: string
+          whatsapp: boolean | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          email?: string | null
+          id: string
+          name: string
+          phone?: string | null
+          preferences?: Json | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          telegram?: boolean | null
+          updated_at?: string
+          whatsapp?: boolean | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
           id?: string
           name?: string
+          phone?: string | null
+          preferences?: Json | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          telegram?: boolean | null
           updated_at?: string
+          whatsapp?: boolean | null
         }
         Relationships: []
       }
