@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useInView } from "react-intersection-observer";
+import { useEffect, useState } from "react";
 
 interface PostListProps {
   posts: FeedPost[];
@@ -12,6 +14,24 @@ interface PostListProps {
 }
 
 export const PostList = ({ posts, isAdmin, onPostDeleted }: PostListProps) => {
+  const [visiblePosts, setVisiblePosts] = useState<FeedPost[]>([]);
+  const { ref, inView } = useInView();
+
+  useEffect(() => {
+    // Initially show first 5 posts
+    setVisiblePosts(posts.slice(0, 5));
+  }, [posts]);
+
+  useEffect(() => {
+    if (inView && visiblePosts.length < posts.length) {
+      // Load 5 more posts when scrolling
+      setVisiblePosts(prev => [
+        ...prev,
+        ...posts.slice(prev.length, prev.length + 5)
+      ]);
+    }
+  }, [inView, posts]);
+
   const handleDelete = async (postId: string) => {
     try {
       const { error } = await supabase
@@ -31,7 +51,7 @@ export const PostList = ({ posts, isAdmin, onPostDeleted }: PostListProps) => {
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
+      {visiblePosts.map((post) => (
         <article key={post.id} className="glass-card p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -61,12 +81,14 @@ export const PostList = ({ posts, isAdmin, onPostDeleted }: PostListProps) => {
                       src={media.media_url}
                       alt=""
                       className="rounded-lg w-full object-contain max-h-[600px]"
+                      loading="lazy"
                     />
                   ) : (
                     <video
                       src={media.media_url}
                       controls
                       className="rounded-lg w-full"
+                      preload="metadata"
                     />
                   )}
                   <div className="absolute top-2 right-2 bg-black/50 rounded-full p-1">
@@ -82,6 +104,9 @@ export const PostList = ({ posts, isAdmin, onPostDeleted }: PostListProps) => {
           )}
         </article>
       ))}
+      {visiblePosts.length < posts.length && (
+        <div ref={ref} className="h-20" /> // Intersection observer target
+      )}
     </div>
   );
 };

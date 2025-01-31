@@ -8,12 +8,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const POSTS_PER_PAGE = 10;
 
 const Feed = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
 
-  const { data: posts = [], isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["feed-posts"],
     queryFn: async () => {
       const query = supabase
@@ -37,6 +40,8 @@ const Feed = () => {
       // Limit to 5 posts for non-authenticated users
       if (!session) {
         query.limit(5);
+      } else {
+        query.limit(POSTS_PER_PAGE);
       }
 
       const { data, error } = await query;
@@ -57,15 +62,21 @@ const Feed = () => {
           media_url: media.media_url
         }))
       }));
-    }
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 10, // Keep unused data for 10 minutes
   });
+
+  const handlePostCreated = () => {
+    refetch();
+  };
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
         <div className="space-y-8">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-black/20 animate-pulse rounded-lg h-64" />
+            <Skeleton key={i} className="h-64 w-full rounded-lg" />
           ))}
         </div>
       </div>
@@ -74,7 +85,7 @@ const Feed = () => {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
-      {session && <CreatePost onPostCreated={() => {}} />}
+      {session && <CreatePost onPostCreated={handlePostCreated} />}
       
       {!session && (
         <Alert>
@@ -96,7 +107,7 @@ const Feed = () => {
         </Alert>
       )}
 
-      <PostList posts={posts} onPostDeleted={() => {}} />
+      <PostList posts={data || []} onPostDeleted={handlePostCreated} />
     </div>
   );
 };

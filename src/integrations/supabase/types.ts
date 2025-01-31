@@ -88,6 +88,13 @@ export type Database = {
             foreignKeyName: "advertisement_comments_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_comments_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -125,6 +132,13 @@ export type Database = {
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_photos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
             referencedColumns: ["id"]
           },
           {
@@ -179,6 +193,13 @@ export type Database = {
             foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_reviews_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -216,6 +237,13 @@ export type Database = {
             foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -240,6 +268,13 @@ export type Database = {
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_services_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
             referencedColumns: ["id"]
           },
           {
@@ -282,6 +317,13 @@ export type Database = {
             foreignKeyName: "advertisement_videos_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_videos_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -315,6 +357,13 @@ export type Database = {
             foreignKeyName: "advertisement_views_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_views_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -342,6 +391,13 @@ export type Database = {
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisement_whatsapp_clicks_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
             referencedColumns: ["id"]
           },
           {
@@ -494,6 +550,13 @@ export type Database = {
             foreignKeyName: "advertiser_documents_advertisement_id_fkey"
             columns: ["advertisement_id"]
             isOneToOne: true
+            referencedRelation: "mv_approved_advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertiser_documents_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: true
             referencedRelation: "pending_review_ads"
             referencedColumns: ["id"]
           },
@@ -524,6 +587,13 @@ export type Database = {
             columns: ["advertisement_id"]
             isOneToOne: false
             referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "mv_approved_advertisements"
             referencedColumns: ["id"]
           },
           {
@@ -751,6 +821,51 @@ export type Database = {
       }
     }
     Views: {
+      mv_approved_advertisements: {
+        Row: {
+          birth_date: string | null
+          block_reason: string | null
+          blocked: boolean | null
+          body_type: string | null
+          category: Database["public"]["Enums"]["ad_category"] | null
+          city: string | null
+          contact_phone: string | null
+          contact_telegram: boolean | null
+          contact_whatsapp: boolean | null
+          created_at: string | null
+          custom_rate_description: string | null
+          custom_rate_value: number | null
+          description: string | null
+          ethnicity: string | null
+          hair_color: string | null
+          height: number | null
+          hourly_rate: number | null
+          id: string | null
+          moderation_status:
+            | Database["public"]["Enums"]["moderation_status"]
+            | null
+          name: string | null
+          neighborhood: string | null
+          photos: Json | null
+          profile_id: string | null
+          profile_photo_url: string | null
+          silicone: string | null
+          state: string | null
+          style: string | null
+          updated_at: string | null
+          videos: Json | null
+          weight: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_review_ads: {
         Row: {
           advertiser_name: string | null
