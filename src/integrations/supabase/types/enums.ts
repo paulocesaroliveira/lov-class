@@ -1,6 +1,7 @@
-export type ModerationStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
-
 export type UserRole = 'cliente' | 'anunciante' | 'admin';
+export type AdCategory = 'mulher' | 'trans' | 'homem';
+export type ModerationStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
+export type BlockReasonType = 'inappropriate_content' | 'spam' | 'harassment' | 'fake_account' | 'other';
 
 export type ServiceType = 
   | 'beijo_na_boca'

@@ -29,7 +29,7 @@ export const useFormValidation = (form: UseFormReturn<FormValues>) => {
           "hourlyRate",
           "style",
           "services",
-          "service_locations",
+          "serviceLocations",
           "description",
         ];
         break;

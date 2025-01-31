@@ -14,10 +14,10 @@ export const BasicFilters = ({ filters, handleFilterChange }: BasicFiltersProps)
         <FormLabel>Service Locations</FormLabel>
         <Input
           type="text"
-          value={filters.service_locations?.join(", ") || ""}
+          value={filters.serviceLocations?.join(", ") || ""}
           onChange={(e) => {
             const locations = e.target.value.split(", ").filter(Boolean) as ServiceLocationType[];
-            handleFilterChange({ service_locations: locations });
+            handleFilterChange({ serviceLocations: locations });
           }}
         />
       </div>
