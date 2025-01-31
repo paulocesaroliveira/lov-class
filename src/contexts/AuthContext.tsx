@@ -5,6 +5,7 @@ import { User } from "@supabase/supabase-js";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,24 +13,67 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const session = supabase.auth.getSession();
-    setUser(session.user);
-    setLoading(false);
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user || null);
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user || null);
-    });
+        if (session?.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+          
+          setIsAdmin(profile?.role === 'admin');
+        }
 
-    return () => {
-      subscription?.unsubscribe();
+        setLoading(false);
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
+          setUser(session?.user || null);
+          
+          if (session?.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .single();
+            
+            setIsAdmin(profile?.role === 'admin');
+          } else {
+            setIsAdmin(false);
+          }
+        });
+
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        console.error("Error initializing auth:", error);
+        setUser(null);
+        setIsAdmin(false);
+        setLoading(false);
+      }
     };
+
+    initializeAuth();
   }, []);
 
-  const value = { user, loading };
+  const value = { user, loading, isAdmin };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuthContext = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuthContext must be used within an AuthProvider");
+  }
+  return context;
 };
 
 export const useAuth = () => {
@@ -38,19 +82,4 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-};
-
-const createInitialProfile = async (user: User) => {
-  const { error } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      name: user.user_metadata.name || user.email?.split('@')[0],
-      role: 'cliente'
-    });
-
-  if (error) {
-    console.error('Error creating profile:', error);
-    throw error;
-  }
 };
