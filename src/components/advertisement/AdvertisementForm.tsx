@@ -35,13 +35,13 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
 
   const defaultValues: FormValues = {
     name: "",
-    birthDate: "",
+    birth_date: "",
     height: 170,
     weight: 65,
     category: "mulher",
     ethnicity: "branca",
-    hairColor: "morena",
-    bodyType: "magra",
+    hair_color: "morena",
+    body_type: "magra",
     silicone: "nao_uso",
     contact_phone: "",
     contact_whatsapp: true,
@@ -49,13 +49,13 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     state: "",
     city: "",
     neighborhood: "",
-    hourlyRate: 200,
-    customRates: [],
+    hourly_rate: 200,
+    custom_rates: [],
     style: "patricinha",
     services: [],
-    serviceLocations: [],
+    service_locations: [],
     description: "",
-    acceptTerms: false,
+    accept_terms: false,
   };
   
   const form = useForm<FormValues>({
@@ -63,10 +63,8 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
     defaultValues: advertisement ? {
       ...defaultValues,
       ...advertisement,
-      birthDate: advertisement.birth_date,
-      hourlyRate: advertisement.hourly_rate,
-      services: advertisement.advertisement_services.map(s => s.service),
-      serviceLocations: advertisement.advertisement_service_locations.map(l => l.location),
+      services: advertisement.advertisement_services?.map(s => s.service) || [],
+      service_locations: advertisement.advertisement_service_locations?.map(l => l.location) || [],
     } : defaultValues,
     mode: "onBlur",
   });
