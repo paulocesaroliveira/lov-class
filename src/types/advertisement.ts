@@ -102,4 +102,4 @@ export interface Filters {
 }
 
 // Re-export types from enums
-export { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };
+export type { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };

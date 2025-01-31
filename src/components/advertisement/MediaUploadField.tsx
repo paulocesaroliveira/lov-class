@@ -1,10 +1,8 @@
 import { useState, useCallback } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MediaPreview as MediaPreviewType } from "@/types/advertisement";
-import { MediaPreview } from "./MediaPreview";
-import { useImageCompression } from "./hooks/useImageCompression";
-import { toast } from "sonner";
+import { MediaPreview } from "@/types/advertisement";
+import { MediaPreview as MediaPreviewComponent } from "./MediaPreview";
 
 interface MediaUploadFieldProps {
   label: string;
@@ -27,8 +25,7 @@ export const MediaUploadField = ({
   value,
   onChange,
 }: MediaUploadFieldProps) => {
-  const [previews, setPreviews] = useState<MediaPreviewType[]>([]);
-  const { compressImage, compressImages } = useImageCompression();
+  const [previews, setPreviews] = useState<MediaPreview[]>([]);
 
   const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -48,25 +45,16 @@ export const MediaUploadField = ({
 
     if (validFiles.length === 0) return;
 
-    try {
-      const compressedFiles = accept.includes('image') 
-        ? await compressImages(validFiles)
-        : validFiles;
+    const newPreviews = validFiles.map(file => ({
+      id: crypto.randomUUID(),
+      file,
+      url: URL.createObjectURL(file),
+      type: file.type.startsWith('image/') ? 'image' as const : 'video' as const
+    }));
 
-      const newPreviews = compressedFiles.map(file => ({
-        id: crypto.randomUUID(),
-        file,
-        url: URL.createObjectURL(file),
-        type: file.type.startsWith('image/') ? 'image' : 'video' as const
-      }));
-
-      setPreviews(prev => multiple ? [...prev, ...newPreviews] : newPreviews);
-      onChange(multiple ? compressedFiles : compressedFiles[0]);
-    } catch (error) {
-      console.error('Error processing files:', error);
-      toast.error('Erro ao processar arquivos');
-    }
-  }, [accept, maxFiles, maxSize, multiple, onChange]);
+    setPreviews(prev => multiple ? [...prev, ...newPreviews] : newPreviews);
+    onChange(multiple ? validFiles : validFiles[0]);
+  }, [multiple, maxFiles, maxSize, onChange]);
 
   const handleDelete = useCallback((id: string) => {
     setPreviews(prev => {
@@ -91,7 +79,7 @@ export const MediaUploadField = ({
       <FormMessage />
       {previews.length > 0 && (
         <div className="mt-4">
-          <MediaPreview media={previews} onDelete={handleDelete} />
+          <MediaPreviewComponent media={previews} onDelete={handleDelete} />
         </div>
       )}
     </FormItem>
