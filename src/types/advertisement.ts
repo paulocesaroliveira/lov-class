@@ -1,4 +1,4 @@
-import { ServiceType, ServiceLocationType, AdCategory, ModerationStatus } from "@/integrations/supabase/types/database/enums";
+import { ServiceType, ServiceLocationType, AdCategory } from "@/integrations/supabase/types/database/enums";
 
 export interface FormValues {
   id?: string;
@@ -64,7 +64,7 @@ export interface Advertisement {
   custom_rate_value?: number;
   style: string;
   profile_photo_url?: string;
-  moderation_status?: ModerationStatus;
+  moderation_status?: string;
   blocked?: boolean;
   block_reason?: string;
   created_at: string;
@@ -100,5 +100,3 @@ export interface Filters {
   serviceLocations?: ServiceLocationType[];
   style?: string;
 }
-
-export type { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };
