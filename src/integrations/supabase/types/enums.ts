@@ -29,3 +29,12 @@ export type ServiceType =
   | 'gangbang';
 
 export type ModerationStatus = 'pending_review' | 'approved' | 'rejected' | 'blocked';
+
+export type BlockReasonType = 
+  | 'inappropriate_content'
+  | 'spam'
+  | 'harassment'
+  | 'fake_account'
+  | 'other';
+
+export type AdCategory = 'mulher' | 'trans' | 'homem';

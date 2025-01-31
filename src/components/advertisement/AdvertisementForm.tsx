@@ -23,9 +23,10 @@ import { useNavigate } from "react-router-dom";
 
 type AdvertisementFormProps = {
   advertisement?: Advertisement;
+  defaultValues?: Partial<FormValues>;
 };
 
-export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => {
+export const AdvertisementForm = ({ advertisement, defaultValues }: AdvertisementFormProps) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,31 +34,6 @@ export const AdvertisementForm = ({ advertisement }: AdvertisementFormProps) => 
   const [showModerationAlert, setShowModerationAlert] = useState(false);
   const { user } = useAuthCheck();
 
-  const defaultValues: FormValues = {
-    name: "",
-    birth_date: "",
-    height: 170,
-    weight: 65,
-    category: "mulher",
-    ethnicity: "branca",
-    hair_color: "morena",
-    body_type: "magra",
-    silicone: "nao_uso",
-    contact_phone: "",
-    contact_whatsapp: true,
-    contact_telegram: false,
-    state: "",
-    city: "",
-    neighborhood: "",
-    hourly_rate: 200,
-    custom_rates: [],
-    style: "patricinha",
-    services: [],
-    service_locations: [],
-    description: "",
-    accept_terms: false,
-  };
-  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: advertisement ? {

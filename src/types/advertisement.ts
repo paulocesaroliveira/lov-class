@@ -130,3 +130,5 @@ export interface Filters {
   service_locations?: ServiceLocationType[];
   category?: AdCategory;
 }
+
+export { ServiceType, ServiceLocationType };
