@@ -1,7 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "@/types/advertisement";
-import { FormStep } from "./FormStep";
 import { BasicInformation } from "../BasicInformation";
 import { Appearance } from "../Appearance";
 import { ContactOptions } from "../ContactOptions";
@@ -19,6 +18,16 @@ type FormStepsProps = {
   currentStep: number;
   form: UseFormReturn<FormValues>;
   setIdentityDocument: (file: File | null) => void;
+};
+
+interface StepProps {
+  isActive: boolean;
+  children: React.ReactNode;
+}
+
+const FormStep = ({ isActive, children }: StepProps) => {
+  if (!isActive) return null;
+  return <>{children}</>;
 };
 
 export const FormSteps = ({ currentStep, form, setIdentityDocument }: FormStepsProps) => {

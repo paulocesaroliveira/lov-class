@@ -27,9 +27,11 @@ const EditarAnuncio = () => {
               location
             ),
             advertisement_photos (
+              id,
               photo_url
             ),
             advertisement_videos (
+              id,
               video_url
             )
           `)
@@ -47,7 +49,7 @@ const EditarAnuncio = () => {
           return;
         }
 
-        setAdvertisement(advertisementData);
+        setAdvertisement(advertisementData as Advertisement);
       } catch (error) {
         console.error("Error:", error);
         toast.error("Erro ao carregar anúncio");

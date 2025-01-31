@@ -101,5 +101,5 @@ export interface Filters {
   style?: string;
 }
 
-// Re-export types from enums
+// Re-export types using 'export type'
 export type { ServiceType, ServiceLocationType, AdCategory, ModerationStatus };
