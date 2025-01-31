@@ -2,6 +2,34 @@ import { ModerationStatus } from "@/integrations/supabase/types/enums";
 
 export type AdCategory = 'mulher' | 'trans' | 'homem';
 
+export type ServiceType = 
+  | 'beijo_na_boca'
+  | 'beijo_grego'
+  | 'bondage'
+  | 'chuva_dourada'
+  | 'chuva_marrom'
+  | 'dominacao'
+  | 'acessorios_eroticos'
+  | 'voyeurismo'
+  | 'permite_filmagem'
+  | 'menage_casal'
+  | 'menage_dois_homens'
+  | 'roleplay'
+  | 'facefuck'
+  | 'oral_sem_preservativo'
+  | 'oral_com_preservativo'
+  | 'massagem'
+  | 'sexo_virtual'
+  | 'orgia'
+  | 'gangbang';
+
+export type ServiceLocationType = 
+  | 'com_local'
+  | 'motel'
+  | 'clube_swing'
+  | 'domicilio'
+  | 'viagens';
+
 export interface Advertisement {
   id: string;
   profile_id: string;
@@ -21,7 +49,7 @@ export interface Advertisement {
   state: string;
   city: string;
   neighborhood: string;
-  hourly_rate: number;
+  hourlyRate: number;
   custom_rate_description?: string;
   custom_rate_value?: number;
   style: string;
@@ -55,7 +83,7 @@ export interface FormValues {
   state: string;
   city: string;
   neighborhood: string;
-  hourly_rate: number;
+  hourlyRate: number;
   custom_rates?: Array<{
     description: string;
     value: number;
@@ -130,5 +158,3 @@ export interface Filters {
   service_locations?: ServiceLocationType[];
   category?: AdCategory;
 }
-
-export type { ServiceType, ServiceLocationType } from "@/integrations/supabase/types/enums";

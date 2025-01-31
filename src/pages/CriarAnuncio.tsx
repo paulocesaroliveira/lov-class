@@ -1,16 +1,15 @@
-import { useState } from "react";
 import { AdvertisementForm } from "@/components/advertisement/AdvertisementForm";
 import { FormValues } from "@/types/advertisement";
 
 const defaultValues: Partial<FormValues> = {
   name: "",
-  birth_date: "",
+  birthDate: "",
   height: 170,
   weight: 65,
   category: "mulher",
   ethnicity: "branca",
-  hair_color: "morena",
-  body_type: "magra",
+  hairColor: "morena",
+  bodyType: "magra",
   silicone: "nao_uso",
   contact_phone: "",
   contact_whatsapp: true,
@@ -18,7 +17,7 @@ const defaultValues: Partial<FormValues> = {
   state: "",
   city: "",
   neighborhood: "",
-  hourly_rate: 200,
+  hourlyRate: 200,
   custom_rates: [],
   style: "patricinha",
   services: [],
