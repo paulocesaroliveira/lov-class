@@ -1,29 +1,42 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { Advertisement } from "@/types/advertisement";
 import { AdvertisementList } from "@/components/advertisement/AdvertisementList";
 import { toast } from "sonner";
 
 const Favoritos = () => {
-  const { session } = useAuth();
-  const [favorites, setFavorites] = useState<Advertisement[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchFavorites = async () => {
-      if (!session?.user?.id) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        console.log("Fetching favorites for user:", session.user.id);
-        
-        const { data: favoritesData, error: favoritesError } = await supabase
+        const { data: favorites, error: favoritesError } = await supabase
           .from("favorites")
-          .select("advertisement_id")
-          .eq("user_id", session.user.id);
+          .select(`
+            advertisement_id,
+            advertisements (
+              *,
+              advertisement_services (
+                service
+              ),
+              advertisement_service_locations (
+                location
+              ),
+              advertisement_photos (
+                photo_url
+              ),
+              advertisement_videos (
+                video_url
+              ),
+              advertisement_reviews (
+                id,
+                status,
+                review_notes,
+                updated_at
+              )
+            )
+          `);
 
         if (favoritesError) {
           console.error("Error fetching favorites:", favoritesError);
@@ -31,55 +44,36 @@ const Favoritos = () => {
           return;
         }
 
-        if (!favoritesData?.length) {
-          setFavorites([]);
-          setLoading(false);
-          return;
-        }
+        const ads = favorites
+          .map(f => f.advertisements)
+          .filter(Boolean)
+          .map(ad => ({
+            ...ad,
+            birth_date: ad.birth_date,
+            hair_color: ad.hair_color,
+            body_type: ad.body_type,
+            hourly_rate: ad.hourly_rate,
+          })) as Advertisement[];
 
-        const advertisementIds = favoritesData.map((f) => f.advertisement_id);
-        console.log("Found advertisement IDs:", advertisementIds);
-
-        const { data: advertisementsData, error: advertisementsError } = await supabase
-          .from("advertisements")
-          .select(`
-            *,
-            advertisement_services!inner (*),
-            advertisement_service_locations!inner (*),
-            advertisement_photos!inner (*),
-            advertisement_videos!inner (*),
-            advertisement_comments!inner (*),
-            advertisement_reviews!inner (*)
-          `)
-          .in("id", advertisementIds)
-          .eq("status", "approved");
-
-        if (advertisementsError) {
-          console.error("Error fetching advertisements:", advertisementsError);
-          toast.error("Erro ao carregar anúncios");
-          return;
-        }
-
-        console.log("Fetched advertisements:", advertisementsData);
-        setFavorites(advertisementsData as Advertisement[]);
+        setAdvertisements(ads);
       } catch (error) {
-        console.error("Error in fetchFavorites:", error);
+        console.error("Error:", error);
         toast.error("Erro ao carregar favoritos");
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchFavorites();
-  }, [session?.user?.id]);
+  }, []);
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Meus Favoritos</h1>
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-8">Meus Favoritos</h1>
       <AdvertisementList
-        advertisements={favorites}
-        isLoading={loading}
-        isFavoritesPage={true}
+        advertisements={advertisements}
+        isLoading={isLoading}
+        isFavoritesPage
       />
     </div>
   );

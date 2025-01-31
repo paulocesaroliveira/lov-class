@@ -1,49 +1,17 @@
-import { ModerationStatus } from "@/integrations/supabase/types/enums";
-
-export type AdCategory = 'mulher' | 'trans' | 'homem';
-
-export type AdStatus = 'pending' | 'approved' | 'blocked';
-
-export type ServiceType = 
-  | 'beijo_na_boca'
-  | 'beijo_grego'
-  | 'bondage'
-  | 'chuva_dourada'
-  | 'chuva_marrom'
-  | 'dominacao'
-  | 'acessorios_eroticos'
-  | 'voyeurismo'
-  | 'permite_filmagem'
-  | 'menage_casal'
-  | 'menage_dois_homens'
-  | 'roleplay'
-  | 'facefuck'
-  | 'oral_sem_preservativo'
-  | 'oral_com_preservativo'
-  | 'massagem'
-  | 'sexo_virtual'
-  | 'orgia'
-  | 'gangbang';
-
-export type ServiceLocationType = 
-  | 'com_local'
-  | 'motel'
-  | 'clube_swing'
-  | 'domicilio'
-  | 'viagens';
+import { ServiceType, ServiceLocationType, AdCategory, ModerationStatus } from "@/integrations/supabase/types/database/enums";
 
 export interface Advertisement {
   id: string;
   profile_id: string;
   name: string;
   description: string;
-  birthDate: string;
+  birth_date: string;
   height: number;
   weight: number;
   category: AdCategory;
   ethnicity: string;
-  hairColor: string;
-  bodyType: string;
+  hair_color: string;
+  body_type: string;
   silicone: string;
   contact_phone: string;
   contact_whatsapp: boolean;
@@ -51,11 +19,9 @@ export interface Advertisement {
   state: string;
   city: string;
   neighborhood: string;
-  hourlyRate: number;
-  customRates?: Array<{
-    description: string;
-    value: number;
-  }>;
+  hourly_rate: number;
+  custom_rate_description?: string;
+  custom_rate_value?: number;
   style: string;
   profile_photo_url?: string;
   moderation_status: ModerationStatus;
@@ -88,7 +54,7 @@ export interface FormValues {
   city: string;
   neighborhood: string;
   hourlyRate: number;
-  customRates?: Array<{
+  customRates: Array<{
     description: string;
     value: number;
   }>;

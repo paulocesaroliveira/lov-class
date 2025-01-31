@@ -1,3 +1,5 @@
+import { ServiceType, ServiceLocationType, AdCategory, UserRole, ModerationStatus } from './enums';
+
 export type Json =
   | string
   | number
@@ -34,8 +36,8 @@ export interface Database {
           custom_rate_value?: number
           style: string
           profile_photo_url?: string
-          moderation_status: 'pending_review' | 'approved' | 'rejected' | 'blocked'
-          blocked: boolean
+          moderation_status: ModerationStatus
+          blocked?: boolean
           block_reason?: string
           created_at: string
           updated_at: string
@@ -64,7 +66,7 @@ export interface Database {
           custom_rate_value?: number
           style: string
           profile_photo_url?: string
-          moderation_status?: 'pending_review' | 'approved' | 'rejected' | 'blocked'
+          moderation_status?: ModerationStatus
           blocked?: boolean
           block_reason?: string
           created_at?: string
@@ -94,7 +96,7 @@ export interface Database {
           custom_rate_value?: number
           style?: string
           profile_photo_url?: string
-          moderation_status?: 'pending_review' | 'approved' | 'rejected' | 'blocked'
+          moderation_status?: ModerationStatus
           blocked?: boolean
           block_reason?: string
           created_at?: string
@@ -147,7 +149,7 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       advertisement_photos: {
         Row: {
           advertisement_id: string;
@@ -176,7 +178,7 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       advertisement_reviews: {
         Row: {
           advertisement_id: string;
@@ -224,53 +226,35 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       advertisement_service_locations: {
         Row: {
           advertisement_id: string;
-          location: Database["public"]["Enums"]["service_location_type"];
+          location: ServiceLocationType;
         };
         Insert: {
           advertisement_id: string;
-          location: Database["public"]["Enums"]["service_location_type"];
+          location: ServiceLocationType;
         };
         Update: {
           advertisement_id?: string;
-          location?: Database["public"]["Enums"]["service_location_type"];
+          location?: ServiceLocationType;
         };
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_service_locations_advertisement_id_fkey";
-            columns: ["advertisement_id"];
-            isOneToOne: false;
-            referencedRelation: "advertisements";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+      }
       advertisement_services: {
         Row: {
           advertisement_id: string;
-          service: Database["public"]["Enums"]["service_type"];
+          service: ServiceType;
         };
         Insert: {
           advertisement_id: string;
-          service: Database["public"]["Enums"]["service_type"];
+          service: ServiceType;
         };
         Update: {
           advertisement_id?: string;
-          service?: Database["public"]["Enums"]["service_type"];
+          service?: ServiceType;
         };
-        Relationships: [
-          {
-            foreignKeyName: "advertisement_services_advertisement_id_fkey";
-            columns: ["advertisement_id"];
-            isOneToOne: false;
-            referencedRelation: "advertisements";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+      }
       advertisement_videos: {
         Row: {
           advertisement_id: string;
@@ -299,7 +283,7 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       advertisement_views: {
         Row: {
           advertisement_id: string;
@@ -332,7 +316,7 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       advertisement_whatsapp_clicks: {
         Row: {
           advertisement_id: string;
@@ -365,7 +349,7 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       favorites: {
         Row: {
           advertisement_id: string;
@@ -394,27 +378,27 @@ export interface Database {
             referencedColumns: ["id"];
           }
         ];
-      };
+      }
       profiles: {
         Row: {
           created_at: string;
           id: string;
           name: string;
-          role: Database["public"]["Enums"]["user_role"];
+          role: UserRole;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
           id: string;
           name: string;
-          role?: Database["public"]["Enums"]["user_role"];
+          role?: UserRole;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
           id?: string;
           name?: string;
-          role?: Database["public"]["Enums"]["user_role"];
+          role?: UserRole;
           updated_at?: string;
         };
         Relationships: [];
@@ -427,10 +411,11 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      user_role: 'cliente' | 'anunciante' | 'admin'
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
+      service_type: ServiceType;
+      service_location_type: ServiceLocationType;
+      ad_category: AdCategory;
+      user_role: UserRole;
+      moderation_status: ModerationStatus;
+    };
+  };
 }

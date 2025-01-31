@@ -38,13 +38,32 @@ export const AdvertisementForm = ({ advertisement, defaultValues }: Advertisemen
     resolver: zodResolver(formSchema),
     defaultValues: advertisement ? {
       ...defaultValues,
-      ...advertisement,
+      id: advertisement.id,
+      name: advertisement.name,
+      description: advertisement.description,
       birthDate: advertisement.birth_date,
+      height: advertisement.height,
+      weight: advertisement.weight,
+      category: advertisement.category,
+      ethnicity: advertisement.ethnicity,
       hairColor: advertisement.hair_color,
       bodyType: advertisement.body_type,
+      silicone: advertisement.silicone,
+      contact_phone: advertisement.contact_phone,
+      contact_whatsapp: advertisement.contact_whatsapp,
+      contact_telegram: advertisement.contact_telegram,
+      state: advertisement.state,
+      city: advertisement.city,
+      neighborhood: advertisement.neighborhood,
       hourlyRate: advertisement.hourly_rate,
+      customRates: advertisement.custom_rate_description ? [{
+        description: advertisement.custom_rate_description,
+        value: advertisement.custom_rate_value || 0
+      }] : [],
+      style: advertisement.style,
       services: advertisement.advertisement_services?.map(s => s.service) || [],
       serviceLocations: advertisement.advertisement_service_locations?.map(l => l.location) || [],
+      acceptTerms: true
     } : defaultValues,
     mode: "onBlur",
   });
